@@ -1,0 +1,11 @@
+{
+  "name": "labqueue",
+  "version": "0.1.0",
+  "private": true,
+  "description": "LabQueue — електронна черга на здачу лабораторних робіт",
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {}
+}

@@ -27,3 +27,18 @@ LabQueue дає окрему чергу на кожне заняття:
 
 - Специфікація лаби 1: [docs/specs/lab1-foundation/spec.md](docs/specs/lab1-foundation/spec.md)
 - Промпти роботи з ШІ: [ai/lab1/](ai/lab1/)
+
+## Команди
+
+Потрібні Node.js 24 (`.nvmrc`) і `make`.
+
+| Команда | Що робить |
+|---|---|
+| `make check` | ставить пакети, якщо треба, і запускає всі перевірки ([standards/checks.md](standards/checks.md)) |
+
+## Залежності
+
+Кожен пакет — з одним рядком «навіщо» ([standards/dependencies.md](standards/dependencies.md)).
+
+| Пакет | Тип | Навіщо |
+|---|---|---|
