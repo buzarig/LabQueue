@@ -42,7 +42,7 @@
 | CHK-01 | Формат коду | Prettier (`--check`) | pre-commit, check | коміт, пуш, CI |
 | CHK-02 | Лінт | ESLint (flat config) | pre-commit, check | коміт, пуш, CI |
 | CHK-03 | Статичний аналіз типів | `tsc --noEmit --checkJs` (strict), JSDoc-типи | check | пуш, CI |
-| CHK-04 | Межі модулів: імпорт в обхід точки входу, цикли, заборонені напрями (К9, К10) | dependency-cruiser | check | пуш, CI |
+| CHK-04 | Межі модулів: імпорт в обхід точки входу, цикли, заборонені напрями (К9, К10); `src/` не імпортує `devDependencies` ([ADR-0013](../docs/adr/0013-dependency-cruiser.md)) | dependency-cruiser | check | пуш, CI |
 | CHK-05 | Збірка | `tsc`-перевірка + esbuild бандл у `dist/` | check | пуш, CI |
 | CHK-06 | Smoke-тест зібраного `dist/`: `GET /health` → 200 `{"status":"ok"}`, `GET /version` → `{"sha":…}` (К8) | `node:test` | check | пуш, CI |
 | CHK-07 | Трейлер промпта (К12). Коміт з `Co-Authored-By: … <noreply@anthropic.com>` має `Prompt: ai/labN/NNN-назва.md`, файл існує | скрипт історії | commit-msg, check (`main..HEAD`) | коміт, пуш, CI |
@@ -77,6 +77,7 @@ CHK-07 і CHK-08 в CI потребують повної історії та г�
 | MAN-06 | Секретів немає. CHK-09 ловить лише файли `.env*`, вміст не сканує | рев'ю |
 | MAN-07 | DEFENSE ≤ 1 сторінки за шаблоном курсу | рев'ю |
 | MAN-08 | Кожен стандарт має «навіщо» і розділ «Як перевіряється» | рев'ю `standards/` |
+| MAN-09 | Branch protection на `main`: merge лише із зеленим CI. Вмикає автор вручну після першого зеленого прогону CI ([ADR-0015](../docs/adr/0015-github-actions.md)) | налаштування репозиторію на GitHub, рев'ю |
 
 ## Як перевіряється
 
