@@ -46,11 +46,18 @@
 | CHK-05 | Збірка | `tsc`-перевірка + esbuild бандл у `dist/` | check | пуш, CI |
 | CHK-06 | Smoke-тест зібраного `dist/`: `GET /health` → 200 `{"status":"ok"}`, `GET /version` → `{"sha":…}` (К8) | `node:test` | check | пуш, CI |
 | CHK-07 | Трейлер промпта (К12). Коміт з `Co-Authored-By: … <noreply@anthropic.com>` має `Prompt: ai/labN/NNN-назва.md`, файл існує | скрипт історії | commit-msg, check (`main..HEAD`) | коміт, пуш, CI |
-| CHK-08 | Формат повідомлення: Conventional Commit з типом із [commits.md](commits.md), опис містить кирилицю | скрипт історії | commit-msg, check (`main..HEAD`) | коміт, пуш, CI |
+| CHK-08 | Формат повідомлення: Conventional Commit з типом із [commits.md](commits.md), опис містить кирилицю. Автоматичні коміти git — виняток (див. нижче) | скрипт історії | commit-msg, check (`main..HEAD`) | коміт, пуш, CI |
 | CHK-09 | Гігієна: відстежувані файли не збігаються із забороненими шаблонами, файли без розширення — лише з дозволеного списку (К11) | скрипт над `git ls-files` за [repo-hygiene.md](repo-hygiene.md) | check | пуш, CI |
 | CHK-10 | Обсяг spec ≤ 450 слів без розмітки таблиць | `sed -E '/^\|[-: \|]+\|$/d; s/\|/ /g' spec.md \| wc -w` | вручну, команда | — |
 | CHK-11 | Звіти: відмова pre-commit, відмова pre-push, порушення меж (К7, К10) | скрипти в тимчасовому клоні → `reports/lab1/` | verify | здачу |
 | CHK-12 | Дата й sha вершини гілки для DEFENSE (sf-7) | `git rev-parse HEAD` | verify | здачу |
+
+**Автоматичні коміти git.** Це коміти, повідомлення яких git сформував сам:
+- починається з `Merge ` — merge гілки чи PR;
+- починається з `Revert "` — `git revert`.
+
+Їх не перевіряють ні CHK-07, ні CHK-08. Навіщо: їх формат задає git, а не
+автор чи ШІ. Без винятку звичайний merge (sf-7) ламав би `make check`.
 
 CHK-07 і CHK-08 в CI потребують повної історії та гілки `main`, а не
 поверхневого клону.
