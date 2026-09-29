@@ -42,3 +42,7 @@ LabQueue дає окрему чергу на кожне заняття:
 
 | Пакет | Тип | Навіщо |
 |---|---|---|
+| `prettier` | dev | форматування JS, JSON, YAML; CHK-01 ([ADR-0008](docs/adr/0008-eslint-i-prettier.md)) |
+| `eslint` | dev | лінт коду; CHK-02 ([ADR-0008](docs/adr/0008-eslint-i-prettier.md)) |
+| `@eslint/js` | dev | рекомендовані правила ESLint для JavaScript ([ADR-0008](docs/adr/0008-eslint-i-prettier.md)) |
+| `globals` | dev | глобальні змінні Node.js для ESLint ([ADR-0008](docs/adr/0008-eslint-i-prettier.md)) |
