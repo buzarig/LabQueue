@@ -1,6 +1,6 @@
 # ADR-0007: JavaScript (ESM) з JSDoc-типами і tsc --checkJs
 
-- Статус: запропоновано
+- Статус: прийнято
 - Дата: 2026-09-30
 - Промпт: ai/lab1/010-adr-stack.md
 
