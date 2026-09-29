@@ -58,8 +58,9 @@
   - `dist/` не самодостатній: для запуску потрібен `node_modules`. Для
     лаби 1, де деплою немає, це прийнятно;
   - збірка не ловить пакет, який помилково лежить у `devDependencies`, бо
-    локально він установлений. Це лишається на аудит залежностей
-    ([dependencies.md](../../standards/dependencies.md));
+    локально він установлений. Цю ціну закриває правило dependency-cruiser
+    `not-to-dev-dep` у `make check` ([ADR-0013](0013-dependency-cruiser.md)):
+    код у `src/` не може імпортувати `devDependencies`;
   - `dist/` у `.gitignore`, тож `make check` пише файли поза git
     (прийнято в 007).
 
