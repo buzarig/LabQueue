@@ -42,6 +42,7 @@ LabQueue дає окрему чергу на кожне заняття:
 
 | Пакет | Тип | Навіщо |
 |---|---|---|
+| `fastify` | prod | HTTP-сервер, `/health` і `/version`, плагіни під межі модулів ([ADR-0009](docs/adr/0009-fastify.md)) |
 | `prettier` | dev | форматування JS, JSON, YAML; CHK-01 ([ADR-0008](docs/adr/0008-eslint-i-prettier.md)) |
 | `eslint` | dev | лінт коду; CHK-02 ([ADR-0008](docs/adr/0008-eslint-i-prettier.md)) |
 | `@eslint/js` | dev | рекомендовані правила ESLint для JavaScript ([ADR-0008](docs/adr/0008-eslint-i-prettier.md)) |
