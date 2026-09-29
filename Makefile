@@ -1,5 +1,5 @@
 # Єдиний інтерфейс команд (ADR-0014). Склад цілей — standards/checks.md.
-.PHONY: check verify format lint
+.PHONY: check verify format lint typecheck
 
 # Маркер встановлених пакетів: npm ci, якщо node_modules відсутній або
 # package-lock.json новіший за нього (sf-4).
@@ -10,7 +10,7 @@ $(DEPS): package-lock.json
 	@mkdir -p node_modules && touch $@
 
 # Брама: запускають pre-push і CI. Файли під git не змінює.
-check: format lint
+check: format lint typecheck
 	@echo "make check: OK"
 
 # CHK-01: формат коду (лише JS, JSON, YAML — Markdown не форматуємо).
@@ -20,3 +20,7 @@ format: $(DEPS)
 # CHK-02: лінт.
 lint: $(DEPS)
 	npm run --silent lint
+
+# CHK-03: статичний аналіз типів (JSDoc + tsc --checkJs strict).
+typecheck: $(DEPS)
+	npm run --silent typecheck

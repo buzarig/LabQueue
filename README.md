@@ -46,3 +46,5 @@ LabQueue дає окрему чергу на кожне заняття:
 | `eslint` | dev | лінт коду; CHK-02 ([ADR-0008](docs/adr/0008-eslint-i-prettier.md)) |
 | `@eslint/js` | dev | рекомендовані правила ESLint для JavaScript ([ADR-0008](docs/adr/0008-eslint-i-prettier.md)) |
 | `globals` | dev | глобальні змінні Node.js для ESLint ([ADR-0008](docs/adr/0008-eslint-i-prettier.md)) |
+| `typescript` | dev | `tsc --noEmit --checkJs` — перевірка JSDoc-типів; CHK-03 ([ADR-0007](docs/adr/0007-javascript-esm-jsdoc-checkjs.md)) |
+| `@types/node` | dev | типи API Node.js 24 для перевірки типів ([ADR-0007](docs/adr/0007-javascript-esm-jsdoc-checkjs.md)) |
