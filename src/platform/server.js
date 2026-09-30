@@ -15,7 +15,7 @@ export function createServer({ sha, logger = true }) {
         response: {
           200: {
             type: "object",
-            properties: { status: { type: "string", const: "ok" } },
+            properties: { status: { type: "string" } },
             required: ["status"],
           },
         },
