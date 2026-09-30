@@ -18,7 +18,8 @@
     "commits": "node scripts/check-commits.js",
     "hygiene": "node scripts/check-hygiene.js",
     "prepare": "husky",
-    "demo:hooks": "node scripts/demo-hooks.js"
+    "demo:hooks": "node scripts/demo-hooks.js",
+    "typecheck:probe": "node --test \"tests/typecheck/*.test.js\""
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -11,7 +11,7 @@
 ## Цілі make
 
 **`make check`** — швидка «брама».
-- **Що запускає:** CHK-01…CHK-09.
+- **Що запускає:** CHK-01…CHK-09 і CHK-13.
 - **Хто запускає:** pre-push hook і CI.
 - **Запис у файли.** Файли під git не змінює. Збірка пише лише в `dist/`, а
   його ігнорує `.gitignore`.
@@ -51,6 +51,7 @@
 | CHK-10 | Обсяг spec ≤ 450 слів без розмітки таблиць | `sed -E '/^\|[-: \|]+\|$/d; s/\|/ /g' spec.md \| wc -w` | вручну, команда | — |
 | CHK-11 | Звіти: відмова pre-commit, відмова pre-push, порушення меж (К7, К10) | скрипти в тимчасовому клоні → `reports/lab1/` | verify | здачу |
 | CHK-12 | Дата й sha вершини гілки для DEFENSE (sf-7) | `git rev-parse HEAD` | verify | здачу |
+| CHK-13 | Регресія перевірки JSDoc: `tsc` ловить помилку рівно в кожному рядку з міткою ERR у `tests/typecheck/fixture/probe.js` ([ADR-0020](../docs/adr/0020-versiia-typescript-dlia-checkjs.md)) | `node:test` + `tsc` | check | пуш, CI |
 
 **Автоматичні коміти git.** Це коміти, повідомлення яких git сформував сам:
 - починається з `Merge ` — merge гілки чи PR;
