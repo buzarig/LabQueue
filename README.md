@@ -51,3 +51,5 @@ LabQueue дає окрему чергу на кожне заняття:
 | `@types/node` | dev | типи API Node.js 24 для перевірки типів ([ADR-0007](docs/adr/0007-javascript-esm-jsdoc-checkjs.md)) |
 | `dependency-cruiser` | dev | межі модулів, цикли, напрями залежностей, not-to-dev-dep; CHK-04 ([ADR-0013](docs/adr/0013-dependency-cruiser.md)) |
 | `esbuild` | dev | збірка `src/` у `dist/` і вшивання sha для `/version`; CHK-05 ([ADR-0012](docs/adr/0012-esbuild-i-smoke-po-dist.md), [ADR-0019](docs/adr/0019-dzherelo-sha-dlia-version.md)) |
+| `husky` | dev | встановлює git-hooks під час `npm install`: pre-commit, commit-msg, pre-push ([ADR-0011](docs/adr/0011-husky-i-lint-staged.md)) |
+| `lint-staged` | dev | pre-commit перевіряє формат і лінт лише staged-файлів ([ADR-0011](docs/adr/0011-husky-i-lint-staged.md)) |
