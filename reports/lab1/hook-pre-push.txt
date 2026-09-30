@@ -1,0 +1,57 @@
+# К7: пуш зі зламаним smoke-тестом відхиляється pre-push
+# Відтворення: make verify (scripts/demo-hooks.js), вихідний коміт a1fd7858e8ed5410f517ec6c11f828312ae15a75
+# Команда: git push demo HEAD
+# Код виходу: 1 (очікувано ≠ 0 — hook відхилив)
+
+npm run --silent format:check
+Checking formatting...
+All matched files use Prettier code style!
+npm run --silent lint
+npm run --silent typecheck
+npm run --silent boundaries
+
+✔ no dependency violations found (6 modules, 5 dependencies cruised)
+
+npm run --silent build
+npm run --silent smoke
+✖ dist/: GET /health → 200 {status: ok} (<ms>)
+✔ dist/: GET /version → sha поточного коміту (<ms>)
+✔ збірка без git: GET /version → {sha: unknown} (<ms>)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 2
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms <ms>
+
+✖ failing tests:
+
+test at tests/smoke/smoke.test.js:60:1
+✖ dist/: GET /health → 200 {status: ok} (<ms>)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      body: {
+  +     status: 'broken'
+  -     status: 'ok'
+      },
+      status: 200
+    }
+  
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/smoke/smoke.test.js:62:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { status: 200, body: { status: 'broken' } },
+    expected: { status: 200, body: { status: 'ok' } },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+husky - pre-push script failed (code 2)
+make[1]: *** [smoke] Error 1
+error: failed to push some refs to '<tmp>/remote.git'
