@@ -49,8 +49,8 @@
 | CHK-08 | Формат повідомлення: Conventional Commit з типом із [commits.md](commits.md), опис містить кирилицю. Автоматичні коміти git — виняток (див. нижче) | скрипт історії | commit-msg, check (`main..HEAD`) | коміт, пуш, CI |
 | CHK-09 | Гігієна: відстежувані файли не збігаються із забороненими шаблонами, файли без розширення — лише з дозволеного списку (К11) | скрипт над `git ls-files` за [repo-hygiene.md](repo-hygiene.md) | check | пуш, CI |
 | CHK-10 | Обсяг spec ≤ 450 слів без розмітки таблиць | `sed -E '/^\|[-: \|]+\|$/d; s/\|/ /g' spec.md \| wc -w` | вручну, команда | — |
-| CHK-11 | Звіти: відмова pre-commit, відмова pre-push, порушення меж (К7, К10) | скрипти в тимчасовому клоні → `reports/lab1/` | verify | здачу |
-| CHK-12 | Дата й sha вершини гілки для DEFENSE (sf-7) | `git rev-parse HEAD` | verify | здачу |
+| CHK-11 | Звіти: відмова pre-commit, відмова pre-push (К7, `hook-*.txt`); обхід точки входу, цикл, заборонений напрям валять `make check` (К10, `boundaries.txt`) | `scripts/demo-*.js` у тимчасовому клоні → `reports/lab1/` | verify | здачу |
+| CHK-12 | Дата, sha вершини гілки й стан дерева для DEFENSE (sf-7) разом із виводом `make check` | `scripts/verify.js` → `reports/lab1/verify.txt` | verify | здачу |
 | CHK-13 | Регресія перевірки JSDoc: `tsc` ловить помилку рівно в кожному рядку з міткою ERR у `tests/typecheck/fixture/probe.js` ([ADR-0020](../docs/adr/0020-versiia-typescript-dlia-checkjs.md)) | `node:test` + `tsc` | check | пуш, CI |
 
 **Автоматичні коміти git.** Це коміти, повідомлення яких git сформував сам:
