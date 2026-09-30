@@ -49,3 +49,4 @@ LabQueue дає окрему чергу на кожне заняття:
 | `globals` | dev | глобальні змінні Node.js для ESLint ([ADR-0008](docs/adr/0008-eslint-i-prettier.md)) |
 | `typescript` | dev | `tsc --noEmit --checkJs` — перевірка JSDoc-типів; CHK-03 ([ADR-0007](docs/adr/0007-javascript-esm-jsdoc-checkjs.md)) |
 | `@types/node` | dev | типи API Node.js 24 для перевірки типів ([ADR-0007](docs/adr/0007-javascript-esm-jsdoc-checkjs.md)) |
+| `dependency-cruiser` | dev | межі модулів, цикли, напрями залежностей, not-to-dev-dep; CHK-04 ([ADR-0013](docs/adr/0013-dependency-cruiser.md)) |
