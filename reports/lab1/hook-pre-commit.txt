@@ -1,7 +1,9 @@
 # К7: коміт з порушенням стилю відхиляється pre-commit
-# Відтворення: make verify (scripts/demo-hooks.js), вихідний коміт a1fd7858e8ed5410f517ec6c11f828312ae15a75
+# Відтворення: make verify, вихідний коміт add89606404db8ad570283311962750ee2174d6b
+
+## pre-commit
 # Команда: git commit -m "chore: демо коміту з порушенням стилю"
-# Код виходу: 1 (очікувано ≠ 0 — hook відхилив)
+# Код виходу: 1 (очікувано ≠ 0 — відмова)
 
 ⋯ Backing up original state…
 ✔ Done backing up original state (<hash>)!

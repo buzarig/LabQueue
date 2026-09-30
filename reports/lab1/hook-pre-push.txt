@@ -1,16 +1,28 @@
 # К7: пуш зі зламаним smoke-тестом відхиляється pre-push
-# Відтворення: make verify (scripts/demo-hooks.js), вихідний коміт a1fd7858e8ed5410f517ec6c11f828312ae15a75
+# Відтворення: make verify, вихідний коміт add89606404db8ad570283311962750ee2174d6b
+
+## pre-push
 # Команда: git push demo HEAD
-# Код виходу: 1 (очікувано ≠ 0 — hook відхилив)
+# Код виходу: 1 (очікувано ≠ 0 — відмова)
 
 npm run --silent format:check
 Checking formatting...
 All matched files use Prettier code style!
 npm run --silent lint
 npm run --silent typecheck
+npm run --silent typecheck:probe
+✔ tsc --checkJs ловить помилку в кожній JSDoc-конструкції проби (<ms>)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms <ms>
 npm run --silent boundaries
 
-✔ no dependency violations found (6 modules, 5 dependencies cruised)
+✔ no dependency violations found (10 modules, 9 dependencies cruised)
 
 npm run --silent build
 npm run --silent smoke
