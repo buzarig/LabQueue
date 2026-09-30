@@ -1,5 +1,5 @@
 # Єдиний інтерфейс команд (ADR-0014). Склад цілей — standards/checks.md.
-.PHONY: check verify format lint typecheck boundaries build
+.PHONY: check verify format lint typecheck boundaries build smoke
 
 # Маркер встановлених пакетів: npm ci, якщо node_modules відсутній або
 # package-lock.json новіший за нього (sf-4).
@@ -10,7 +10,7 @@ $(DEPS): package-lock.json
 	@mkdir -p node_modules && touch $@
 
 # Брама: запускають pre-push і CI. Файли під git не змінює.
-check: format lint typecheck boundaries build
+check: format lint typecheck boundaries smoke
 	@echo "make check: OK"
 
 # CHK-01: формат коду (лише JS, JSON, YAML — Markdown не форматуємо).
@@ -33,3 +33,7 @@ boundaries: $(DEPS)
 # Пише лише в dist/, який ігнорує git.
 build: typecheck
 	npm run --silent build
+
+# CHK-06: smoke-тест зібраного dist/ (/health, /version, випадок unknown).
+smoke: build
+	npm run --silent smoke
