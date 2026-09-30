@@ -23,21 +23,46 @@ LabQueue дає окрему чергу на кожне заняття:
 ## Стан проєкту
 
 Навчальний прототип курсу з Node.js. Лаба 1 — фундамент: стандарти, конвеєр
-перевірок і архітектура. Код застосунку з логікою черги з'явиться з лаби 2.
+перевірок, архітектура й каркас модулів без бізнес-логіки. Логіка черги
+з'явиться з лаби 2.
 
-- Специфікація лаби 1: [docs/specs/lab1-foundation/spec.md](docs/specs/lab1-foundation/spec.md)
-- Промпти роботи з ШІ: [ai/lab1/](ai/lab1/)
+**Для рев'ю почніть з [DEFENSE.md](DEFENSE.md).**
 
-## Команди
+## Як запустити
 
-Потрібні Node.js 24 (`.nvmrc`) і `make`.
+Потрібні Node.js 24 (`.nvmrc`), npm і `make`. Пакети ставляться самі.
+
+```sh
+make check    # усі перевірки — та сама брама, що в pre-push і CI
+make verify   # make check + звіти в reports/lab1/ + дата й sha (перед здачею)
+```
 
 | Команда | Що робить |
 |---|---|
-| `make check` | ставить пакети, якщо треба, і запускає всі перевірки ([standards/checks.md](standards/checks.md)) |
-| `make verify` | `make check` + звіти відмов hook-ів у `reports/lab1/` + дата й sha — перед здачею |
+| `make check` | формат, лінт, типи, проба JSDoc, межі модулів, збірка, smoke-тест, історія комітів, гігієна ([standards/checks.md](standards/checks.md)) |
+| `make verify` | `make check` + відтворення відмов hook-ів і порушень меж у тимчасовому клоні → `reports/lab1/`, підсумок — `reports/lab1/verify.txt` |
+| `make build` і `node dist/main.js` | запуск застосунку: `GET /health`, `GET /version`; порт — `PORT`, за замовчуванням 3000 |
 
-CI ([.github/workflows/check.yml](.github/workflows/check.yml)) запускає `make check` на кожен push і PR.
+Git-hooks ставляться під час `npm install`:
+- **pre-commit** — формат і лінт staged-файлів;
+- **commit-msg** — формат повідомлення й трейлер `Prompt:`;
+- **pre-push** — `make check`.
+
+CI ([.github/workflows/check.yml](.github/workflows/check.yml)) запускає
+`make check` на кожен push і PR.
+
+## Документи
+
+| Що | Де |
+|---|---|
+| Захист лаби | [DEFENSE.md](DEFENSE.md) |
+| Spec і журнал змін | [spec.md](docs/specs/lab1-foundation/spec.md), [spec-fix.md](docs/specs/lab1-foundation/spec-fix.md) |
+| Архітектура | [architecture.md](docs/specs/lab1-foundation/architecture.md) |
+| Стандарти | [standards/](standards/) |
+| Рішення (ADR) | [docs/adr/](docs/adr/) |
+| Аудит | [docs/audit/lab1.md](docs/audit/lab1.md) |
+| Промпти роботи з ШІ | [ai/lab1/](ai/lab1/) |
+| Звіти | [reports/lab1/](reports/lab1/) |
 
 ## Залежності
 
