@@ -10,5 +10,5 @@
     "types": ["node"],
     "skipLibCheck": true
   },
-  "include": ["src", "scripts", "tests", "*.js"]
+  "include": ["src", "scripts", "tests", "*.js", ".dependency-cruiser.cjs"]
 }
