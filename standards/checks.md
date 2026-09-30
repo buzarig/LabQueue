@@ -78,7 +78,7 @@ CHK-07 і CHK-08 в CI потребують повної історії та г�
 | MAN-06 | Секретів немає. CHK-09 ловить лише файли `.env*`, вміст не сканує | рев'ю |
 | MAN-07 | DEFENSE ≤ 1 сторінки за шаблоном курсу | рев'ю |
 | MAN-08 | Кожен стандарт має «навіщо» і розділ «Як перевіряється» | рев'ю `standards/` |
-| MAN-09 | Branch protection на `main`: merge лише із зеленим CI. Вмикає автор вручну після першого зеленого прогону CI ([ADR-0015](../docs/adr/0015-github-actions.md)) | налаштування репозиторію на GitHub, рев'ю |
+| MAN-09 | Branch protection на `main`: обов'язкова перевірка `check`, лише merge commit ([ADR-0015](../docs/adr/0015-github-actions.md), [ADR-0018](../docs/adr/0018-merge-bez-squash.md)). Налаштовується вручну; доказ — [`reports/lab1/branch-protection.txt`](../reports/lab1/branch-protection.txt) (`gh api …/rulesets`, оновлює `make verify`) | рев'ю звіту |
 
 ## Як перевіряється
 
