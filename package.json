@@ -14,7 +14,9 @@
     "typecheck": "tsc -p tsconfig.json",
     "boundaries": "depcruise src --config .dependency-cruiser.cjs",
     "build": "node scripts/build.js",
-    "smoke": "node --test \"tests/smoke/*.test.js\""
+    "smoke": "node --test \"tests/smoke/*.test.js\"",
+    "commits": "node scripts/check-commits.js",
+    "hygiene": "node scripts/check-hygiene.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

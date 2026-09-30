@@ -1,5 +1,5 @@
 # Єдиний інтерфейс команд (ADR-0014). Склад цілей — standards/checks.md.
-.PHONY: check verify format lint typecheck boundaries build smoke
+.PHONY: check verify format lint typecheck boundaries build smoke commits hygiene
 
 # Маркер встановлених пакетів: npm ci, якщо node_modules відсутній або
 # package-lock.json новіший за нього (sf-4).
@@ -10,7 +10,7 @@ $(DEPS): package-lock.json
 	@mkdir -p node_modules && touch $@
 
 # Брама: запускають pre-push і CI. Файли під git не змінює.
-check: format lint typecheck boundaries smoke
+check: format lint typecheck boundaries smoke commits hygiene
 	@echo "make check: OK"
 
 # CHK-01: формат коду (лише JS, JSON, YAML — Markdown не форматуємо).
@@ -37,3 +37,11 @@ build: typecheck
 # CHK-06: smoke-тест зібраного dist/ (/health, /version, випадок unknown).
 smoke: build
 	npm run --silent smoke
+
+# CHK-07, CHK-08: історія комітів main..HEAD (трейлер Prompt, формат повідомлень).
+commits: $(DEPS)
+	npm run --silent commits
+
+# CHK-09: гігієна відстежуваних файлів (standards/repo-hygiene.md).
+hygiene: $(DEPS)
+	npm run --silent hygiene
