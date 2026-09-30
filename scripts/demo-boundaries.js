@@ -1,5 +1,5 @@
-// CHK-11 (К10): обхід точки входу, цикл і заборонений напрям залежності
-// валять make check. Кожне порушення — окремо, у чистому тимчасовому клоні.
+// CHK-11 (К10): обхід точки входу, цикл, заборонений напрям і залежність
+// домену від fastify (правило 7) валять make check. Кожне порушення — окремо, у чистому тимчасовому клоні.
 // Реальний вивід — reports/lab1/boundaries.txt.
 import { appendFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -41,6 +41,17 @@ const VIOLATIONS = [
     append: {
       "src/modules/catalog/index.js":
         'export { plugin as identityPlugin } from "../identity/index.js";\n',
+    },
+  },
+  {
+    name: "Домен залежить від HTTP: логіка queue імпортує fastify",
+    rule: "arch-7-domain-without-http (правило 7, sf-21)",
+    write: {
+      "src/modules/queue/logic.js":
+        'export { default as Fastify } from "fastify";\n',
+    },
+    append: {
+      "src/modules/queue/index.js": 'export { Fastify } from "./logic.js";\n',
     },
   },
 ];

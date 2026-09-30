@@ -42,14 +42,14 @@
 | CHK-01 | Формат коду | Prettier (`--check`) | pre-commit, check | коміт, пуш, CI |
 | CHK-02 | Лінт | ESLint (flat config) | pre-commit, check | коміт, пуш, CI |
 | CHK-03 | Статичний аналіз типів | `tsc --noEmit --checkJs` (strict), JSDoc-типи | check | пуш, CI |
-| CHK-04 | Межі модулів: імпорт в обхід точки входу, цикли, заборонені напрями (К9, К10); `src/` не імпортує `devDependencies` ([ADR-0013](../docs/adr/0013-dependency-cruiser.md)) | dependency-cruiser | check | пуш, CI |
+| CHK-04 | Межі модулів: імпорт в обхід точки входу, цикли, заборонені напрями (К9, К10); домен без `fastify` поза `index.js`/`routes.js` (правило 7, sf-21); `src/` не імпортує `devDependencies` ([ADR-0013](../docs/adr/0013-dependency-cruiser.md)) | dependency-cruiser | check | пуш, CI |
 | CHK-05 | Збірка | `tsc`-перевірка + esbuild бандл у `dist/` | check | пуш, CI |
 | CHK-06 | Smoke-тест зібраного `dist/`: `GET /health` → 200 `{"status":"ok"}`, `GET /version` → `{"sha":…}` (К8) | `node:test` | check | пуш, CI |
 | CHK-07 | Трейлер промпта (К12). Коміт з `Co-Authored-By: … <noreply@anthropic.com>` має `Prompt: ai/labN/NNN-назва.md`, файл існує | скрипт історії | commit-msg, check (`main..HEAD`) | коміт, пуш, CI |
 | CHK-08 | Формат повідомлення: Conventional Commit з типом із [commits.md](commits.md), опис містить кирилицю. Автоматичні коміти git — виняток (див. нижче) | скрипт історії | commit-msg, check (`main..HEAD`) | коміт, пуш, CI |
 | CHK-09 | Гігієна: відстежувані файли не збігаються із забороненими шаблонами, файли без розширення — лише з дозволеного списку (К11) | скрипт над `git ls-files` за [repo-hygiene.md](repo-hygiene.md) | check | пуш, CI |
 | CHK-10 | Обсяг spec ≤ 450 слів без розмітки таблиць | `sed -E '/^\|[-: \|]+\|$/d; s/\|/ /g' spec.md \| wc -w` | вручну, команда | — |
-| CHK-11 | Звіти: відмова pre-commit, відмова pre-push (К7, `hook-*.txt`); обхід точки входу, цикл, заборонений напрям валять `make check` (К10, `boundaries.txt`) | `scripts/demo-*.js` у тимчасовому клоні → `reports/lab1/` | verify | здачу |
+| CHK-11 | Звіти: відмова pre-commit, відмова pre-push (К7, `hook-*.txt`); обхід точки входу, цикл, заборонений напрям, fastify у логіці модуля валять `make check` (К10, `boundaries.txt`) | `scripts/demo-*.js` у тимчасовому клоні → `reports/lab1/` | verify | здачу |
 | CHK-12 | Дата, sha вершини гілки й стан дерева для DEFENSE (sf-7) разом із виводом `make check` | `scripts/verify.js` → `reports/lab1/verify.txt` | verify | здачу |
 | CHK-13 | Регресія перевірки JSDoc: `tsc` ловить помилку рівно в кожному рядку з міткою ERR у `tests/typecheck/fixture/probe.js` ([ADR-0020](../docs/adr/0020-versiia-typescript-dlia-checkjs.md)) | `node:test` + `tsc` | check | пуш, CI |
 

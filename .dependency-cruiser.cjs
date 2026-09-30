@@ -59,6 +59,14 @@ module.exports = {
       to: { path: "^src/(modules/|main\\.js$)" },
     },
     {
+      name: "arch-7-domain-without-http",
+      comment:
+        "Правило 7 (sf-21): у модулі fastify імпортують лише index.js і routes.js.",
+      severity: "error",
+      from: { path: "^src/modules/[^/]+/", pathNot: "/(index|routes)\\.js$" },
+      to: { path: "(^|/)node_modules/(fastify|@fastify/)" },
+    },
+    {
       name: "k9-known-modules-only",
       comment:
         "К9: доменні модулі — лише ті, що в architecture.md (" + MODULES + ").",
