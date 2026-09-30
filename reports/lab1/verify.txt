@@ -1,6 +1,6 @@
 # make verify — звіт для DEFENSE
-дата:  2026-09-30T00:30:01.458Z
-sha:   add89606404db8ad570283311962750ee2174d6b
+дата:  2026-09-30T00:48:44.950Z
+sha:   88c92e3af716a632c87ab5aaf7b6e536cd30f859
 дерево: чисте (без урахування reports/)
 
 Sha — коміт, на якому запускали verify. Коміт із цим звітом іде одразу після нього.
@@ -39,12 +39,16 @@ npm run --silent smoke
 ℹ todo 0
 ℹ duration_ms <ms>
 npm run --silent commits
-CHK-07/08: 56 комітів у origin/main..HEAD — OK
+CHK-07/08: 67 комітів у origin/main..HEAD — OK
 npm run --silent hygiene
-CHK-09: 84 відстежуваних файлів — OK
+CHK-09: 91 відстежуваних файлів — OK
 make check: OK
 
 ## Звіти (CHK-11)
 hook-pre-commit.txt: 1 відмов(и) зафіксовано
 hook-pre-push.txt: 1 відмов(и) зафіксовано
-boundaries.txt: 3 відмов(и) зафіксовано
+boundaries.txt: 4 відмов(и) зафіксовано
+branch-protection.txt: - pr-protection (active), гілки: ~DEFAULT_BRANCH
+  правила: deletion, non_fast_forward, pull_request, required_status_checks
+  обов'язкові перевірки: check
+  дозволені способи merge: merge
