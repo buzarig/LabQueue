@@ -45,3 +45,10 @@ commits: $(DEPS)
 # CHK-09: гігієна відстежуваних файлів (standards/repo-hygiene.md).
 hygiene: $(DEPS)
 	npm run --silent hygiene
+
+# Докази для здачі: брама + звіти в reports/lab1/ (CHK-11) + дата й sha (CHK-12).
+# Запускає автор перед здачею; на неї посилається DEFENSE.
+verify: check
+	npm run --silent demo:hooks
+	@echo "дата: $$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+	@echo "sha:  $$(git rev-parse HEAD)"

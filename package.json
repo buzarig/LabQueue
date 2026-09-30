@@ -17,7 +17,8 @@
     "smoke": "node --test \"tests/smoke/*.test.js\"",
     "commits": "node scripts/check-commits.js",
     "hygiene": "node scripts/check-hygiene.js",
-    "prepare": "husky"
+    "prepare": "husky",
+    "demo:hooks": "node scripts/demo-hooks.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

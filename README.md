@@ -35,6 +35,7 @@ LabQueue дає окрему чергу на кожне заняття:
 | Команда | Що робить |
 |---|---|
 | `make check` | ставить пакети, якщо треба, і запускає всі перевірки ([standards/checks.md](standards/checks.md)) |
+| `make verify` | `make check` + звіти відмов hook-ів у `reports/lab1/` + дата й sha — перед здачею |
 
 CI ([.github/workflows/check.yml](.github/workflows/check.yml)) запускає `make check` на кожен push і PR.
 
