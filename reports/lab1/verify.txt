@@ -1,0 +1,54 @@
+# make verify — звіт для DEFENSE
+дата:  2026-09-30T00:48:44.950Z
+sha:   88c92e3af716a632c87ab5aaf7b6e536cd30f859
+дерево: чисте (без урахування reports/)
+
+Sha — коміт, на якому запускали verify. Коміт із цим звітом іде одразу після нього.
+
+## make check
+npm run --silent format:check
+Checking formatting...
+All matched files use Prettier code style!
+npm run --silent lint
+npm run --silent typecheck
+npm run --silent typecheck:probe
+✔ tsc --checkJs ловить помилку в кожній JSDoc-конструкції проби (<ms>)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms <ms>
+npm run --silent boundaries
+
+✔ no dependency violations found (10 modules, 9 dependencies cruised)
+
+npm run --silent build
+npm run --silent smoke
+✔ dist/: GET /health → 200 {status: ok} (<ms>)
+✔ dist/: GET /version → sha поточного коміту (<ms>)
+✔ збірка без git: GET /version → {sha: unknown} (<ms>)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms <ms>
+npm run --silent commits
+CHK-07/08: 67 комітів у origin/main..HEAD — OK
+npm run --silent hygiene
+CHK-09: 91 відстежуваних файлів — OK
+make check: OK
+
+## Звіти (CHK-11)
+hook-pre-commit.txt: 1 відмов(и) зафіксовано
+hook-pre-push.txt: 1 відмов(и) зафіксовано
+boundaries.txt: 4 відмов(и) зафіксовано
+branch-protection.txt: - pr-protection (active), гілки: ~DEFAULT_BRANCH
+  правила: deletion, non_fast_forward, pull_request, required_status_checks
+  обов'язкові перевірки: check
+  дозволені способи merge: merge

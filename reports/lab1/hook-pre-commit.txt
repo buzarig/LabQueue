@@ -1,0 +1,29 @@
+# К7: коміт з порушенням стилю відхиляється pre-commit
+# Відтворення: make verify, вихідний коміт 88c92e3af716a632c87ab5aaf7b6e536cd30f859
+
+## pre-commit
+# Команда: git commit -m "chore: демо коміту з порушенням стилю"
+# Код виходу: 1 (очікувано ≠ 0 — відмова)
+
+⋯ Backing up original state…
+✔ Done backing up original state (<hash>)!
+⋯ Running tasks for staged files…
+    *.{js,mjs,cjs} — 1 file
+      ⋯ prettier --check
+      ⋯ eslint
+
+✖ prettier --check
+↓ eslint
+
+✖ Failed to run tasks for staged files!
+↓ Skipped staging changes from tasks…
+⋯ Reverting to original state because of errors…
+✔ Done reverting to original state!
+⋯ Cleaning up temporary files…
+✔ Done cleaning up temporary files!
+
+✖ prettier --check:
+Checking formatting...
+[warn] src/platform/demo-bad-style.js
+[warn] Code style issues found in the above file. Run Prettier with --write to fix.
+husky - pre-commit script failed (code 1)

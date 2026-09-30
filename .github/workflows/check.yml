@@ -1,0 +1,20 @@
+# CI: та сама брама, що й pre-push (ADR-0015). Уся логіка — у Makefile.
+name: check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # CHK-07/08 перевіряють історію origin/main..HEAD.
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: make check

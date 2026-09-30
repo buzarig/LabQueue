@@ -1,0 +1,77 @@
+# MAN-09: branch protection (ruleset-и репозиторію)
+# Відтворення: make verify; джерело: gh api repos/buzarig/LabQueue/rulesets
+
+## Підсумок
+- pr-protection (active), гілки: ~DEFAULT_BRANCH
+  правила: deletion, non_fast_forward, pull_request, required_status_checks
+  обов'язкові перевірки: check
+  дозволені способи merge: merge
+
+## gh api …/rulesets/<id>
+[
+  {
+    "id": 24219280,
+    "name": "pr-protection",
+    "target": "branch",
+    "source_type": "Repository",
+    "source": "buzarig/LabQueue",
+    "enforcement": "active",
+    "conditions": {
+      "ref_name": {
+        "exclude": [],
+        "include": [
+          "~DEFAULT_BRANCH"
+        ]
+      }
+    },
+    "rules": [
+      {
+        "type": "deletion"
+      },
+      {
+        "type": "non_fast_forward"
+      },
+      {
+        "type": "pull_request",
+        "parameters": {
+          "required_approving_review_count": 0,
+          "dismiss_stale_reviews_on_push": false,
+          "required_reviewers": [],
+          "require_code_owner_review": false,
+          "require_last_push_approval": false,
+          "required_review_thread_resolution": false,
+          "require_extra_approval_for_unattributed_changes": true,
+          "allowed_merge_methods": [
+            "merge"
+          ]
+        }
+      },
+      {
+        "type": "required_status_checks",
+        "parameters": {
+          "strict_required_status_checks_policy": false,
+          "do_not_enforce_on_create": false,
+          "required_status_checks": [
+            {
+              "context": "check",
+              "integration_id": 15368
+            }
+          ]
+        }
+      }
+    ],
+    "node_id": "RRS_lACqUmVwb3NpdG9yec5TP3w4zgFxjpA",
+    "created_at": "2026-09-30T03:20:34.506+03:00",
+    "updated_at": "2026-09-30T03:43:46.251+03:00",
+    "bypass_actors": [],
+    "current_user_can_bypass": "never",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/buzarig/LabQueue/rulesets/24219280"
+      },
+      "html": {
+        "href": "https://github.com/buzarig/LabQueue/rules/24219280"
+      }
+    }
+  }
+]
