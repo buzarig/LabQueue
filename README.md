@@ -36,6 +36,8 @@ LabQueue дає окрему чергу на кожне заняття:
 |---|---|
 | `make check` | ставить пакети, якщо треба, і запускає всі перевірки ([standards/checks.md](standards/checks.md)) |
 
+CI ([.github/workflows/check.yml](.github/workflows/check.yml)) запускає `make check` на кожен push і PR.
+
 ## Залежності
 
 Кожен пакет — з одним рядком «навіщо» ([standards/dependencies.md](standards/dependencies.md)).
