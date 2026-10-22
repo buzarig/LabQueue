@@ -51,6 +51,32 @@ Git-hooks ставляться під час `npm install`:
 CI ([.github/workflows/check.yml](.github/workflows/check.yml)) запускає
 `make check` на кожен push і PR.
 
+## Середовище
+
+З лаби 2 потрібен PostgreSQL ≥17. Цільова версія — 17, її перевіряє CI
+([data.md](docs/specs/lab2-db-scenarios/data.md), «Тести й середовище»).
+
+1. **Сервер.** Будь-який спосіб, аби слухав `localhost:5432`: інсталятор
+   EDB з postgresql.org (разом із pgAdmin) або `brew install postgresql@17`.
+   Перевірка: `pg_isready -h localhost` → `accepting connections` (EDB
+   кладе утиліти в `/Library/PostgreSQL/<версія>/bin`).
+2. **Роль і БД.** Один раз під суперкористувачем `postgres`, у pgAdmin
+   (Query Tool) або `psql -U postgres`. Пароль придумайте свій:
+
+   ```sql
+   create role labqueue login password 'ваш-пароль';
+   create database labqueue_dev  owner labqueue;
+   create database labqueue_test owner labqueue;
+   ```
+
+   Застосунок не працює під `postgres`: роль `labqueue` має права лише на свої
+   БД.
+3. **`.env`.** `cp .env.example .env` і замініть `CHANGE_ME` паролем ролі.
+   `.env` ігнорує git, пароль у репозиторій не потрапляє.
+4. **pgAdmin (необов'язково).** Register → Server: host `localhost`, port
+   `5432`, user `labqueue`. Схеми модулів (`identity`, `catalog`,
+   `sessions`, `queue`, `platform`) з'являться після міграцій.
+
 ## Документи
 
 | Що | Де |
