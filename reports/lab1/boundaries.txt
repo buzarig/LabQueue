@@ -1,0 +1,112 @@
+# К10: порушення меж модулів валить make check
+# Відтворення: make verify, вихідний коміт 88c92e3af716a632c87ab5aaf7b6e536cd30f859
+
+## Обхід точки входу: queue імпортує внутрішній файл sessions — очікуване правило arch-1-entry-only (правило 1)
+# Команда: make check
+# Код виходу: 2 (очікувано ≠ 0 — відмова)
+
+npm run --silent format:check
+Checking formatting...
+All matched files use Prettier code style!
+npm run --silent lint
+npm run --silent typecheck
+npm run --silent typecheck:probe
+✔ tsc --checkJs ловить помилку в кожній JSDoc-конструкції проби (<ms>)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms <ms>
+npm run --silent boundaries
+
+  error arch-1-entry-only: src/modules/queue/index.js → src/modules/sessions/internal.js
+
+x 1 dependency violations (1 errors, 0 warnings). 11 modules, 11 dependencies cruised.
+
+make[1]: *** [boundaries] Error 1
+
+## Цикл: queue/a.js ↔ queue/b.js — очікуване правило arch-2-no-circular (правило 2)
+# Команда: make check
+# Код виходу: 2 (очікувано ≠ 0 — відмова)
+
+npm run --silent format:check
+Checking formatting...
+All matched files use Prettier code style!
+npm run --silent lint
+npm run --silent typecheck
+npm run --silent typecheck:probe
+✔ tsc --checkJs ловить помилку в кожній JSDoc-конструкції проби (<ms>)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms <ms>
+npm run --silent boundaries
+
+  error arch-2-no-circular: src/modules/queue/a.js → 
+      src/modules/queue/b.js →
+      src/modules/queue/a.js
+
+x 1 dependency violations (1 errors, 0 warnings). 12 modules, 12 dependencies cruised.
+
+make[1]: *** [boundaries] Error 1
+
+## Заборонений напрям: catalog → identity — очікуване правило arch-3-catalog-leaf (правило 3)
+# Команда: make check
+# Код виходу: 2 (очікувано ≠ 0 — відмова)
+
+npm run --silent format:check
+Checking formatting...
+All matched files use Prettier code style!
+npm run --silent lint
+npm run --silent typecheck
+npm run --silent typecheck:probe
+✔ tsc --checkJs ловить помилку в кожній JSDoc-конструкції проби (<ms>)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms <ms>
+npm run --silent boundaries
+
+  error arch-3-catalog-leaf: src/modules/catalog/index.js → src/modules/identity/index.js
+
+x 1 dependency violations (1 errors, 0 warnings). 10 modules, 10 dependencies cruised.
+
+make[1]: *** [boundaries] Error 1
+
+## Домен залежить від HTTP: логіка queue імпортує fastify — очікуване правило arch-7-domain-without-http (правило 7, sf-21)
+# Команда: make check
+# Код виходу: 2 (очікувано ≠ 0 — відмова)
+
+npm run --silent format:check
+Checking formatting...
+All matched files use Prettier code style!
+npm run --silent lint
+npm run --silent typecheck
+npm run --silent typecheck:probe
+✔ tsc --checkJs ловить помилку в кожній JSDoc-конструкції проби (<ms>)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms <ms>
+npm run --silent boundaries
+
+  error arch-7-domain-without-http: src/modules/queue/logic.js → node_modules/fastify/fastify.js
+
+x 1 dependency violations (1 errors, 0 warnings). 11 modules, 11 dependencies cruised.
+
+make[1]: *** [boundaries] Error 1

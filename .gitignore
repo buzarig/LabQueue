@@ -1,0 +1,22 @@
+# Залежності
+node_modules/
+
+# Артефакти збірки й тестів
+dist/
+coverage/
+*.tsbuildinfo
+
+# Логи
+*.log
+npm-debug.log*
+
+# Секрети й локальне оточення
+.env
+.env.*
+!.env.example
+
+# Локальні налаштування ОС, IDE та інструментів
+.DS_Store
+.idea/
+.vscode/
+.claude/settings.local.json

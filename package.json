@@ -1,0 +1,50 @@
+{
+  "name": "labqueue",
+  "version": "0.1.0",
+  "private": true,
+  "description": "LabQueue — електронна черга на здачу лабораторних робіт",
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "format:check": "prettier --check \"**/*.{js,mjs,cjs,json,yml,yaml}\" \"!package-lock.json\"",
+    "format": "prettier --write \"**/*.{js,mjs,cjs,json,yml,yaml}\" \"!package-lock.json\"",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json",
+    "boundaries": "depcruise src --config .dependency-cruiser.cjs",
+    "build": "node scripts/build.js",
+    "smoke": "node --test \"tests/smoke/*.test.js\"",
+    "commits": "node scripts/check-commits.js",
+    "hygiene": "node scripts/check-hygiene.js",
+    "prepare": "husky",
+    "typecheck:probe": "node --test \"tests/typecheck/*.test.js\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.19.0",
+    "dependency-cruiser": "^18.4.0",
+    "esbuild": "^0.28.2",
+    "eslint": "^10.11.0",
+    "globals": "^17.12.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.9",
+    "typescript": "~7.0.2"
+  },
+  "dependencies": {
+    "fastify": "^5.12.5"
+  },
+  "lint-staged": {
+    "*.{js,mjs,cjs}": [
+      "prettier --check",
+      "eslint"
+    ],
+    "*.{yml,yaml}": [
+      "prettier --check"
+    ],
+    "!(package-lock).json": [
+      "prettier --check"
+    ]
+  }
+}
