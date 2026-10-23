@@ -1,6 +1,6 @@
 # ADR-0025: Збої джерела — серверні ретраї, 503 і `/ready`
 
-- Статус: прийнято
+- Статус: замінено ADR-0034
 - Дата: 2026-10-22
 - Промпт: ai/lab2/013-vidpovid-idempotentnist-zboi-identychnist-mihratsii.md, ai/lab2/015-adr-pyshemo-zaraz.md
 

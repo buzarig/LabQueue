@@ -1,6 +1,6 @@
 # ADR-0024: Ідемпотентність — обов'язковий `Idempotency-Key` у тій самій транзакції
 
-- Статус: прийнято
+- Статус: замінено ADR-0035
 - Дата: 2026-10-22
 - Промпт: ai/lab2/013-vidpovid-idempotentnist-zboi-identychnist-mihratsii.md, ai/lab2/014-vidpovid-kliuch-pohodzhennia-spec.md
 

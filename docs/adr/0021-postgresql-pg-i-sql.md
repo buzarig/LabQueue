@@ -1,6 +1,6 @@
 # ADR-0021: PostgreSQL, драйвер `pg` і чистий SQL; Supabase — лише демо
 
-- Статус: прийнято
+- Статус: замінено ADR-0032
 - Дата: 2026-10-22
 - Промпт: ai/lab2/006-vidpovid-supabase-dostup.md, ai/lab2/015-adr-pyshemo-zaraz.md
 
