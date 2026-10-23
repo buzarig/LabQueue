@@ -13,6 +13,27 @@ function domainError(code, statusCode, message) {
 
 export const sessionNotFound = () =>
   domainError("SESSION_NOT_FOUND", 404, "Немає такого заняття");
+export const noActiveEntry = () =>
+  domainError(
+    "NO_ACTIVE_ENTRY",
+    404,
+    "У студента немає активного запису на занятті",
+  );
+export const notEntryOwner = () =>
+  domainError("NOT_ENTRY_OWNER", 403, "Це запис іншого студента");
+export const submittingInProgress = () =>
+  domainError(
+    "SUBMITTING_IN_PROGRESS",
+    409,
+    "Хтось ще здає: спершу зафіксуйте результат",
+  );
+/** @param {string} from @param {string} to */
+export const sessionStateConflict = (from, to) =>
+  domainError(
+    "SESSION_STATE_CONFLICT",
+    409,
+    `Заняття не можна перевести зі стану ${from} у ${to}`,
+  );
 export const entryNotFound = () =>
   domainError("ENTRY_NOT_FOUND", 404, "Немає такого запису в черзі");
 export const notSessionOwner = () =>

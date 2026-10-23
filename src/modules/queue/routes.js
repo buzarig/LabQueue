@@ -1,4 +1,4 @@
-// HTTP queue (ADR-0031): схеми й коди відповідей S5–S8, S10 (data.md, «HTTP-контракт»).
+// HTTP queue (ADR-0031): схеми й коди відповідей S4–S13 (data.md, «HTTP-контракт»).
 // Роути лише перетворюють HTTP на виклик сервісу; транзакцій тут немає.
 
 const nullableString = { type: ["string", "null"] };
@@ -36,6 +36,127 @@ const idOf = (request) => /** @type {{ id: string }} */ (request.params).id;
  * @param {{ service: import("./service.js").QueueService }} deps
  */
 export function registerQueueRoutes(app, { service }) {
+  const sessionProps = {
+    id: { type: "string" },
+    subjectId: { type: "string" },
+    groupId: { type: "string" },
+    teacherId: { type: "string" },
+    startsAt: { type: "string" },
+    room: { type: "string" },
+    queueLimit: { type: "integer" },
+    state: { type: "string" },
+    labIds: { type: "array", items: { type: "string" } },
+  };
+
+  // S4 — координує queue (ADR-0005)
+  app.post(
+    "/sessions/:id/finish",
+    {
+      schema: {
+        params: uuidParams,
+        response: {
+          200: {
+            type: "object",
+            properties: { ...sessionProps, missedCount: { type: "integer" } },
+            required: ["id", "state", "missedCount"],
+          },
+        },
+      },
+    },
+    async (request) => service.finish(idOf(request)),
+  );
+
+  // S9
+  app.get(
+    "/sessions",
+    {
+      schema: {
+        response: {
+          200: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                ...sessionProps,
+                waitingCount: { type: "integer" },
+                calledStudentId: nullableString,
+              },
+              required: ["id", "state", "waitingCount", "calledStudentId"],
+            },
+          },
+        },
+      },
+    },
+    async () => service.listForStudent(),
+  );
+
+  // S11
+  app.get(
+    "/sessions/:id/queue/me",
+    {
+      schema: {
+        params: uuidParams,
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              status: { type: "string" },
+              position: { type: ["integer", "null"] },
+              etaMinutes: { type: ["integer", "null"] },
+            },
+            required: ["status", "position", "etaMinutes"],
+          },
+        },
+      },
+    },
+    async (request) => service.myPosition(idOf(request)),
+  );
+
+  // S12
+  app.post(
+    "/entries/:id/leave",
+    { schema: { params: uuidParams, response: { 200: entrySchema } } },
+    async (request) => service.leave(idOf(request)),
+  );
+
+  // S13
+  app.get(
+    "/me/history",
+    {
+      schema: {
+        response: {
+          200: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                entryId: { type: "string" },
+                sessionId: { type: "string" },
+                startsAt: { type: "string" },
+                subjectId: { type: "string" },
+                subjectName: { type: "string" },
+                labId: { type: "string" },
+                labNumber: { type: "integer" },
+                labTitle: { type: "string" },
+                status: { type: "string" },
+                score: { type: ["integer", "null"] },
+                finishedAt: { type: "string" },
+              },
+              required: [
+                "entryId",
+                "sessionId",
+                "labId",
+                "status",
+                "finishedAt",
+              ],
+            },
+          },
+        },
+      },
+    },
+    async () => service.history(),
+  );
+
   // S10
   app.post(
     "/sessions/:id/queue",

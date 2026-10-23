@@ -1,5 +1,6 @@
-// Сервіс queue (ADR-0031): записи черги, виклик, прийом, результат, неявки
-// (architecture.md, S5–S8, S10; інваріанти I1–I9). Кожна змінювальна команда
+// Сервіс queue (ADR-0031): записи черги, виклик, прийом, результат, неявки,
+// завершення заняття, стан черг, позиція, вихід, історія (architecture.md,
+// S4–S13; інваріанти I1–I11). Кожна змінювальна команда
 // — один unitOfWork під блокуванням за викладачем заняття (ADR-0022);
 // доменні відмови — всередині, щоб ключ ідемпотентності зберіг і їх (ADR-0035).
 import { randomUUID } from "node:crypto";
@@ -10,12 +11,16 @@ import {
   entryNotFound,
   entryStateConflict,
   labNotAccepted,
+  noActiveEntry,
+  notEntryOwner,
   notInGroup,
   notSessionOwner,
   queueEmpty,
   queueLimitReached,
   scoreMismatch,
   sessionNotFound,
+  sessionStateConflict,
+  submittingInProgress,
   teacherBusy,
 } from "./errors.js";
 
@@ -25,11 +30,16 @@ import {
 /** Друга неявка — «вибув» (I7, ADR-0003). */
 const MAX_NO_SHOWS = 2;
 
+/** Орієнтовний час: останні 5 здач заняття, без них — 10 хв (sf-19 лаби 1). */
+const ETA_SAMPLE = 5;
+const ETA_DEFAULT_MINUTES = 10;
+
 /**
  * @param {{
  *   repo: import("./repo.js").QueueRepo,
  *   identity: import("../identity/index.js").IdentityApi,
  *   sessions: import("../sessions/index.js").SessionsApi,
+ *   catalog: import("../catalog/index.js").CatalogApi,
  *   unitOfWork: import("../../platform/unit-of-work.js").UnitOfWork,
  *   clock: { now: () => Date },
  * }} deps
@@ -38,6 +48,7 @@ export function createQueueService({
   repo,
   identity,
   sessions,
+  catalog,
   unitOfWork,
   clock,
 }) {
@@ -77,6 +88,18 @@ export function createQueueService({
   }
 
   /**
+   * Заняття групи поточного студента: 404 → 403 (I6, I11).
+   * @param {string} sessionId
+   */
+  async function sessionOfMyGroup(sessionId) {
+    const session = await sessions.getById(sessionId);
+    if (!session) throw sessionNotFound();
+    const student = identity.requireRole("student");
+    if (student.groupId !== session.groupId) throw notInGroup();
+    return { session, student };
+  }
+
+  /**
    * @param {Entry} entry
    * @param {Partial<Entry>} change
    */
@@ -87,6 +110,133 @@ export function createQueueService({
   }
 
   return {
+    /**
+     * S4. Завершити заняття (ADR-0005): лише з closed і без submitting (I10,
+     * sf-18); waiting і called → missed; заняття → finished. Одна транзакція.
+     * @param {string} sessionId
+     */
+    finish(sessionId) {
+      return unitOfWork(async () => {
+        const known = await ownedSession(sessionId);
+        await repo.lockTeacher(known.teacherId);
+        const session = /** @type {typeof known} */ (
+          await sessions.getById(sessionId)
+        );
+        if (session.state !== "closed") {
+          throw sessionStateConflict(session.state, "finished");
+        }
+        if (await repo.hasSubmitting(sessionId)) throw submittingInProgress();
+        const missedCount = await repo.missActive(sessionId, now());
+        const finished = await sessions.markFinished(sessionId);
+        return { ...finished, missedCount };
+      });
+    },
+
+    /**
+     * S9. Заняття групи студента зі станом черг. Зведення — одним викликом
+     * для всіх занять, без запиту на кожне (К16).
+     */
+    async listForStudent() {
+      const student = identity.requireRole("student");
+      const list = await sessions.getByGroup(
+        /** @type {string} */ (student.groupId),
+      );
+      const summaries = new Map(
+        (await repo.summaries(list.map((s) => s.id))).map((s) => [
+          s.sessionId,
+          s,
+        ]),
+      );
+      return list.map((session) => {
+        const summary = summaries.get(session.id);
+        return {
+          ...session,
+          waitingCount: summary?.waitingCount ?? 0,
+          calledStudentId: summary?.calledStudentId ?? null,
+        };
+      });
+    },
+
+    /**
+     * S11. Своя позиція й орієнтовний час: позиція — ранг серед waiting за
+     * seq (ADR-0001); час = позиція × середня тривалість останніх 5 здач
+     * (від виклику до результату), без них — позиція × 10 хв.
+     * @param {string} sessionId
+     */
+    async myPosition(sessionId) {
+      const { student } = await sessionOfMyGroup(sessionId);
+      const entry = await repo.activeOfStudent(sessionId, student.id);
+      if (!entry) throw noActiveEntry();
+      if (entry.status !== "waiting") {
+        return { status: entry.status, position: null, etaMinutes: null };
+      }
+      const position = await repo.rankOf(sessionId, entry.seq);
+      const average = await repo.averageDurationMs(sessionId, ETA_SAMPLE);
+      const etaMinutes =
+        average === null
+          ? position * ETA_DEFAULT_MINUTES
+          : Math.ceil((position * average) / 60_000);
+      return { status: entry.status, position, etaMinutes };
+    },
+
+    /**
+     * S12. Студент виходить зі свого запису, лише з waiting (sf-13).
+     * Лічильник неявок не змінюється.
+     * @param {string} entryId
+     */
+    leave(entryId) {
+      return unitOfWork(async () => {
+        const entry = await repo.findEntry(entryId);
+        if (!entry) throw entryNotFound();
+        const student = identity.requireRole("student");
+        if (entry.studentId !== student.id) throw notEntryOwner();
+        await repo.lockTeacher(entry.teacherId);
+        const fresh = /** @type {Entry} */ (await repo.findEntry(entryId));
+        if (fresh.status !== "waiting") {
+          throw entryStateConflict(fresh.status, "left");
+        }
+        return save(fresh, { status: "left", finishedAt: now() });
+      });
+    },
+
+    /**
+     * S13. Історія здач студента (passed, rework). Заняття, предмети й лаби —
+     * пакетно, по одному виклику на довідник (ADR-0004, К16).
+     * @returns {Promise<import("./model.js").HistoryItem[]>}
+     */
+    async history() {
+      const student = identity.requireRole("student");
+      const done = await repo.historyOf(student.id);
+      const sessionList = await sessions.getByIds(done.map((e) => e.sessionId));
+      const [subjects, labs] = await Promise.all([
+        catalog.subjectsByIds(sessionList.map((s) => s.subjectId)),
+        catalog.labsByIds(done.map((e) => e.labId)),
+      ]);
+      const sessionById = new Map(sessionList.map((s) => [s.id, s]));
+      const subjectById = new Map(subjects.map((s) => [s.id, s]));
+      const labById = new Map(labs.map((l) => [l.id, l]));
+      return done.map((entry) => {
+        const session = /** @type {import("../sessions/model.js").Session} */ (
+          sessionById.get(entry.sessionId)
+        );
+        const subject = subjectById.get(session.subjectId);
+        const lab = labById.get(entry.labId);
+        return {
+          entryId: entry.id,
+          sessionId: entry.sessionId,
+          startsAt: session.startsAt,
+          subjectId: session.subjectId,
+          subjectName: subject?.name ?? session.subjectId,
+          labId: entry.labId,
+          labNumber: lab?.number ?? 0,
+          labTitle: lab?.title ?? entry.labId,
+          status: /** @type {"passed" | "rework"} */ (entry.status),
+          score: entry.score,
+          finishedAt: /** @type {string} */ (entry.finishedAt),
+        };
+      });
+    },
+
     /**
      * S10. Студент стає в чергу в кінець (I6 разом з I1, I2; I3 через seq).
      * @param {string} sessionId

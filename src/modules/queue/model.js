@@ -34,3 +34,25 @@ export const ACTIVE = /** @type {const} */ ([
 /** @typedef {{ sessionId: string, studentId: string, count: number }} NoShow */
 
 /** @typedef {{ outcome: "passed" | "rework", score?: number }} Result */
+
+/**
+ * Зведення черги заняття для S9.
+ * @typedef {{ sessionId: string, waitingCount: number, calledStudentId: string | null }} QueueSummary
+ */
+
+/**
+ * Рядок історії S13 (data.md: дата, предмет, лаба, бал).
+ * @typedef {{
+ *   entryId: string,
+ *   sessionId: string,
+ *   startsAt: string,
+ *   subjectId: string,
+ *   subjectName: string,
+ *   labId: string,
+ *   labNumber: number,
+ *   labTitle: string,
+ *   status: "passed" | "rework",
+ *   score: number | null,
+ *   finishedAt: string,
+ * }} HistoryItem
+ */

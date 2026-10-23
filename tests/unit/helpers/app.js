@@ -10,7 +10,33 @@ import { createMemoryStore } from "../../../src/platform/memory.js";
 import { createServer } from "../../../src/platform/server.js";
 import { createUnitOfWork } from "../../../src/platform/unit-of-work.js";
 
+/**
+ * Обгортка API модуля, що рахує виклики кожної функції: так тести бачать,
+ * що queue ходить в інші модулі пакетно, а не в циклі (без N+1).
+ * @template {Record<string, (...args: any[]) => any>} A
+ * @param {A} api
+ * @param {string} prefix
+ * @param {Map<string, number>} calls
+ * @returns {A}
+ */
+function counted(api, prefix, calls) {
+  return /** @type {A} */ (
+    Object.fromEntries(
+      Object.entries(api).map(([name, fn]) => [
+        name,
+        (/** @type {any[]} */ ...args) => {
+          const key = `${prefix}.${name}`;
+          calls.set(key, (calls.get(key) ?? 0) + 1);
+          return fn(...args);
+        },
+      ]),
+    )
+  );
+}
+
 export async function createTestApp() {
+  /** @type {Map<string, number>} */
+  const calls = new Map();
   let now = new Date("2026-10-23T09:00:00Z");
   const clock = { now: () => now };
   const context = createContext();
@@ -27,7 +53,8 @@ export async function createTestApp() {
   const queue = createQueueModule({
     store,
     identity: identity.api,
-    sessions: sessions.api,
+    sessions: counted(sessions.api, "sessions", calls),
+    catalog: counted(catalog.api, "catalog", calls),
     unitOfWork,
     clock,
   });
@@ -99,6 +126,7 @@ export async function createTestApp() {
 
   return {
     app,
+    calls,
     openSession,
     post,
     get,

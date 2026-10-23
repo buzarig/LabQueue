@@ -36,6 +36,7 @@ const queue = createQueueModule({
   store,
   identity: identity.api,
   sessions: sessions.api,
+  catalog: catalog.api,
   unitOfWork,
   clock: systemClock,
 });
