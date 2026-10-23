@@ -53,34 +53,27 @@ CI ([.github/workflows/check.yml](.github/workflows/check.yml)) запускає
 
 ## Середовище
 
-З лаби 2 потрібен PostgreSQL ≥17. Цільова версія — 17, її перевіряє CI
-([data.md](docs/specs/lab2-db-scenarios/data.md), «Тести й середовище»).
+З лаби 2 потрібен PostgreSQL 17 — та сама версія, що в CI і Supabase. Проєкт
+піднімає власний кластер у `.pgdata/` на `127.0.0.1:55432`, окремо від
+будь-якого іншого PostgreSQL на машині
+([ADR-0033](docs/adr/0033-izolovane-seredovyshche-pg17.md)).
 
-1. **Сервер.** Будь-який спосіб, аби слухав `localhost:5432`: інсталятор
-   EDB з postgresql.org (разом із pgAdmin) або `brew install postgresql@17`.
-   Перевірка: `pg_isready -h localhost` → `accepting connections` (EDB
-   кладе утиліти в `/Library/PostgreSQL/<версія>/bin`).
-2. **Роль і БД.** Один раз під суперкористувачем `postgres`, у pgAdmin
-   (Query Tool) або `psql -U postgres`. Пароль придумайте свій:
-
-   ```sql
-   create role labqueue login password 'ваш-пароль';
-   create database labqueue_dev  owner labqueue;
-   create database labqueue_test owner labqueue;
-   ```
-
-   Виконуйте команди **по одній**: pgAdmin відправляє кілька команд разом
-   однією транзакцією, а `create database` у транзакції неможливий
-   (`25001`). У Query Tool виділіть рядок і натисніть F5; `psql` виконує
-   рядки окремо сам.
-
-   Застосунок не працює під `postgres`: роль `labqueue` має права лише на свої
-   БД.
-3. **`.env`.** `cp .env.example .env` і замініть `CHANGE_ME` паролем ролі.
+1. **Бінарники.** `brew install postgresql@17`. Службу запускати не треба.
+   Інший шлях до бінарників — змінна `PG_BIN`.
+2. **`.env`.** `cp .env.example .env` і замініть `CHANGE_ME` своїм паролем.
    `.env` ігнорує git, пароль у репозиторій не потрапляє.
-4. **pgAdmin (необов'язково).** Register → Server: host `localhost`, port
-   `5432`, user `labqueue`. Схеми модулів (`identity`, `catalog`,
-   `sessions`, `queue`, `platform`) з'являться після міграцій.
+3. **Кластер.**
+
+   | Команда | Що робить |
+   |---|---|
+   | `make db-up` | створює кластер, якщо його немає; запускає; створює роль і БД з `DATABASE_URL`. Повторний запуск безпечний |
+   | `make db-down` | зупиняє кластер, дані лишаються |
+   | `make db-destroy` | зупиняє й видаляє `.pgdata/` разом з усіма даними |
+
+   Лог сервера — `.pgdata/server.log`. Роль `labqueue` не суперкористувач;
+   `CREATEDB` має, бо тести створюють окрему БД на кожен прогін.
+4. **pgAdmin (необов'язково).** Register → Server: host `127.0.0.1`, port
+   `55432`, user `labqueue`, пароль з `.env`.
 
 ## Документи
 

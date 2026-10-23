@@ -1,5 +1,5 @@
 # Єдиний інтерфейс команд (ADR-0014). Склад цілей — standards/checks.md.
-.PHONY: check verify format lint typecheck typecheck-probe boundaries build smoke commits hygiene
+.PHONY: check verify format lint typecheck typecheck-probe boundaries build smoke commits hygiene db-up db-down db-destroy
 
 # Маркер встановлених пакетів: npm ci, якщо node_modules відсутній або
 # package-lock.json новіший за нього (sf-4).
@@ -56,3 +56,14 @@ hygiene: $(DEPS)
 # посилається DEFENSE.
 verify: $(DEPS)
 	node scripts/verify.js
+
+# Локальний кластер PostgreSQL 17 у .pgdata/ на 127.0.0.1:55432 (ADR-0033).
+# Роль, пароль і БД — з DATABASE_URL у .env. db-destroy видаляє всі дані.
+db-up:
+	node scripts/db.js up
+
+db-down:
+	node scripts/db.js down
+
+db-destroy:
+	node scripts/db.js destroy
