@@ -79,7 +79,7 @@ CHK-07 і CHK-08 в CI потребують повної історії та г�
 | MAN-07 | DEFENSE ≤ 1 сторінки за шаблоном курсу | рев'ю |
 | MAN-08 | Кожен стандарт має «навіщо» і розділ «Як перевіряється» | рев'ю `standards/` |
 | MAN-09 | Branch protection на `main`: обов'язкова перевірка `check`, лише merge commit ([ADR-0015](../docs/adr/0015-github-actions.md), [ADR-0018](../docs/adr/0018-merge-bez-squash.md)). Налаштовується вручну; доказ — [`reports/lab1/branch-protection.txt`](../reports/lab1/branch-protection.txt) (`gh api …/rulesets`, оновлює `make verify`) | рев'ю звіту |
-| MAN-10 | З лаби 2 `spec.md`, додаток spec і `DEFENSE.md` написав автор: `git log --format='%h %an %(trailers:key=Co-Authored-By)' -- <файли>` після чернетки ШІ (`2fd04e2`) не має комітів ШІ ([ai-workflow.md](ai-workflow.md), «Роль ШІ») | рев'ю історії |
+| MAN-10 | З лаби 2 `spec.md`, додаток spec і `DEFENSE.md` написав автор: `git log --format='%h %an %(trailers:key=Co-Authored-By)' -- <файли>` після чернетки ШІ (`2fd04e2`) не має комітів ШІ, крім дрібних правок за промптом автора, кожна з яких перелічена в sf-пункті ([ai-workflow.md](ai-workflow.md), «Роль ШІ») | рев'ю історії |
 
 ## Як перевіряється
 
