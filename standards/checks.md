@@ -40,9 +40,9 @@
 | ID | Що | Команда / інструмент | Етап | Що блокує |
 |---|---|---|---|---|
 | CHK-01 | Формат коду | Prettier (`--check`) | pre-commit, check | коміт, пуш, CI |
-| CHK-02 | Лінт | ESLint (flat config) | pre-commit, check | коміт, пуш, CI |
+| CHK-02 | Лінт; з лаби 2 — `try/catch` лише в `src/platform/` і `repo-pg.js` (К6), драйвер БД лише в `repo-pg.js` і `src/platform/db/`, без `sql.unsafe` (К4) ([ADR-0031](../docs/adr/0031-rivni-dekompozytsii-i-modeli.md)) | ESLint (flat config) | pre-commit, check | коміт, пуш, CI |
 | CHK-03 | Статичний аналіз типів | `tsc --noEmit --checkJs` (strict), JSDoc-типи | check | пуш, CI |
-| CHK-04 | Межі модулів: імпорт в обхід точки входу, цикли, заборонені напрями (К9, К10); домен без `fastify` поза `index.js`/`routes.js` (правило 7, sf-21); `src/` не імпортує `devDependencies` ([ADR-0013](../docs/adr/0013-dependency-cruiser.md)) | dependency-cruiser | check | пуш, CI |
+| CHK-04 | Межі модулів: імпорт в обхід точки входу, цикли, заборонені напрями (К9, К10); домен без `fastify` поза `index.js`/`routes.js` (правило 7, sf-21); `src/` не імпортує `devDependencies` ([ADR-0013](../docs/adr/0013-dependency-cruiser.md)); з лаби 2 — ролі файлів модуля й дозволені імпорти між ними, правила `layer-*` (К4, [ADR-0031](../docs/adr/0031-rivni-dekompozytsii-i-modeli.md)) | dependency-cruiser | check | пуш, CI |
 | CHK-05 | Збірка | `tsc`-перевірка + esbuild бандл у `dist/` | check | пуш, CI |
 | CHK-06 | Smoke-тест зібраного `dist/`: `GET /health` → 200 `{"status":"ok"}`, `GET /version` → `{"sha":…}` (К8) | `node:test` | check | пуш, CI |
 | CHK-07 | Трейлер промпта (К12). Коміт з `Co-Authored-By: … <noreply@anthropic.com>` має `Prompt: ai/labN/NNN-назва.md`, файл існує | скрипт історії | commit-msg, check (`main..HEAD`) | коміт, пуш, CI |
@@ -90,7 +90,7 @@ CHK-07 і CHK-08 в CI потребують повної історії та г�
 відповіді маскувала помилку. Це помітили лише під час ручної поломки (коміт
 `2a4b7a6`, аудит, розбіжність Р1). Зараз доказ є для CHK-01, CHK-06
 (`hook-*.txt`), CHK-04 (`boundaries.txt`), CHK-07/08 (commit-msg відхилив
-коміт ШІ під час роботи), CHK-13 (тест проби) і CHK-14: тест «невідомі поля → 400» упав на першому прогоні, бо Fastify за замовчуванням мовчки видаляє зайві поля (`removeAdditional`); виправлено в `src/platform/server.js`.
+коміт ШІ під час роботи), CHK-13 (тест проби) і CHK-14: тест «невідомі поля → 400» упав на першому прогоні, бо Fastify за замовчуванням мовчки видаляє зайві поля (`removeAdditional`); виправлено в `src/platform/server.js`. Правила шарів CHK-02 і CHK-04 (лаба 2) мають доказ у `tests/unit/rules/layers.test.js`: навмисні порушення в тимчасовому дереві й через API ESLint.
 
 Сам реєстр перевіряється вручну на рев'ю (MAN-08). Кожна автоматична
 перевірка має відповідну ціль у `Makefile` або крок hook-а. Розбіжність між
