@@ -15,6 +15,7 @@
     "boundaries": "depcruise src --config .dependency-cruiser.cjs",
     "build": "node scripts/build.js",
     "smoke": "node --test \"tests/smoke/*.test.js\"",
+    "test": "node --test \"tests/unit/**/*.test.js\"",
     "commits": "node scripts/check-commits.js",
     "hygiene": "node scripts/check-hygiene.js",
     "prepare": "husky",

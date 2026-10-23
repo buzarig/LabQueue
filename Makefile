@@ -1,5 +1,5 @@
 # Єдиний інтерфейс команд (ADR-0014). Склад цілей — standards/checks.md.
-.PHONY: check verify format lint typecheck typecheck-probe boundaries build smoke commits hygiene db-up db-down db-destroy
+.PHONY: check verify format lint typecheck typecheck-probe boundaries test build smoke commits hygiene db-up db-down db-destroy
 
 # Маркер встановлених пакетів: npm ci, якщо node_modules відсутній або
 # package-lock.json новіший за нього (sf-4).
@@ -10,7 +10,7 @@ $(DEPS): package-lock.json
 	@mkdir -p node_modules && touch $@
 
 # Брама: запускають pre-push і CI. Файли під git не змінює.
-check: format lint typecheck typecheck-probe boundaries smoke commits hygiene
+check: format lint typecheck typecheck-probe boundaries test smoke commits hygiene
 	@echo "make check: OK"
 
 # CHK-01: формат коду (лише JS, JSON, YAML — Markdown не форматуємо).
@@ -33,6 +33,10 @@ typecheck-probe: $(DEPS)
 # CHK-04: межі модулів і not-to-dev-dep (dependency-cruiser, ADR-0013).
 boundaries: $(DEPS)
 	npm run --silent boundaries
+
+# CHK-14: юніт-тести src/ (node:test, ADR-0010).
+test: $(DEPS)
+	npm run --silent test
 
 # CHK-05: збірка — tsc-перевірка + бандл esbuild у dist/ з вшитим sha.
 # Пише лише в dist/, який ігнорує git.
