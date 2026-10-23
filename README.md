@@ -39,7 +39,7 @@ make verify   # make check + звіти в reports/lab1/ + дата й sha (пе
 
 | Команда | Що робить |
 |---|---|
-| `make check` | формат, лінт, типи, проба JSDoc, межі модулів, юніт-тести, збірка, smoke-тест, історія комітів, гігієна ([standards/checks.md](standards/checks.md)) |
+| `make check` | формат, лінт, типи, проба JSDoc, межі модулів, юніт-тести, сценарна сюїта, збірка, smoke-тест, історія комітів, гігієна ([standards/checks.md](standards/checks.md)) |
 | `make verify` | `make check` + відтворення відмов hook-ів і порушень меж у тимчасовому клоні → `reports/lab1/`, підсумок — `reports/lab1/verify.txt` |
 | `make build` і `node dist/main.js` | запуск застосунку: `GET /health`, `GET /version`; порт — `PORT`, за замовчуванням 3000 |
 
