@@ -46,3 +46,18 @@
    - **Виправлення:** commit-msg перевіряє індекс (`git cat-file -e :шлях`),
      тест `tests/unit/rules/commit-msg.test.js`; `5ae87d2` — у
      `KNOWN_VIOLATIONS` скрипта `scripts/check-commits.js`.
+
+3. **Зміна API модуля зламала демонстрацію в `make verify`.**
+   - **Що сталося.** На кроці 2 (`d8c78b2`) ШІ замінив експорт `plugin`
+     модуля `identity` на `createIdentityModule`. Демонстрація К10
+     «catalog → identity» у `scripts/demo-boundaries.js` дописувала
+     `export { plugin … }`, тож у тимчасовому клоні `make check` падав на
+     типах, а не на правилі `arch-3-catalog-leaf`, і `make verify` упав.
+   - **Чому не зловилось одразу.** Демонстрації запускаються лише в
+     `make verify`, а не в `make check`; між кроками ШІ запускав лише
+     `make check`.
+   - **Що мав зробити ШІ.** Після зміни публічного API модуля проганяти
+     демонстрації (`node scripts/demo-boundaries.js`) або `make verify`.
+   - **Фідбек автора:** [054](../../ai/lab2/054-pohodzhuiu-fix-demo.md).
+   - **Виправлення:** демонстрація імпортує актуальний експорт; звіт
+     `reports/lab2/boundaries.txt` — 4 відмови з очікуваними правилами.

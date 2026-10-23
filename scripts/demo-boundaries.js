@@ -40,7 +40,7 @@ const VIOLATIONS = [
     rule: "arch-3-catalog-leaf (правило 3)",
     append: {
       "src/modules/catalog/index.js":
-        'export { plugin as identityPlugin } from "../identity/index.js";\n',
+        'export { createIdentityModule } from "../identity/index.js";\n',
     },
   },
   {
