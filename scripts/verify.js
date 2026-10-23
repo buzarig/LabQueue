@@ -1,5 +1,5 @@
 // make verify: брама (make check) + усі звіти (CHK-11, MAN-09) + дата й sha (CHK-12)
-// у reports/lab1/verify.txt. На цей файл посилається DEFENSE.
+// у reports/<лаба>/verify.txt. На цей файл посилається DEFENSE.
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { must, normalize, reports, root, run } from "./demo-lib.js";
@@ -34,6 +34,9 @@ const bounds = step("К10: порушення меж", "node", [
 const protection = step("MAN-09: branch protection", "node", [
   "scripts/report-branch-protection.js",
 ]);
+const scenarios = step("К9: сценарії на статиці", "node", [
+  "scripts/report-scenarios.js",
+]);
 
 const text = [
   "# make verify — звіт для DEFENSE",
@@ -50,6 +53,7 @@ const text = [
   hooks.trim(),
   bounds.trim(),
   protection.trim(),
+  scenarios.trim(),
   "",
 ].join("\n");
 writeFileSync(join(reports, "verify.txt"), text);

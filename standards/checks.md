@@ -19,8 +19,8 @@
   відсутній або lockfile новіший за нього (sf-4).
 - **Навіщо:** на свіжому клоні вистачає однієї команди.
 
-**`make verify`** = `make check` + CHK-11 + CHK-12.
-- **Що додає:** генерує звіти в `reports/lab1/` і виводить дату та git sha.
+**`make verify`** = `make check` + CHK-11 + CHK-12 + CHK-16.
+- **Що додає:** генерує звіти в `reports/<лаба>/` (лаба 1 — `reports/lab1/`, з лаби 2 — `reports/lab2/`) і виводить дату та git sha.
 - **Хто запускає:** автор перед здачею.
 - **Навіщо:** на неї посилається DEFENSE. Це окрема ціль, бо звіти пишуть
   файли, а брама — ні.
@@ -49,11 +49,12 @@
 | CHK-08 | Формат повідомлення: Conventional Commit з типом із [commits.md](commits.md), опис містить кирилицю. Автоматичні коміти git — виняток (див. нижче) | скрипт історії | commit-msg, check (`main..HEAD`) | коміт, пуш, CI |
 | CHK-09 | Гігієна: відстежувані файли не збігаються із забороненими шаблонами, файли без розширення — лише з дозволеного списку (К11) | скрипт над `git ls-files` за [repo-hygiene.md](repo-hygiene.md) | check | пуш, CI |
 | CHK-10 | Обсяг spec ≤ 450 слів без розмітки таблиць | `sed -E '/^\|[-: \|]+\|$/d; s/\|/ /g' spec.md \| wc -w` | вручну, команда | — |
-| CHK-11 | Звіти: відмова pre-commit, відмова pre-push (К7, `hook-*.txt`); обхід точки входу, цикл, заборонений напрям, fastify у логіці модуля валять `make check` (К10, `boundaries.txt`) | `scripts/demo-*.js` у тимчасовому клоні → `reports/lab1/` | verify | здачу |
-| CHK-12 | Дата, sha вершини гілки й стан дерева для DEFENSE (sf-7) разом із виводом `make check` | `scripts/verify.js` → `reports/lab1/verify.txt` | verify | здачу |
+| CHK-11 | Звіти: відмова pre-commit, відмова pre-push (К7, `hook-*.txt`); обхід точки входу, цикл, заборонений напрям, fastify у логіці модуля валять `make check` (К10, `boundaries.txt`) | `scripts/demo-*.js` у тимчасовому клоні → `reports/<лаба>/` | verify | здачу |
+| CHK-12 | Дата, sha вершини гілки й стан дерева для DEFENSE (sf-7) разом із виводом `make check` | `scripts/verify.js` → `reports/<лаба>/verify.txt` | verify | здачу |
 | CHK-13 | Регресія перевірки JSDoc (частина «статичного аналізу» з К5, промпт 015): `tsc` ловить помилку рівно в кожному рядку з міткою ERR у `tests/typecheck/fixture/probe.js` ([ADR-0020](../docs/adr/0020-versiia-typescript-dlia-checkjs.md)) | `node:test` + `tsc` | check | пуш, CI |
 | CHK-14 | Юніт-тести `tests/unit/` (лаба 2): платформа — processId і користувач у логах, один обробник помилок (К5, К6), транзакції в пам'яті; далі — модулі | `node:test` | check | пуш, CI |
 | CHK-15 | Сценарна сюїта `tests/scenarios/` (лаба 2): S1–S13 через HTTP на зібраному `createApp` (К7); кожен код каталогу помилок `data.md` — тест з його статусом або обґрунтований виняток (К8) | `node:test` | check | пуш, CI |
+| CHK-16 | Звіт прогону сценарної сюїти на статиці (К9, лаба 2): весь вивід `node --test`, код виходу 0, sha | `scripts/report-scenarios.js` → `reports/lab2/scenarios-memory.txt`; падає, якщо сюїта впала | verify (`make report-scenarios`) | здачу |
 
 **Автоматичні коміти git.** Це коміти, повідомлення яких git сформував сам:
 - починається з `Merge ` — merge гілки чи PR;

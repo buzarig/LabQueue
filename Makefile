@@ -1,5 +1,5 @@
 # Єдиний інтерфейс команд (ADR-0014). Склад цілей — standards/checks.md.
-.PHONY: check verify format lint typecheck typecheck-probe boundaries test scenarios build smoke commits hygiene db-up db-down db-destroy
+.PHONY: check verify format lint typecheck typecheck-probe boundaries test scenarios build smoke commits hygiene report-scenarios db-up db-down db-destroy
 
 # Маркер встановлених пакетів: npm ci, якщо node_modules відсутній або
 # package-lock.json новіший за нього (sf-4).
@@ -59,11 +59,15 @@ commits: $(DEPS)
 hygiene: $(DEPS)
 	npm run --silent hygiene
 
-# Докази для здачі: make check + звіти в reports/lab1/ (CHK-11) + дата й sha
-# у reports/lab1/verify.txt (CHK-12). Запускає автор перед здачею; на неї
+# Докази для здачі: make check + звіти в reports/<лаба>/ (CHK-11, CHK-16) + дата
+# й sha у reports/<лаба>/verify.txt (CHK-12). Запускає автор перед здачею; на неї
 # посилається DEFENSE.
 verify: $(DEPS)
 	node scripts/verify.js
+
+# CHK-16 (К9): звіт прогону сценарної сюїти на статиці → reports/<лаба>/scenarios-memory.txt.
+report-scenarios: $(DEPS)
+	node scripts/report-scenarios.js
 
 # Локальний кластер PostgreSQL 17 у .pgdata/ на 127.0.0.1:55432 (ADR-0033).
 # Роль, пароль і БД — з DATABASE_URL у .env. db-destroy видаляє всі дані.

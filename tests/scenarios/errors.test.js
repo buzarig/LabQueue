@@ -177,3 +177,7 @@ for (const [code, run] of Object.entries(CASES)) {
     assert.equal(typeof res.json().error.message, "string");
   });
 }
+
+for (const [code, why] of Object.entries(EXEMPT)) {
+  test(`${code} → ${catalog.get(code)}: на статиці не виникає`, { skip: why });
+}

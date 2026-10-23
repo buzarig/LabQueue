@@ -34,13 +34,14 @@ LabQueue дає окрему чергу на кожне заняття:
 
 ```sh
 make check    # усі перевірки — та сама брама, що в pre-push і CI
-make verify   # make check + звіти в reports/lab1/ + дата й sha (перед здачею)
+make verify   # make check + звіти в reports/lab2/ + дата й sha (перед здачею)
 ```
 
 | Команда | Що робить |
 |---|---|
 | `make check` | формат, лінт, типи, проба JSDoc, межі модулів, юніт-тести, сценарна сюїта, збірка, smoke-тест, історія комітів, гігієна ([standards/checks.md](standards/checks.md)) |
-| `make verify` | `make check` + відтворення відмов hook-ів і порушень меж у тимчасовому клоні → `reports/lab1/`, підсумок — `reports/lab1/verify.txt` |
+| `make verify` | `make check` + відтворення відмов hook-ів і порушень меж у тимчасовому клоні + прогін сценаріїв → `reports/lab2/`, підсумок — `reports/lab2/verify.txt` (звіти лаби 1 — `reports/lab1/`) |
+| `make report-scenarios` | лише звіт сценарної сюїти на статиці → `reports/lab2/scenarios-memory.txt` (К9) |
 | `make build` і `node dist/main.js` | запуск застосунку: `GET /health`, `GET /version`; порт — `PORT`, за замовчуванням 3000 |
 
 Git-hooks ставляться під час `npm install`:
@@ -80,13 +81,14 @@ CI ([.github/workflows/check.yml](.github/workflows/check.yml)) запускає
 | Що | Де |
 |---|---|
 | Захист лаби | [DEFENSE.md](DEFENSE.md) |
-| Spec і журнал змін | [spec.md](docs/specs/lab1-foundation/spec.md), [spec-fix.md](docs/specs/lab1-foundation/spec-fix.md) |
-| Архітектура | [architecture.md](docs/specs/lab1-foundation/architecture.md) |
+| Spec і журнал змін | лаба 1: [spec.md](docs/specs/lab1-foundation/spec.md), [spec-fix.md](docs/specs/lab1-foundation/spec-fix.md); лаба 2: [spec.md](docs/specs/lab2-db-scenarios/spec.md), [spec-fix.md](docs/specs/lab2-db-scenarios/spec-fix.md) |
+| Архітектура й домен | [architecture.md](docs/specs/lab1-foundation/architecture.md) |
+| Контракт, схема БД, запити, помилки | [data.md](docs/specs/lab2-db-scenarios/data.md) |
 | Стандарти | [standards/](standards/) |
 | Рішення (ADR) | [docs/adr/](docs/adr/) |
-| Аудит | [docs/audit/lab1.md](docs/audit/lab1.md) |
-| Промпти роботи з ШІ | [ai/lab1/](ai/lab1/) |
-| Звіти | [reports/lab1/](reports/lab1/) |
+| Аудит | [лаба 1](docs/audit/lab1.md), [лаба 2](docs/audit/lab2.md) |
+| Промпти роботи з ШІ | [ai/lab1/](ai/lab1/), [ai/lab2/](ai/lab2/) |
+| Звіти | [reports/lab1/](reports/lab1/), [reports/lab2/](reports/lab2/) |
 
 ## Залежності
 
