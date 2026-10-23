@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { createCatalogModule } from "../../../src/modules/catalog/index.js";
 import { createIdentityModule } from "../../../src/modules/identity/index.js";
+import { createQueueModule } from "../../../src/modules/queue/index.js";
 import { createSessionsModule } from "../../../src/modules/sessions/index.js";
 import { createContext } from "../../../src/platform/context.js";
 import { createMemoryStore } from "../../../src/platform/memory.js";
@@ -23,8 +24,20 @@ export async function createTestApp() {
     catalog: catalog.api,
     unitOfWork,
   });
+  const queue = createQueueModule({
+    store,
+    identity: identity.api,
+    sessions: sessions.api,
+    unitOfWork,
+    clock,
+  });
   const app = createServer({ sha: "test", context, logger: false });
-  for (const plugin of [identity.plugin, catalog.plugin, sessions.plugin]) {
+  for (const plugin of [
+    identity.plugin,
+    catalog.plugin,
+    sessions.plugin,
+    queue.plugin,
+  ]) {
     await app.register(plugin);
   }
   await app.ready();
@@ -69,8 +82,24 @@ export async function createTestApp() {
       fn,
     );
 
+  /**
+   * Заняття викладача з відкритим записом (S1 + S2).
+   * @param {Record<string, unknown>} [over]
+   * @param {string} [teacher]
+   * @returns {Promise<{ id: string }>}
+   */
+  const openSession = async (over = {}, teacher = "t-1") => {
+    const created = await post(teacher, "/sessions", newSession(over));
+    if (created.statusCode !== 201) throw new Error(created.body);
+    const { id } = created.json();
+    const opened = await post(teacher, `/sessions/${id}/open`);
+    if (opened.statusCode !== 200) throw new Error(opened.body);
+    return { id };
+  };
+
   return {
     app,
+    openSession,
     post,
     get,
     asUser,

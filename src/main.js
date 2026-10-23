@@ -2,7 +2,7 @@
 // (ADR-0030). Модулі не створюють одне одного й не імпортують platform.
 import { createCatalogModule } from "./modules/catalog/index.js";
 import { createIdentityModule } from "./modules/identity/index.js";
-import * as queue from "./modules/queue/index.js";
+import { createQueueModule } from "./modules/queue/index.js";
 import { createSessionsModule } from "./modules/sessions/index.js";
 import {
   buildSha,
@@ -31,6 +31,13 @@ const sessions = createSessionsModule({
   identity: identity.api,
   catalog: catalog.api,
   unitOfWork,
+});
+const queue = createQueueModule({
+  store,
+  identity: identity.api,
+  sessions: sessions.api,
+  unitOfWork,
+  clock: systemClock,
 });
 
 const app = createServer({ sha: buildSha(), context });
