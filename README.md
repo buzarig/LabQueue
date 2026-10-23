@@ -69,6 +69,11 @@ CI ([.github/workflows/check.yml](.github/workflows/check.yml)) запускає
    create database labqueue_test owner labqueue;
    ```
 
+   Виконуйте команди **по одній**: pgAdmin відправляє кілька команд разом
+   однією транзакцією, а `create database` у транзакції неможливий
+   (`25001`). У Query Tool виділіть рядок і натисніть F5; `psql` виконує
+   рядки окремо сам.
+
    Застосунок не працює під `postgres`: роль `labqueue` має права лише на свої
    БД.
 3. **`.env`.** `cp .env.example .env` і замініть `CHANGE_ME` паролем ролі.
