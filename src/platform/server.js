@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import Fastify from "fastify";
 import { toErrorResponse } from "./errors.js";
+import { idempotencyHook } from "./idempotency.js";
 
 const REQUEST_ID = /^[A-Za-z0-9._:-]{1,100}$/;
 
@@ -52,6 +53,9 @@ export function createServer({ sha, context, logger = true, logStream }) {
     reply.header("x-request-id", request.id);
     context.run({ processId: request.id }, done);
   });
+
+  // Після автентифікації (onRequest) і до валідації тіла: 401 → 400 (data.md).
+  app.addHook("preValidation", idempotencyHook(context));
 
   app.setErrorHandler((error, request, reply) => {
     const response = toErrorResponse(error);

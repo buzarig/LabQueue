@@ -48,8 +48,14 @@ async function setup() {
     },
     async () => ({ ok: true }),
   );
+  /** @type {unknown[]} */
+  const seen = [];
+  app.post("/t/created", { config: { successStatus: 201 } }, async () => {
+    seen.push(context.current().idempotency);
+    return {};
+  });
   await app.ready();
-  return { app, logs, context };
+  return { app, logs, context, seen };
 }
 
 test("processId: X-Request-Id від клієнта повертається у відповіді", async () => {
@@ -105,6 +111,7 @@ test("помилки: тіло не за схемою чи битий JSON → 4
   const extra = await app.inject({
     method: "POST",
     url: "/t/schema",
+    headers: { "idempotency-key": "k-1" },
     payload: { n: 1, extra: true },
   });
   assert.equal(extra.statusCode, 400);
@@ -112,7 +119,7 @@ test("помилки: тіло не за схемою чи битий JSON → 4
   const broken = await app.inject({
     method: "POST",
     url: "/t/schema",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", "idempotency-key": "k-2" },
     payload: "{",
   });
   assert.equal(broken.statusCode, 400);
@@ -138,6 +145,51 @@ test("помилки: невідомий маршрут → 404 ROUTE_NOT_FOUND 
   const res = await app.inject({ url: "/nope" });
   assert.equal(res.statusCode, 404);
   assert.equal(res.json().error.code, "ROUTE_NOT_FOUND");
+});
+
+test("ідемпотентність: POST без Idempotency-Key або з задовгим ключем → 400", async () => {
+  const { app } = await setup();
+  const none = await app.inject({
+    method: "POST",
+    url: "/t/schema",
+    payload: { n: 1 },
+  });
+  assert.equal(none.statusCode, 400);
+  assert.match(none.json().error.message, /Idempotency-Key/);
+  const long = await app.inject({
+    method: "POST",
+    url: "/t/schema",
+    headers: { "idempotency-key": "x".repeat(101) },
+    payload: { n: 1 },
+  });
+  assert.equal(long.statusCode, 400);
+  const ok = await app.inject({
+    method: "POST",
+    url: "/t/schema",
+    headers: { "idempotency-key": "x".repeat(100) },
+    payload: { n: 1 },
+  });
+  assert.equal(ok.statusCode, 200);
+});
+
+test("ідемпотентність: ключ, хеш і статус успіху маршруту лягають у контекст", async () => {
+  const { app, seen } = await setup();
+  const send = (/** @type {object} */ payload) =>
+    app.inject({
+      method: "POST",
+      url: "/t/created",
+      headers: { "idempotency-key": "k" },
+      payload,
+    });
+  await send({ a: 1 });
+  await send({ a: 2 });
+  const [first, second] =
+    /** @type {Array<{ key: string, requestHash: string, successStatus: number }>} */ (
+      seen
+    );
+  assert.equal(first.key, "k");
+  assert.equal(first.successStatus, 201);
+  assert.notEqual(first.requestHash, second.requestHash);
 });
 
 test("контекст: current() поза запитом — помилка, а не тиха робота без контексту", () => {
