@@ -133,7 +133,13 @@ module.exports = {
       comment:
         "К9: у src/ немає файлів, які ніхто не імпортує (крім main.js), — непідключених модулів.",
       severity: "error",
-      from: { orphan: true, path: "^src/", pathNot: "^src/main\\.js$" },
+      // model.js і repo.js містять лише JSDoc-типи: їх підключають через
+      // import("…") у коментарях, яких dependency-cruiser з TypeScript 7 не бачить.
+      from: {
+        orphan: true,
+        path: "^src/",
+        pathNot: "^src/main\\.js$|^src/modules/[^/]+/(model|repo)\\.js$",
+      },
       to: {},
     },
     {

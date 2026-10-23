@@ -1,6 +1,23 @@
 // Публічна точка входу модуля catalog — довідники: предмети, групи, лаби (Subject, Group, Lab).
-// Межі й дані — docs/specs/lab1-foundation/architecture.md, «Модулі».
-// Лаба 1: лише каркас без бізнес-логіки, логіка — з лаби 2.
+// Межі й дані — docs/specs/lab1-foundation/architecture.md, «Модулі»; шари — ADR-0031.
+import { createCatalogRepoMemory } from "./repo-memory.js";
+import { createCatalogService } from "./service.js";
 
-/** Fastify-плагін модуля (ADR-0009). Маршрутів поки немає. */
-export async function plugin() {}
+/**
+ * Модуль catalog. Маршрутів немає: довідники в контракті S1–S13 не мають
+ * власних ендпоінтів (data.md, «HTTP-контракт»).
+ * @param {{ store: import("../../platform/memory.js").MemoryStore }} deps
+ */
+export function createCatalogModule({ store }) {
+  const service = createCatalogService({
+    repo: createCatalogRepoMemory({ store }),
+  });
+  return {
+    /** Fastify-плагін (ADR-0009). */
+    async plugin() {},
+    /** API для sessions (S1) і queue (S13). */
+    api: service,
+  };
+}
+
+/** @typedef {ReturnType<typeof createCatalogModule>["api"]} CatalogApi */

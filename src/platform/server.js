@@ -77,6 +77,7 @@ export function createServer({ sha, context, logger = true, logStream }) {
   app.get(
     "/health",
     {
+      config: { public: true },
       schema: {
         response: {
           200: {
@@ -93,6 +94,7 @@ export function createServer({ sha, context, logger = true, logStream }) {
   app.get(
     "/version",
     {
+      config: { public: true },
       schema: {
         response: {
           200: {
