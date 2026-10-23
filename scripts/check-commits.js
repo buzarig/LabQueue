@@ -4,7 +4,7 @@
 //   node scripts/check-commits.js                 перевіряє історію main..HEAD
 //   node scripts/check-commits.js --msg-file F    перевіряє одне повідомлення (commit-msg hook)
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 
 const TYPES = ["feat", "fix", "docs", "chore", "test", "ci", "refactor"];
 const SUBJECT = new RegExp(`^(${TYPES.join("|")})(\\([^)]+\\))?: (.+)$`);
@@ -24,11 +24,28 @@ const KNOWN_VIOLATIONS = new Map([
     "ca2d00830ff2252285cebf988a869f65eef28823",
     "CHK-08: опис без кирилиці — docs/audit/lab1.md, кандидат 4",
   ],
+  [
+    "5ae87d25f3537b9bd18abefdc441bd34703ce347",
+    "CHK-07: файл промпту 044 потрапив лише в наступний коміт d8c78b2 — docs/audit/lab2.md, кандидат 2",
+  ],
 ]);
 
 /** @param {string[]} args */
 function git(args) {
   return execFileSync("git", args, { encoding: "utf8" });
+}
+
+/**
+ * Чи є об'єкт у git: `<sha>:<шлях>` у коміті або `:<шлях>` в індексі.
+ * @param {string} object
+ */
+function gitHas(object) {
+  try {
+    execFileSync("git", ["cat-file", "-e", object], { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -74,7 +91,7 @@ function checkMessage(message, promptExists) {
           `CHK-07: трейлер Prompt не у форматі ai/labN/NNN-назва.md: ${path}`,
         );
       } else if (!promptExists(path)) {
-        problems.push(`CHK-07: файл промпту не існує: ${path}`);
+        problems.push(`CHK-07: файлу промпту немає в коміті: ${path}`);
       }
     }
   }
@@ -102,7 +119,10 @@ const report = [];
 
 if (fileArg !== -1) {
   const message = readFileSync(process.argv[fileArg + 1], "utf8");
-  for (const problem of checkMessage(message, (path) => existsSync(path))) {
+  // Файл промпту має бути в індексі, тобто в самому коміті, а не лише на
+  // диску: інакше трейлер посилається на файл, якого в коміті немає
+  // (docs/audit/lab2.md, кандидат 2).
+  for (const problem of checkMessage(message, (path) => gitHas(`:${path}`))) {
     report.push(problem);
   }
 } else {
@@ -113,14 +133,7 @@ if (fileArg !== -1) {
   for (const sha of shas) {
     if (KNOWN_VIOLATIONS.has(sha)) continue;
     const message = git(["log", "-1", "--format=%B", sha]);
-    const exists = (/** @type {string} */ path) => {
-      try {
-        git(["cat-file", "-e", `${sha}:${path}`]);
-        return true;
-      } catch {
-        return false;
-      }
-    };
+    const exists = (/** @type {string} */ path) => gitHas(`${sha}:${path}`);
     for (const problem of checkMessage(message, exists)) {
       report.push(
         `${sha.slice(0, 7)} ${message.split("\n")[0]}\n    ${problem}`,
