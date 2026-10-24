@@ -35,7 +35,20 @@ const protection = step("MAN-09: branch protection", "node", [
   "scripts/report-branch-protection.js",
 ]);
 const scenarios = step("К9: сценарії на статиці", "node", [
-  "scripts/report-scenarios.js",
+  "scripts/report-tests.js",
+  "scenarios-memory",
+]);
+const scenariosPg = step("К10: сценарії на PostgreSQL", "node", [
+  "scripts/report-tests.js",
+  "scenarios-pg",
+]);
+const failures = step("К14: збої джерела", "node", [
+  "scripts/report-tests.js",
+  "failures",
+]);
+const queries = step("К16: запити без N+1", "node", [
+  "--env-file-if-exists=.env",
+  "scripts/report-queries.js",
 ]);
 
 const text = [
@@ -54,6 +67,9 @@ const text = [
   bounds.trim(),
   protection.trim(),
   scenarios.trim(),
+  scenariosPg.trim(),
+  failures.trim(),
+  queries.trim(),
   "",
 ].join("\n");
 writeFileSync(join(reports, "verify.txt"), text);
