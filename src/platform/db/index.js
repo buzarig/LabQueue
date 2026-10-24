@@ -5,17 +5,17 @@
 import { setTimeout as sleep } from "node:timers/promises";
 import postgres from "postgres";
 import { KEY_TTL_MS } from "../unit-of-work.js";
-import { isTransient, translateDbError } from "./errors.js";
+import { isBrokenConnection, isTransient, translateDbError } from "./errors.js";
 
 const MAX_RETRIES = 3;
 const BACKOFF_MS = [50, 100, 200];
 
 /** @typedef {import("postgres").Sql} Sql */
-/** @typedef {import("postgres").TransactionSql} TransactionSql */
+/** @typedef {import("postgres").ReservedSql} ReservedSql */
 
 /** Транзакція PostgreSQL у контексті запиту. */
 class PgTx {
-  /** @param {TransactionSql} sql */
+  /** @param {ReservedSql} sql */
   constructor(sql) {
     this.sql = sql;
   }
@@ -62,12 +62,12 @@ export async function connectDb(url) {
  */
 export function createDbAccess({ sql, context }) {
   return {
-    /** @returns {Sql | TransactionSql} */
+    /** @returns {Sql | ReservedSql} */
     read() {
       const tx = context.peek()?.tx;
       return tx instanceof PgTx ? tx.sql : sql;
     },
-    /** @returns {TransactionSql} */
+    /** @returns {ReservedSql} */
     write() {
       const tx = context.peek()?.tx;
       if (!(tx instanceof PgTx)) throw new Error("запис поза unitOfWork");
@@ -107,6 +107,36 @@ export function readiness(sql) {
  * }} deps
  */
 export function createPgBackend({ sql, context, onRetry = () => {} }) {
+  /**
+   * Одна спроба транзакції на зарезервованому з'єднанні (ADR-0036). Не
+   * sql.begin: той після будь-якої помилки шле rollback тим самим з'єднанням,
+   * і на обірваному postgres.js 3.4.9 валить процес записом у закритий
+   * сокет. Тут обірване з'єднання не отримує ні rollback (сервер відкотить
+   * сам), ні повернення в пул — драйвер перепідключить його.
+   * @template T
+   * @param {(tx: import("../unit-of-work.js").UnitTx) => Promise<T>} fn
+   * @returns {Promise<T>}
+   */
+  async function once(fn) {
+    const store = context.current();
+    const conn = await sql.reserve();
+    let healthy = true;
+    try {
+      await conn`begin`;
+      store.tx = new PgTx(conn);
+      const result = await fn(unitTx(conn));
+      await conn`commit`;
+      return result;
+    } catch (error) {
+      healthy = !isBrokenConnection(error);
+      if (healthy) await conn`rollback`;
+      throw error;
+    } finally {
+      store.tx = undefined;
+      if (healthy) conn.release();
+    }
+  }
+
   return {
     /**
      * @template T
@@ -116,17 +146,7 @@ export function createPgBackend({ sql, context, onRetry = () => {} }) {
     async transaction(fn) {
       for (let attempt = 0; ; attempt += 1) {
         try {
-          return /** @type {T} */ (
-            await sql.begin(async (tx) => {
-              const store = context.current();
-              store.tx = new PgTx(tx);
-              try {
-                return await fn(unitTx(tx));
-              } finally {
-                store.tx = undefined;
-              }
-            })
-          );
+          return await once(fn);
         } catch (error) {
           if (attempt < MAX_RETRIES && isTransient(error)) {
             const code = /** @type {{ code?: string }} */ (error).code ?? "";
@@ -142,13 +162,25 @@ export function createPgBackend({ sql, context, onRetry = () => {} }) {
 }
 
 /**
- * @param {TransactionSql} tx
+ * @param {ReservedSql} tx
  * @returns {import("../unit-of-work.js").UnitTx}
  */
 function unitTx(tx) {
+  let savepoints = 0;
   return {
-    withSavepoint(inner) {
-      return /** @type {Promise<any>} */ (tx.savepoint(() => inner()));
+    async withSavepoint(inner) {
+      const name = tx(`s${(savepoints += 1)}`);
+      await tx`savepoint ${name}`;
+      try {
+        const result = await inner();
+        await tx`release savepoint ${name}`;
+        return result;
+      } catch (error) {
+        if (!isBrokenConnection(error)) {
+          await tx`rollback to savepoint ${name}`;
+        }
+        throw error;
+      }
     },
     async claimKey(userId, key, requestHash, now) {
       // Другий запит із тим самим ключем чекає тут на унікальному індексі,

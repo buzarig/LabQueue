@@ -40,6 +40,21 @@ export function isTransient(error) {
 }
 
 /**
+ * З'єднання мертве: після такої помилки в нього не можна нічого писати
+ * (postgres.js 3.4.9 падає на записі в закритий сокет, ADR-0036).
+ * @param {unknown} error
+ */
+export function isBrokenConnection(error) {
+  const code = codeOf(error);
+  return (
+    code === "ECONNRESET" ||
+    code === "57P01" ||
+    code.startsWith("CONNECTION_") ||
+    /^08[0-9A-Z]{3}$/.test(code)
+  );
+}
+
+/**
  * Помилка БД → доменна форма для глобального обробника або сама помилка,
  * якщо до джерела вона не стосується (тоді — 500 INTERNAL).
  * Тимчасова тут означає «повтори вичерпано» або «повтор неможливий».

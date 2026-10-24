@@ -27,6 +27,7 @@ import {
  *   databaseUrl?: string,
  *   clock?: { now: () => Date },
  *   logger?: boolean,
+ *   logStream?: { write: (line: string) => void },
  * }} [options]
  */
 export async function createApp({
@@ -34,6 +35,7 @@ export async function createApp({
   databaseUrl,
   clock = systemClock,
   logger = true,
+  logStream,
 } = {}) {
   const context = createContext();
   const sql =
@@ -43,6 +45,7 @@ export async function createApp({
     sha: buildSha(),
     context,
     logger,
+    ...(logStream ? { logStream } : {}),
     ...(sql ? { ready: readiness(sql) } : {}),
   });
 
@@ -57,7 +60,9 @@ export async function createApp({
       context,
       onRetry: (info) => app.log.warn(info, "повтор транзакції"),
     });
-    app.addHook("onClose", () => sql.end());
+    // timeout: обірване з'єднання postgres.js 3.4.9 не завершується саме
+    // (ADR-0036) — через 1 с драйвер знищує такі з'єднання примусово.
+    app.addHook("onClose", () => sql.end({ timeout: 1 }));
   } else {
     const store = createMemoryStore({ context });
     storageDeps = { kind: "memory", store };

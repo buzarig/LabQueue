@@ -11,14 +11,15 @@ import { parseErrorCatalog, uncoveredCodes } from "./error-catalog.js";
 const catalog = parseErrorCatalog();
 
 /**
- * Коди, які на статиці не виникають. Кожен — з місцем, де він перевіряється.
+ * Коди, які сценарна сюїта через HTTP відтворити не може. Кожен — з місцем,
+ * де він перевіряється.
  * @type {Record<string, string>}
  */
 const EXEMPT = {
   CONFLICT:
-    "друга лінія — порушення унікального індексу 23505, є лише на PostgreSQL (крок БД)",
+    "друга лінія (23505) через HTTP лише під гонкою з прямим записом у БД — tests/db/failures.test.js",
   SOURCE_UNAVAILABLE:
-    "збій БД — лише на PostgreSQL, reports/lab2/failures.txt (крок БД)",
+    "збій джерела (обрив, недоступність, statement_timeout) — tests/db/failures.test.js",
   INTERNAL: "непередбачена помилка — tests/unit/platform/server.test.js",
 };
 
@@ -179,5 +180,7 @@ for (const [code, run] of Object.entries(CASES)) {
 }
 
 for (const [code, why] of Object.entries(EXEMPT)) {
-  test(`${code} → ${catalog.get(code)}: на статиці не виникає`, { skip: why });
+  test(`${code} → ${catalog.get(code)}: перевіряється поза сюїтою`, {
+    skip: why,
+  });
 }
