@@ -1,4 +1,5 @@
 import { createKeyedMutex } from "./keyed-mutex.js";
+import { KEY_TTL_MS } from "./unit-of-work.js";
 
 /**
  * Сховище статики (ADR-0027): таблиці в пам'яті, транзакції з м'ютексом за
@@ -7,29 +8,10 @@ import { createKeyedMutex } from "./keyed-mutex.js";
  * викладача.
  */
 
-/**
- * Рядок ідемпотентності (data.md, «Схема БД», platform.idempotency_keys).
- * @typedef {{
- *   userId: string,
- *   key: string,
- *   requestHash: string,
- *   resultStatus: number | null,
- *   resultBody: unknown,
- *   createdAt: Date,
- * }} IdempotencyRecord
- */
-
-/**
- * Транзакція, яку бачить unitOfWork (той самий контракт матиме PostgreSQL).
- * @typedef {{
- *   withSavepoint: <T>(fn: () => Promise<T>) => Promise<T>,
- *   claimKey: (userId: string, key: string, requestHash: string, now: Date) => Promise<IdempotencyRecord | undefined>,
- *   completeKey: (userId: string, key: string, status: number, body: unknown) => Promise<void>,
- * }} UnitTx
- */
+/** @typedef {import("./unit-of-work.js").IdempotencyRecord} IdempotencyRecord */
+/** @typedef {import("./unit-of-work.js").UnitTx} UnitTx */
 
 const IDEMPOTENCY_TABLE = "platform.idempotency_keys";
-const KEY_TTL_MS = 24 * 60 * 60 * 1000;
 
 /** @typedef {Map<string, unknown>} Rows */
 

@@ -1,5 +1,30 @@
 import { isDomainError, shapedError } from "./errors.js";
 
+/** Ключ ідемпотентності діє 24 години (data.md, «Ідемпотентність»). */
+export const KEY_TTL_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Рядок ідемпотентності (data.md, «Схема БД», platform.idempotency_keys).
+ * @typedef {{
+ *   userId: string,
+ *   key: string,
+ *   requestHash: string,
+ *   resultStatus: number | null,
+ *   resultBody: unknown,
+ *   createdAt: Date,
+ * }} IdempotencyRecord
+ */
+
+/**
+ * Транзакція, яку бачить unitOfWork; однаковий контракт для пам'яті й
+ * PostgreSQL.
+ * @typedef {{
+ *   withSavepoint: <T>(fn: () => Promise<T>) => Promise<T>,
+ *   claimKey: (userId: string, key: string, requestHash: string, now: Date) => Promise<IdempotencyRecord | undefined>,
+ *   completeKey: (userId: string, key: string, status: number, body: unknown) => Promise<void>,
+ * }} UnitTx
+ */
+
 /**
  * unitOfWork (ADR-0030, ADR-0035): сервіс позначає ним межу транзакції й не
  * бачить ні BEGIN, ні SQL. Тут же — ідемпотентність: ключ із контексту
@@ -9,7 +34,7 @@ import { isDomainError, shapedError } from "./errors.js";
  * @param {{
  *   context: import("./context.js").Context,
  *   clock: import("./clock.js").Clock,
- *   backend: { transaction: <T>(fn: (tx: import("./memory.js").UnitTx) => Promise<T>) => Promise<T> },
+ *   backend: { transaction: <T>(fn: (tx: UnitTx) => Promise<T>) => Promise<T> },
  * }} deps
  */
 export function createUnitOfWork({ context, clock, backend }) {
@@ -90,7 +115,7 @@ export function createUnitOfWork({ context, clock, backend }) {
 
 /**
  * Повтор: та сама доменна відмова або те саме значення, без виклику сервісу.
- * @param {import("./memory.js").IdempotencyRecord} record
+ * @param {IdempotencyRecord} record
  * @returns {Outcome<any>}
  */
 function replay(record) {
