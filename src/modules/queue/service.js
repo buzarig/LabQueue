@@ -127,7 +127,7 @@ export function createQueueService({
         }
         if (await repo.hasSubmitting(sessionId)) throw submittingInProgress();
         const missedCount = await repo.missActive(sessionId, now());
-        const finished = await sessions.markFinished(sessionId);
+        const finished = await sessions.markFinished(session);
         return { ...finished, missedCount };
       });
     },

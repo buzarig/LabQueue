@@ -116,12 +116,11 @@ export function createSessionsService({ repo, identity, catalog, unitOfWork }) {
 
     /**
      * Завершення заняття (S4): closed → finished. Лише для queue (ADR-0005),
-     * у його транзакції: власника й «немає здає» queue вже перевірив.
-     * @param {string} id
+     * у його транзакції: власника й «немає здає» queue вже перевірив, а
+     * заняття щойно перечитав під блокуванням — читати вдруге не треба (К16).
+     * @param {Session} session
      */
-    async markFinished(id) {
-      const session = await repo.findById(id);
-      if (!session) throw sessionNotFound();
+    async markFinished(session) {
       return transition(session, ["closed"], "finished");
     },
 

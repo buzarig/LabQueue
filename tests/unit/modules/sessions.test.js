@@ -150,7 +150,15 @@ test("API для queue: заняття групи за часом, пакетн�
   );
 
   const finish = (/** @type {string} */ id) =>
-    t.asUser("t-1", () => t.unitOfWork(() => t.sessions.markFinished(id)));
+    t.asUser("t-1", () =>
+      t.unitOfWork(async () =>
+        t.sessions.markFinished(
+          /** @type {import("../../../src/modules/sessions/model.js").Session} */ (
+            await t.sessions.getById(id)
+          ),
+        ),
+      ),
+    );
   await assert.rejects(finish(early.id), { code: "SESSION_STATE_CONFLICT" });
   await t.post("t-1", `/sessions/${early.id}/open`);
   await t.post("t-1", `/sessions/${early.id}/close`);
