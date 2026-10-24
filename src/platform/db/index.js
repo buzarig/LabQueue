@@ -31,11 +31,14 @@ function redact(url) {
 /**
  * Пул і явна перевірка `select now()` на старті: без БД — помилка одразу
  * (ADR-0034). Колонки snake_case ↔ поля camelCase — у драйвері.
+ * `onQuery` бачить кожен SQL-запит — для лічильника N+1 у звіті (К16).
  * @param {string} url
+ * @param {{ onQuery?: (query: string) => void }} [options]
  * @returns {Promise<Sql>}
  */
-export async function connectDb(url) {
+export async function connectDb(url, { onQuery } = {}) {
   const sql = postgres(url, {
+    ...(onQuery ? { debug: (_id, query) => onQuery(query) } : {}),
     max: 10,
     connect_timeout: 2,
     idle_timeout: 30,

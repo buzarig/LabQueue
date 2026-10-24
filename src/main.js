@@ -28,6 +28,7 @@ import {
  *   clock?: { now: () => Date },
  *   logger?: boolean,
  *   logStream?: { write: (line: string) => void },
+ *   onQuery?: (query: string) => void,
  * }} [options]
  */
 export async function createApp({
@@ -36,10 +37,13 @@ export async function createApp({
   clock = systemClock,
   logger = true,
   logStream,
+  onQuery,
 } = {}) {
   const context = createContext();
   const sql =
-    storage === "pg" ? await connectDb(String(databaseUrl)) : undefined;
+    storage === "pg"
+      ? await connectDb(String(databaseUrl), { onQuery })
+      : undefined;
 
   const app = createServer({
     sha: buildSha(),
