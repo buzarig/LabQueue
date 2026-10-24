@@ -66,6 +66,60 @@ module.exports = {
       from: { path: "^src/modules/[^/]+/", pathNot: "/(index|routes)\\.js$" },
       to: { path: "(^|/)node_modules/(fastify|@fastify/)" },
     },
+    // Рівні декомпозиції всередині модуля (ADR-0031, К4 лаби 2): роль файлу
+    // видно з імені, а дозволені імпорти — з таблиці ADR.
+    {
+      name: "layer-known-roles",
+      comment:
+        "ADR-0031: файли модуля — лише index, routes, service, repo, repo-memory, repo-pg, model, errors, seed.json.",
+      severity: "error",
+      from: {},
+      to: {
+        path: "^src/modules/[^/]+/",
+        pathNot:
+          "^src/modules/[^/]+/(index|routes|service|repo|repo-memory|repo-pg|model|errors)\\.js$|^src/modules/[^/]+/seed\\.json$",
+      },
+    },
+    {
+      name: "layer-routes",
+      comment:
+        "ADR-0031: routes.js знає лише HTTP й імпортує лише service, model, errors свого модуля.",
+      severity: "error",
+      from: { path: "^src/modules/([^/]+)/routes\\.js$" },
+      to: {
+        path: "^src/",
+        pathNot: "^src/modules/$1/(service|model|errors)\\.js$",
+      },
+    },
+    {
+      name: "layer-service",
+      comment:
+        "ADR-0031: service.js не бачить HTTP і конкретного сховища — лише repo, model, errors свого модуля й index.js інших.",
+      severity: "error",
+      from: { path: "^src/modules/([^/]+)/service\\.js$" },
+      to: {
+        path: "^src/modules/$1/(index|routes|repo-memory|repo-pg|seed)\\.",
+      },
+    },
+    {
+      name: "layer-repo",
+      comment:
+        "ADR-0031: репозиторії імпортують лише repo, model, errors і seed.json свого модуля.",
+      severity: "error",
+      from: { path: "^src/modules/([^/]+)/repo(-memory|-pg)?\\.js$" },
+      to: {
+        path: "^src/",
+        pathNot:
+          "^src/modules/$1/(repo|model|errors)\\.js$|^src/modules/$1/seed\\.json$",
+      },
+    },
+    {
+      name: "layer-leaf",
+      comment: "ADR-0031: model.js і errors.js нічого з src/ не імпортують.",
+      severity: "error",
+      from: { path: "^src/modules/[^/]+/(model|errors)\\.js$" },
+      to: { path: "^src/" },
+    },
     {
       name: "k9-known-modules-only",
       comment:
@@ -79,7 +133,13 @@ module.exports = {
       comment:
         "К9: у src/ немає файлів, які ніхто не імпортує (крім main.js), — непідключених модулів.",
       severity: "error",
-      from: { orphan: true, path: "^src/", pathNot: "^src/main\\.js$" },
+      // model.js і repo.js містять лише JSDoc-типи: їх підключають через
+      // import("…") у коментарях, яких dependency-cruiser з TypeScript 7 не бачить.
+      from: {
+        orphan: true,
+        path: "^src/",
+        pathNot: "^src/main\\.js$|^src/modules/[^/]+/(model|repo)\\.js$",
+      },
       to: {},
     },
     {

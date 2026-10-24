@@ -31,7 +31,8 @@ async function start(entry) {
   assert.ok(existsSync(entry), `${entry} не знайдено — спершу make build`);
   const port = await freePort();
   const child = spawn(process.execPath, [entry], {
-    env: { ...process.env, PORT: String(port) },
+    // Smoke збірки йде без БД: статика (ADR-0034).
+    env: { ...process.env, PORT: String(port), STORAGE: "memory" },
     stdio: "ignore",
   });
   stops.push(() => child.kill());

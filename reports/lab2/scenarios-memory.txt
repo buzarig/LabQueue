@@ -1,0 +1,55 @@
+# К9: сценарна сюїта S1–S13 і каталог помилок на статиці (STORAGE=memory)
+# Відтворення: make report-scenarios-memory, вихідний коміт ff5cc7ed2ffa2408011a907750b19d5f08937026
+# Команда: node --test tests/scenarios/**/*.test.js (STORAGE=memory)
+# Код виходу: 0 (очікувано 0)
+
+✔ К8: кожен код каталогу data.md має сценарний тест або обґрунтований виняток (<ms>)
+✔ VALIDATION_FAILED → 400 (<ms>)
+✔ UNAUTHENTICATED → 401 (<ms>)
+✔ ROUTE_NOT_FOUND → 404 (<ms>)
+✔ FORBIDDEN_ROLE → 403 (<ms>)
+✔ NOT_SESSION_OWNER → 403 (<ms>)
+✔ NOT_IN_GROUP → 403 (<ms>)
+✔ NOT_ENTRY_OWNER → 403 (<ms>)
+✔ SESSION_NOT_FOUND → 404 (<ms>)
+✔ ENTRY_NOT_FOUND → 404 (<ms>)
+✔ NO_ACTIVE_ENTRY → 404 (<ms>)
+✔ UNKNOWN_REFERENCE → 422 (<ms>)
+✔ SESSION_STATE_CONFLICT → 409 (<ms>)
+✔ ENROLLMENT_CLOSED → 409 (<ms>)
+✔ LAB_NOT_ACCEPTED → 409 (<ms>)
+✔ QUEUE_LIMIT_REACHED → 409 (<ms>)
+✔ ALREADY_IN_QUEUE → 409 (<ms>)
+✔ DROPPED_FROM_SESSION → 409 (<ms>)
+✔ TEACHER_BUSY → 409 (<ms>)
+✔ QUEUE_EMPTY → 409 (<ms>)
+✔ ENTRY_STATE_CONFLICT → 409 (<ms>)
+✔ SUBMITTING_IN_PROGRESS → 409 (<ms>)
+✔ SCORE_MISMATCH → 422 (<ms>)
+✔ IDEMPOTENCY_KEY_REUSED → 409 (<ms>)
+﹣ CONFLICT → 409: перевіряється поза сюїтою (<ms>) # друга лінія (23505) через HTTP лише під гонкою з прямим записом у БД — tests/db/failures.test.js
+﹣ SOURCE_UNAVAILABLE → 503: перевіряється поза сюїтою (<ms>) # збій джерела (обрив, недоступність, statement_timeout) — tests/db/failures.test.js
+﹣ INTERNAL → 500: перевіряється поза сюїтою (<ms>) # непередбачена помилка — tests/unit/platform/server.test.js
+▶ заняття від створення до історії здач (S1–S13)
+  ✔ S1. Викладач створює заняття (<ms>)
+  ✔ S2. Викладач відкриває запис (<ms>)
+  ✔ S10. Студенти стають у чергу (<ms>)
+  ✔ S9. Студент бачить заняття своєї групи й стан черг (<ms>)
+  ✔ S11. Студент бачить свою позицію й орієнтовний час (<ms>)
+  ✔ S12. Студент виходить із черги (<ms>)
+  ✔ S5. Викладач викликає наступного (<ms>)
+  ✔ S8. Викладач позначає неявку — студент у кінець черги (<ms>)
+  ✔ S6. Викладач починає прийом (<ms>)
+  ✔ S7. Викладач фіксує результат (<ms>)
+  ✔ S3. Викладач закриває запис — черга продовжує рухатись (<ms>)
+  ✔ S4. Викладач завершує заняття — викликаний без здачі стає missed (<ms>)
+  ✔ S13. Студент переглядає історію здач (<ms>)
+✔ заняття від створення до історії здач (S1–S13) (<ms>)
+ℹ tests 40
+ℹ suites 1
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 3
+ℹ todo 0
+ℹ duration_ms <ms>

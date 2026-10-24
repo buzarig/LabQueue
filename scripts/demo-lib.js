@@ -1,12 +1,15 @@
 // Спільне для демонстрацій make verify (CHK-11): тимчасовий клон поточного
-// HEAD, запуск команд, нормалізація виводу й запис звітів у reports/lab1/.
+// HEAD, запуск команд, нормалізація виводу й запис звітів у reports/<лаба>/.
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 export const root = resolve(".");
-export const reports = join(root, "reports", "lab1");
+// Звіти поточної лаби. Звіти попередніх лаб — докази на їхніх sha, їх не
+// перезаписуємо (лаба 1 — reports/lab1/).
+export const LAB = "lab2";
+export const reports = join(root, "reports", LAB);
 
 /**
  * @typedef {{ code: number, output: string }} RunResult

@@ -15,6 +15,9 @@
     "boundaries": "depcruise src --config .dependency-cruiser.cjs",
     "build": "node scripts/build.js",
     "smoke": "node --test \"tests/smoke/*.test.js\"",
+    "test": "node --test \"tests/unit/**/*.test.js\"",
+    "scenarios": "node --env-file-if-exists=.env --test --test-timeout=60000 \"tests/scenarios/**/*.test.js\"",
+    "test:db": "node --env-file-if-exists=.env --test --test-timeout=60000 \"tests/db/**/*.test.js\"",
     "commits": "node scripts/check-commits.js",
     "hygiene": "node scripts/check-hygiene.js",
     "prepare": "husky",
@@ -33,7 +36,8 @@
     "typescript": "~7.0.2"
   },
   "dependencies": {
-    "fastify": "^5.12.5"
+    "fastify": "^5.12.5",
+    "postgres": "~3.4.9"
   },
   "lint-staged": {
     "*.{js,mjs,cjs}": [

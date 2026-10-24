@@ -1,0 +1,18 @@
+# К14: збої джерела через HTTP на PostgreSQL (обрив, таймаут, друга лінія, недоступність)
+# Відтворення: make report-failures, вихідний коміт ff5cc7ed2ffa2408011a907750b19d5f08937026
+# Команда: node --test tests/db/failures.test.js
+# Код виходу: 0 (очікувано 0)
+
+✔ обрив з'єднання посеред транзакції → повтор цілої транзакції → 200 (<ms>)
+✔ довше за statement_timeout (3 с) → 503 SOURCE_UNAVAILABLE з Retry-After, без повтору (<ms>)
+✔ друга лінія: запис повз застосунок під гонкою → 23505 → 409 CONFLICT і помилка в лог (<ms>)
+✔ БД недоступна → 503 на POST і GET, /ready 503, /health 200 (<ms>)
+✔ БД повернулась → /ready 200, запити знову працюють без перезапуску (<ms>)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms <ms>
