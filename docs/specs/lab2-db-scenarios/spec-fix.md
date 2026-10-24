@@ -102,3 +102,14 @@
   [ai-workflow.md](../../../standards/ai-workflow.md), «Роль ШІ»).
 - **Промпт:** [067](../../../ai/lab2/067-vidpovid-zapyty-data-md.md),
   [068](../../../ai/lab2/068-pohodzhuiu-vyprav-data-md.md).
+
+## sf-6. DEFENSE — завершене останнє речення
+
+- **Було:** `DEFENSE.md` автора (`69ae5b0`), розділ 4: «Sha самої перевірки
+  дивіться у report» — речення обірване (вставка обрізалась).
+- **Стало:** «…дивіться у reports/lab2/verify.txt.» Інших змін у тексті
+  автора немає.
+- **Чому:** точка входу рев'ю не має обриватися на півслові; шлях — той
+  самий, що автор назвав вище в розділі 4.
+- **Промпт:** [079](../../../ai/lab2/079-vypravy-rechennia-pohodzhuiu-readme.md)
+  (виняток із [ai-workflow.md](../../../standards/ai-workflow.md), «Роль ШІ»).
