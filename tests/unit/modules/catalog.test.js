@@ -7,7 +7,9 @@ import { createMemoryStore } from "../../../src/platform/memory.js";
 
 function setup() {
   const context = createContext();
-  return createCatalogModule({ store: createMemoryStore({ context }) }).api;
+  return createCatalogModule({
+    storage: { kind: "memory", store: createMemoryStore({ context }) },
+  }).api;
 }
 
 test("seed: групи, предмети й лаби з data.md", async () => {

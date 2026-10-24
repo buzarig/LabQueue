@@ -7,34 +7,74 @@ import { createQueueModule } from "./modules/queue/index.js";
 import { createSessionsModule } from "./modules/sessions/index.js";
 import {
   buildSha,
+  connectDb,
   createContext,
+  createDbAccess,
   createMemoryStore,
+  createPgBackend,
   createServer,
   createUnitOfWork,
   readConfig,
+  readiness,
   systemClock,
 } from "./platform/index.js";
 
 /**
- * Застосунок з усіма модулями. Поки що лише статика; PostgreSQL і вибір
- * сховища — з інтеграцією БД (ADR-0027).
- * @param {{ clock?: { now: () => Date }, logger?: boolean }} [options]
+ * Застосунок з усіма модулями на обраному сховищі (ADR-0027). Для pg пул
+ * перевіряється на старті: без БД — помилка одразу (ADR-0034).
+ * @param {{
+ *   storage?: "memory" | "pg",
+ *   databaseUrl?: string,
+ *   clock?: { now: () => Date },
+ *   logger?: boolean,
+ * }} [options]
  */
-export async function createApp({ clock = systemClock, logger = true } = {}) {
+export async function createApp({
+  storage = "memory",
+  databaseUrl,
+  clock = systemClock,
+  logger = true,
+} = {}) {
   const context = createContext();
-  const store = createMemoryStore({ context });
-  const unitOfWork = createUnitOfWork({ context, clock, backend: store });
+  const sql =
+    storage === "pg" ? await connectDb(String(databaseUrl)) : undefined;
 
-  const identity = createIdentityModule({ store, context });
-  const catalog = createCatalogModule({ store });
+  const app = createServer({
+    sha: buildSha(),
+    context,
+    logger,
+    ...(sql ? { ready: readiness(sql) } : {}),
+  });
+
+  /** @type {import("./platform/index.js").Storage} */
+  let storageDeps;
+  /** @type {Parameters<typeof createUnitOfWork>[0]["backend"]} */
+  let backend;
+  if (sql) {
+    storageDeps = { kind: "pg", db: createDbAccess({ sql, context }) };
+    backend = createPgBackend({
+      sql,
+      context,
+      onRetry: (info) => app.log.warn(info, "повтор транзакції"),
+    });
+    app.addHook("onClose", () => sql.end());
+  } else {
+    const store = createMemoryStore({ context });
+    storageDeps = { kind: "memory", store };
+    backend = store;
+  }
+  const unitOfWork = createUnitOfWork({ context, clock, backend });
+
+  const identity = createIdentityModule({ storage: storageDeps, context });
+  const catalog = createCatalogModule({ storage: storageDeps });
   const sessions = createSessionsModule({
-    store,
+    storage: storageDeps,
     identity: identity.api,
     catalog: catalog.api,
     unitOfWork,
   });
   const queue = createQueueModule({
-    store,
+    storage: storageDeps,
     identity: identity.api,
     sessions: sessions.api,
     catalog: catalog.api,
@@ -42,7 +82,6 @@ export async function createApp({ clock = systemClock, logger = true } = {}) {
     clock,
   });
 
-  const app = createServer({ sha: buildSha(), context, logger });
   for (const plugin of [
     identity.plugin,
     catalog.plugin,
@@ -55,7 +94,11 @@ export async function createApp({ clock = systemClock, logger = true } = {}) {
 }
 
 if (import.meta.main) {
-  const { port } = readConfig(process.env);
-  const app = await createApp();
+  const { port, storage, databaseUrl } = readConfig(process.env);
+  const app = await createApp({ storage, databaseUrl }).catch((error) => {
+    // Fail-fast (ADR-0034, К15): зрозуміле повідомлення й код 1.
+    console.error(`labqueue: старт неможливий — ${error.message}`);
+    process.exit(1);
+  });
   await app.listen({ port });
 }

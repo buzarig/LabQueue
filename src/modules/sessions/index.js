@@ -1,21 +1,30 @@
 // Публічна точка входу модуля sessions — заняття, стан запису, право власника (Session, SessionLab).
 // Межі й дані — docs/specs/lab1-foundation/architecture.md, «Модулі»; шари — ADR-0031.
 import { createSessionsRepoMemory } from "./repo-memory.js";
+import { createSessionsRepoPg } from "./repo-pg.js";
 import { registerSessionsRoutes } from "./routes.js";
 import { createSessionsService } from "./service.js";
 
 /**
  * Модуль sessions. Ресурси й API інших модулів передає main.js (ADR-0030).
  * @param {{
- *   store: import("../../platform/memory.js").MemoryStore,
+ *   storage: import("../../platform/index.js").Storage,
  *   identity: import("../identity/index.js").IdentityApi,
  *   catalog: import("../catalog/index.js").CatalogApi,
  *   unitOfWork: import("../../platform/unit-of-work.js").UnitOfWork,
  * }} deps
  */
-export function createSessionsModule({ store, identity, catalog, unitOfWork }) {
+export function createSessionsModule({
+  storage,
+  identity,
+  catalog,
+  unitOfWork,
+}) {
   const service = createSessionsService({
-    repo: createSessionsRepoMemory({ store }),
+    repo:
+      storage.kind === "pg"
+        ? createSessionsRepoPg({ db: storage.db })
+        : createSessionsRepoMemory({ store: storage.store }),
     identity,
     catalog,
     unitOfWork,

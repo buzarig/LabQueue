@@ -1,19 +1,23 @@
 // Публічна точка входу модуля identity — хто робить запит і яка в нього роль (User).
 // Межі й дані — docs/specs/lab1-foundation/architecture.md, «Модулі»; шари — ADR-0031.
 import { createIdentityRepoMemory } from "./repo-memory.js";
+import { createIdentityRepoPg } from "./repo-pg.js";
 import { registerIdentityRoutes } from "./routes.js";
 import { createIdentityService } from "./service.js";
 
 /**
  * Модуль identity. Ресурси передає main.js один раз (ADR-0030).
  * @param {{
- *   store: import("../../platform/memory.js").MemoryStore,
+ *   storage: import("../../platform/index.js").Storage,
  *   context: import("../../platform/context.js").Context,
  * }} deps
  */
-export function createIdentityModule({ store, context }) {
+export function createIdentityModule({ storage, context }) {
   const service = createIdentityService({
-    repo: createIdentityRepoMemory({ store }),
+    repo:
+      storage.kind === "pg"
+        ? createIdentityRepoPg({ db: storage.db })
+        : createIdentityRepoMemory({ store: storage.store }),
     context,
   });
 

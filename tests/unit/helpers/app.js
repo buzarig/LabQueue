@@ -42,16 +42,17 @@ export async function createTestApp() {
   const context = createContext();
   const store = createMemoryStore({ context });
   const unitOfWork = createUnitOfWork({ context, clock, backend: store });
-  const identity = createIdentityModule({ store, context });
-  const catalog = createCatalogModule({ store });
+  const storage = /** @type {const} */ ({ kind: "memory", store });
+  const identity = createIdentityModule({ storage, context });
+  const catalog = createCatalogModule({ storage });
   const sessions = createSessionsModule({
-    store,
+    storage,
     identity: identity.api,
     catalog: catalog.api,
     unitOfWork,
   });
   const queue = createQueueModule({
-    store,
+    storage,
     identity: identity.api,
     sessions: counted(sessions.api, "sessions", calls),
     catalog: counted(catalog.api, "catalog", calls),

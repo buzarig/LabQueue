@@ -1,13 +1,47 @@
-// Клієнт сценарної сюїти (К7): той самий застосунок, що запускає main.js
-// (createApp), лише через HTTP — сюїта не знає, яке під ним сховище.
+// Клієнт сценарної сюїти (К7, К10): той самий застосунок, що запускає
+// main.js (createApp), лише через HTTP — сюїта не знає, яке під ним сховище.
+// STORAGE=memory | pg; для pg — одна БД на прогін (копія шаблону, ADR-0033)
+// і порожні доменні таблиці перед кожним сценарієм (data.md).
 import { randomUUID } from "node:crypto";
+import { after } from "node:test";
 import { createApp } from "../../src/main.js";
+import { createTestDb } from "../db/harness.js";
+
+export const STORAGE = process.env.STORAGE === "pg" ? "pg" : "memory";
+
+/** @type {Promise<Awaited<ReturnType<typeof createTestDb>>> | undefined} */
+let testDb;
+/** @type {Array<{ close: () => Promise<unknown> }>} */
+const apps = [];
+
+after(async () => {
+  for (const app of apps) await app.close();
+  if (testDb) await (await testDb).drop();
+});
+
+/** Порожні доменні таблиці; довідники й користувачі (seed) лишаються. */
+async function freshDatabase() {
+  testDb ??= createTestDb();
+  const db = await testDb;
+  const sql = db.connect();
+  await sql`
+    truncate sessions.sessions, sessions.session_labs, queue.entries,
+      queue.no_shows, platform.idempotency_keys`;
+  await sql.end();
+  return db.url;
+}
 
 export const MISSING = "00000000-0000-4000-8000-000000000000";
 
 export async function createClient() {
   let now = new Date("2026-10-23T09:00:00Z");
-  const app = await createApp({ clock: { now: () => now }, logger: false });
+  const app = await createApp({
+    storage: STORAGE,
+    databaseUrl: STORAGE === "pg" ? await freshDatabase() : undefined,
+    clock: { now: () => now },
+    logger: false,
+  });
+  apps.push(app);
   await app.ready();
 
   /**

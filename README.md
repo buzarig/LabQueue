@@ -42,7 +42,7 @@ make verify   # make check + звіти в reports/lab2/ + дата й sha (пе
 | `make check` | формат, лінт, типи, проба JSDoc, межі модулів, юніт-тести, сценарна сюїта, збірка, smoke-тест, історія комітів, гігієна ([standards/checks.md](standards/checks.md)) |
 | `make verify` | `make check` + відтворення відмов hook-ів і порушень меж у тимчасовому клоні + прогін сценаріїв → `reports/lab2/`, підсумок — `reports/lab2/verify.txt` (звіти лаби 1 — `reports/lab1/`) |
 | `make report-scenarios` | лише звіт сценарної сюїти на статиці → `reports/lab2/scenarios-memory.txt` (К9) |
-| `make build` і `node dist/main.js` | запуск застосунку: `GET /health`, `GET /version`; порт — `PORT`, за замовчуванням 3000 |
+| `make build` і `node --env-file=.env dist/main.js` | запуск застосунку на PostgreSQL (`STORAGE=pg` типово, `DATABASE_URL`); `STORAGE=memory` — статика без БД. Без БД застосунок не стартує (код 1). Технічні маршрути: `GET /health`, `GET /ready`, `GET /version`; порт — `PORT`, за замовчуванням 3000 |
 
 Git-hooks ставляться під час `npm install`:
 - **pre-commit** — формат і лінт staged-файлів;

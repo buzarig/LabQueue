@@ -38,9 +38,11 @@ boundaries: $(DEPS)
 test: $(DEPS)
 	npm run --silent test
 
-# CHK-15: сценарна сюїта S1–S13 і каталог помилок через HTTP (К7, К8).
+# CHK-15: сценарна сюїта S1–S13 і каталог помилок через HTTP (К7, К8) — та
+# сама на обох сховищах (К10): статика й PostgreSQL.
 scenarios: $(DEPS)
-	npm run --silent scenarios
+	STORAGE=memory npm run --silent scenarios
+	STORAGE=pg npm run --silent scenarios
 
 # CHK-17: тести на PostgreSQL (К10–К17): окрема БД на прогін із шаблону
 # (ADR-0033). Без запущеного кластера — зупинка з підказкою make db-up.

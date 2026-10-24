@@ -12,7 +12,10 @@ async function setup() {
   const logs = [];
   const context = createContext();
   const store = createMemoryStore({ context });
-  const identity = createIdentityModule({ store, context });
+  const identity = createIdentityModule({
+    storage: { kind: "memory", store },
+    context,
+  });
   const app = createServer({
     sha: "test",
     context,
