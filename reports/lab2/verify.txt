@@ -1,6 +1,6 @@
 # make verify — звіт для DEFENSE
-дата:  2026-10-24T13:47:42.085Z
-sha:   d6f3592ce27d15a56411ba6e6e0bf4e7d11dc5ff
+дата:  2026-10-24T14:18:06.837Z
+sha:   ff5cc7ed2ffa2408011a907750b19d5f08937026
 дерево: чисте (без урахування reports/)
 
 Sha — коміт, на якому запускали verify. Коміт із цим звітом іде одразу після нього.
@@ -281,9 +281,9 @@ npm run --silent smoke
 ℹ todo 0
 ℹ duration_ms <ms>
 npm run --silent commits
-CHK-07/08: 43 комітів у origin/main..HEAD — OK
+CHK-07/08: 49 комітів у origin/main..HEAD — OK
 npm run --silent hygiene
-CHK-09: 255 відстежуваних файлів — OK
+CHK-09: 268 відстежуваних файлів — OK
 make check: OK
 
 ## Звіти (CHK-11)
@@ -294,7 +294,7 @@ branch-protection.txt: - pr-protection (active), гілки: ~DEFAULT_BRANCH
   правила: deletion, non_fast_forward, pull_request, required_status_checks
   обов'язкові перевірки: check
   дозволені способи merge: merge
-scenarios-memory.txt: зелено на d6f3592
-scenarios-pg.txt: зелено на d6f3592
-failures.txt: зелено на d6f3592
-queries.txt: 13 сценаріїв без N+1 на d6f3592
+scenarios-memory.txt: зелено на ff5cc7e
+scenarios-pg.txt: зелено на ff5cc7e
+failures.txt: зелено на ff5cc7e
+queries.txt: 13 сценаріїв без N+1 на ff5cc7e
