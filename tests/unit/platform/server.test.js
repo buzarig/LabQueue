@@ -34,6 +34,14 @@ async function setup() {
   app.get("/t/crash", async () => {
     throw new Error("секретна деталь");
   });
+  app.get("/t/db-down", async () => {
+    throw Object.assign(new Error("connect ECONNREFUSED"), {
+      code: "ECONNREFUSED",
+    });
+  });
+  app.get("/t/unique", async () => {
+    throw Object.assign(new Error("duplicate key"), { code: "23505" });
+  });
   app.post(
     "/t/schema",
     {
@@ -190,6 +198,40 @@ test("ідемпотентність: ключ, хеш і статус успі�
   assert.equal(first.key, "k");
   assert.equal(first.successStatus, 201);
   assert.notEqual(first.requestHash, second.requestHash);
+});
+
+test("збої БД: недоступна → 503 SOURCE_UNAVAILABLE з Retry-After (ADR-0034)", async () => {
+  const { app } = await setup();
+  const res = await app.inject({ url: "/t/db-down" });
+  assert.equal(res.statusCode, 503);
+  assert.equal(res.json().error.code, "SOURCE_UNAVAILABLE");
+  assert.equal(res.headers["retry-after"], "1");
+});
+
+test("збої БД: друга лінія 23505 → 409 CONFLICT і помилка в лог", async () => {
+  const { app, logs } = await setup();
+  const res = await app.inject({ url: "/t/unique" });
+  assert.equal(res.statusCode, 409);
+  assert.equal(res.json().error.code, "CONFLICT");
+  assert.ok(
+    logs.some((l) => l.msg === "спрацювала друга лінія БД" && l.level === 50),
+  );
+});
+
+test("/ready: 200 ready, а без джерела — 503 unavailable; X-User-Id не потрібен", async () => {
+  const { app } = await setup();
+  assert.deepEqual((await app.inject({ url: "/ready" })).json(), {
+    status: "ready",
+  });
+  const down = createServer({
+    sha: "t",
+    context: createContext(),
+    logger: false,
+    ready: async () => false,
+  });
+  const res = await down.inject({ url: "/ready" });
+  assert.equal(res.statusCode, 503);
+  assert.deepEqual(res.json(), { status: "unavailable" });
 });
 
 test("контекст: current() поза запитом — помилка, а не тиха робота без контексту", () => {

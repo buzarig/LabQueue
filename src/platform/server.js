@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import Fastify from "fastify";
+import { translateDbError } from "./db/errors.js";
 import { toErrorResponse } from "./errors.js";
 import { idempotencyHook } from "./idempotency.js";
 
@@ -26,9 +27,16 @@ function processIdOf(request) {
  *   context: import("./context.js").Context,
  *   logger?: boolean,
  *   logStream?: { write: (line: string) => void },
+ *   ready?: () => Promise<boolean>,
  * }} options
  */
-export function createServer({ sha, context, logger = true, logStream }) {
+export function createServer({
+  sha,
+  context,
+  logger = true,
+  logStream,
+  ready = async () => true,
+}) {
   const app = Fastify({
     genReqId: processIdOf,
     // Невідомі поля в тілі — 400, а не тихе видалення (data.md); типи не
@@ -57,10 +65,21 @@ export function createServer({ sha, context, logger = true, logStream }) {
   // Після автентифікації (onRequest) і до валідації тіла: 401 → 400 (data.md).
   app.addHook("preValidation", idempotencyHook(context));
 
+  // Один обробник для всього застосунку (К6): доменні помилки, валідація,
+  // збої БД (503 з Retry-After, ADR-0034) і непередбачені (500).
   app.setErrorHandler((error, request, reply) => {
-    const response = toErrorResponse(error);
+    const translated =
+      /** @type {{ retryAfter?: number, logAsError?: boolean }} */ (
+        translateDbError(error)
+      );
+    const response = toErrorResponse(translated);
     if (response.unexpected) {
       request.log.error({ err: error }, "непередбачена помилка");
+    } else if (translated.logAsError) {
+      request.log.error({ err: error }, "спрацювала друга лінія БД");
+    }
+    if (translated.retryAfter) {
+      reply.header("retry-after", String(translated.retryAfter));
     }
     return reply.code(response.status).send(response.body);
   });
@@ -89,6 +108,13 @@ export function createServer({ sha, context, logger = true, logStream }) {
       },
     },
     async () => ({ status: "ok" }),
+  );
+
+  // Готовність: чи працює джерело даних (ADR-0034). /health — лише «процес живий».
+  app.get("/ready", { config: { public: true } }, async (request, reply) =>
+    (await ready())
+      ? { status: "ready" }
+      : reply.code(503).send({ status: "unavailable" }),
   );
 
   app.get(
