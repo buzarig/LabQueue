@@ -1,5 +1,5 @@
 # К7: пуш зі зламаним smoke-тестом відхиляється pre-push
-# Відтворення: make verify, вихідний коміт 0b47dd2a1994495fcd814d2f029d7dacb5316897
+# Відтворення: make verify, вихідний коміт d6f3592ce27d15a56411ba6e6e0bf4e7d11dc5ff
 
 ## pre-push
 # Команда: git push demo HEAD
@@ -22,7 +22,7 @@ npm run --silent typecheck:probe
 ℹ duration_ms <ms>
 npm run --silent boundaries
 
-✔ no dependency violations found (43 modules, 40 dependencies cruised)
+✔ no dependency violations found (51 modules, 52 dependencies cruised)
 
 npm run --silent test
 ✔ seed: групи, предмети й лаби з data.md (<ms>)
@@ -81,6 +81,9 @@ npm run --silent test
 ✔ помилки: невідомий маршрут → 404 ROUTE_NOT_FOUND у тому самому форматі (<ms>)
 ✔ ідемпотентність: POST без Idempotency-Key або з задовгим ключем → 400 (<ms>)
 ✔ ідемпотентність: ключ, хеш і статус успіху маршруту лягають у контекст (<ms>)
+✔ збої БД: недоступна → 503 SOURCE_UNAVAILABLE з Retry-After (ADR-0034) (<ms>)
+✔ збої БД: друга лінія 23505 → 409 CONFLICT і помилка в лог (<ms>)
+✔ /ready: 200 ready, а без джерела — 503 unavailable; X-User-Id не потрібен (<ms>)
 ✔ контекст: current() поза запитом — помилка, а не тиха робота без контексту (<ms>)
 ✔ запис поза unitOfWork — помилка (<ms>)
 ✔ коміт лишає записи; непередбачена помилка відкочує всі записи транзакції (<ms>)
@@ -106,15 +109,16 @@ npm run --silent test
 ✔ ESLint: try/catch у platform/ і repo-pg.js — дозволено (<ms>)
 ✔ ESLint: драйвер БД поза repo-pg.js і platform/db — помилка (К4) (<ms>)
 ✔ ESLint: sql.unsafe заборонено навіть у repo-pg.js (ADR-0032) (<ms>)
-ℹ tests 81
+ℹ tests 84
 ℹ suites 0
-ℹ pass 81
+ℹ pass 84
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
 ℹ duration_ms <ms>
-npm run --silent scenarios
+STORAGE=memory npm run --silent scenarios
+.env not found. Continuing without it.
 ✔ К8: кожен код каталогу data.md має сценарний тест або обґрунтований виняток (<ms>)
 ✔ VALIDATION_FAILED → 400 (<ms>)
 ✔ UNAUTHENTICATED → 401 (<ms>)
@@ -139,9 +143,10 @@ npm run --silent scenarios
 ✔ SUBMITTING_IN_PROGRESS → 409 (<ms>)
 ✔ SCORE_MISMATCH → 422 (<ms>)
 ✔ IDEMPOTENCY_KEY_REUSED → 409 (<ms>)
-﹣ CONFLICT → 409: на статиці не виникає (<ms>) # друга лінія — порушення унікального індексу 23505, є лише на PostgreSQL (крок БД)
-﹣ SOURCE_UNAVAILABLE → 503: на статиці не виникає (<ms>) # збій БД — лише на PostgreSQL, reports/lab2/failures.txt (крок БД)
-﹣ INTERNAL → 500: на статиці не виникає (<ms>) # непередбачена помилка — tests/unit/platform/server.test.js
+﹣ CONFLICT → 409: перевіряється поза сюїтою (<ms>) # друга лінія (23505) через HTTP лише під гонкою з прямим записом у БД — tests/db/failures.test.js
+﹣ SOURCE_UNAVAILABLE → 503: перевіряється поза сюїтою (<ms>) # збій джерела (обрив, недоступність, statement_timeout) — tests/db/failures.test.js
+﹣ INTERNAL → 500: перевіряється поза сюїтою (<ms>) # непередбачена помилка — tests/unit/platform/server.test.js
+.env not found. Continuing without it.
 ▶ заняття від створення до історії здач (S1–S13)
   ✔ S1. Викладач створює заняття (<ms>)
   ✔ S2. Викладач відкриває запис (<ms>)
@@ -165,46 +170,481 @@ npm run --silent scenarios
 ℹ skipped 3
 ℹ todo 0
 ℹ duration_ms <ms>
-npm run --silent build
-npm run --silent smoke
-✖ dist/: GET /health → 200 {status: ok} (<ms>)
-✔ dist/: GET /version → sha поточного коміту (<ms>)
-✔ збірка без git: GET /version → {sha: unknown} (<ms>)
-ℹ tests 3
-ℹ suites 0
-ℹ pass 2
-ℹ fail 1
-ℹ cancelled 0
-ℹ skipped 0
+STORAGE=pg npm run --silent scenarios
+.env not found. Continuing without it.
+✔ К8: кожен код каталогу data.md має сценарний тест або обґрунтований виняток (<ms>)
+✖ VALIDATION_FAILED → 400 (<ms>)
+✖ UNAUTHENTICATED → 401 (<ms>)
+✖ ROUTE_NOT_FOUND → 404 (<ms>)
+✖ FORBIDDEN_ROLE → 403 (<ms>)
+✖ NOT_SESSION_OWNER → 403 (<ms>)
+✖ NOT_IN_GROUP → 403 (<ms>)
+✖ NOT_ENTRY_OWNER → 403 (<ms>)
+✖ SESSION_NOT_FOUND → 404 (<ms>)
+✖ ENTRY_NOT_FOUND → 404 (<ms>)
+✖ NO_ACTIVE_ENTRY → 404 (<ms>)
+✖ UNKNOWN_REFERENCE → 422 (<ms>)
+✖ SESSION_STATE_CONFLICT → 409 (<ms>)
+✖ ENROLLMENT_CLOSED → 409 (<ms>)
+✖ LAB_NOT_ACCEPTED → 409 (<ms>)
+✖ QUEUE_LIMIT_REACHED → 409 (<ms>)
+✖ ALREADY_IN_QUEUE → 409 (<ms>)
+✖ DROPPED_FROM_SESSION → 409 (<ms>)
+✖ TEACHER_BUSY → 409 (<ms>)
+✖ QUEUE_EMPTY → 409 (<ms>)
+✖ ENTRY_STATE_CONFLICT → 409 (<ms>)
+✖ SUBMITTING_IN_PROGRESS → 409 (<ms>)
+✖ SCORE_MISMATCH → 422 (<ms>)
+✖ IDEMPOTENCY_KEY_REUSED → 409 (<ms>)
+﹣ CONFLICT → 409: перевіряється поза сюїтою (<ms>) # друга лінія (23505) через HTTP лише під гонкою з прямим записом у БД — tests/db/failures.test.js
+﹣ SOURCE_UNAVAILABLE → 503: перевіряється поза сюїтою (<ms>) # збій джерела (обрив, недоступність, statement_timeout) — tests/db/failures.test.js
+﹣ INTERNAL → 500: перевіряється поза сюїтою (<ms>) # непередбачена помилка — tests/unit/platform/server.test.js
+✖ /private<tmp>/repo/tests/scenarios/client.js (<ms>)
+.env not found. Continuing without it.
+▶ заняття від створення до історії здач (S1–S13)
+  ✖ S1. Викладач створює заняття
+  ✖ S2. Викладач відкриває запис
+  ✖ S10. Студенти стають у чергу
+  ✖ S9. Студент бачить заняття своєї групи й стан черг
+  ✖ S11. Студент бачить свою позицію й орієнтовний час
+  ✖ S12. Студент виходить із черги
+  ✖ S5. Викладач викликає наступного
+  ✖ S8. Викладач позначає неявку — студент у кінець черги
+  ✖ S6. Викладач починає прийом
+  ✖ S7. Викладач фіксує результат
+  ✖ S3. Викладач закриває запис — черга продовжує рухатись
+  ✖ S4. Викладач завершує заняття — викликаний без здачі стає missed
+  ✖ S13. Студент переглядає історію здач
+✖ заняття від створення до історії здач (S1–S13) (<ms>)
+✖ /private<tmp>/repo/tests/scenarios/client.js (<ms>)
+ℹ tests 42
+ℹ suites 1
+ℹ pass 1
+ℹ fail 25
+ℹ cancelled 13
+ℹ skipped 3
 ℹ todo 0
 ℹ duration_ms <ms>
 
 ✖ failing tests:
 
-test at tests/smoke/smoke.test.js:60:1
-✖ dist/: GET /health → 200 {status: ok} (<ms>)
-  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
-  + actual - expected
-  
-    {
-      body: {
-  +     status: 'broken'
-  -     status: 'ok'
-      },
-      status: 200
-    }
-  
-      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/smoke/smoke.test.js:62:10)
-      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
-      at async Test.run (node:internal/test_runner/test:1409:7)
-      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
-    generatedMessage: true,
-    code: 'ERR_ASSERTION',
-    actual: { status: 200, body: { status: 'broken' } },
-    expected: { status: 200, body: { status: 'ok' } },
-    operator: 'deepStrictEqual',
-    diff: 'simple'
-  }
+test at tests/scenarios/errors.test.js:174:3
+✖ VALIDATION_FAILED → 400 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ UNAUTHENTICATED → 401 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ ROUTE_NOT_FOUND → 404 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ FORBIDDEN_ROLE → 403 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ NOT_SESSION_OWNER → 403 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ NOT_IN_GROUP → 403 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ NOT_ENTRY_OWNER → 403 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ SESSION_NOT_FOUND → 404 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ ENTRY_NOT_FOUND → 404 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ NO_ACTIVE_ENTRY → 404 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ UNKNOWN_REFERENCE → 422 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ SESSION_STATE_CONFLICT → 409 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ ENROLLMENT_CLOSED → 409 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ LAB_NOT_ACCEPTED → 409 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ QUEUE_LIMIT_REACHED → 409 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ ALREADY_IN_QUEUE → 409 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ DROPPED_FROM_SESSION → 409 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ TEACHER_BUSY → 409 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ QUEUE_EMPTY → 409 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ ENTRY_STATE_CONFLICT → 409 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ SUBMITTING_IN_PROGRESS → 409 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ SCORE_MISMATCH → 422 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/errors.test.js:174:3
+✖ IDEMPOTENCY_KEY_REUSED → 409 (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/client.js:17:1
+✖ /private<tmp>/repo/tests/scenarios/client.js (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at TestContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/errors.test.js:175:33)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tests/scenarios/lifecycle.test.js:20:3
+✖ S1. Викладач створює заняття
+  'test did not finish before its parent and was cancelled'
+
+test at tests/scenarios/lifecycle.test.js:36:3
+✖ S2. Викладач відкриває запис
+  'test did not finish before its parent and was cancelled'
+
+test at tests/scenarios/lifecycle.test.js:44:3
+✖ S10. Студенти стають у чергу
+  'test did not finish before its parent and was cancelled'
+
+test at tests/scenarios/lifecycle.test.js:57:3
+✖ S9. Студент бачить заняття своєї групи й стан черг
+  'test did not finish before its parent and was cancelled'
+
+test at tests/scenarios/lifecycle.test.js:64:3
+✖ S11. Студент бачить свою позицію й орієнтовний час
+  'test did not finish before its parent and was cancelled'
+
+test at tests/scenarios/lifecycle.test.js:72:3
+✖ S12. Студент виходить із черги
+  'test did not finish before its parent and was cancelled'
+
+test at tests/scenarios/lifecycle.test.js:85:3
+✖ S5. Викладач викликає наступного
+  'test did not finish before its parent and was cancelled'
+
+test at tests/scenarios/lifecycle.test.js:93:3
+✖ S8. Викладач позначає неявку — студент у кінець черги
+  'test did not finish before its parent and was cancelled'
+
+test at tests/scenarios/lifecycle.test.js:102:3
+✖ S6. Викладач починає прийом
+  'test did not finish before its parent and was cancelled'
+
+test at tests/scenarios/lifecycle.test.js:115:3
+✖ S7. Викладач фіксує результат
+  'test did not finish before its parent and was cancelled'
+
+test at tests/scenarios/lifecycle.test.js:132:3
+✖ S3. Викладач закриває запис — черга продовжує рухатись
+  'test did not finish before its parent and was cancelled'
+
+test at tests/scenarios/lifecycle.test.js:148:3
+✖ S4. Викладач завершує заняття — викликаний без здачі стає missed
+  'test did not finish before its parent and was cancelled'
+
+test at tests/scenarios/lifecycle.test.js:157:3
+✖ S13. Студент переглядає історію здач
+  'test did not finish before its parent and was cancelled'
+
+test at tests/scenarios/lifecycle.test.js:8:1
+✖ заняття від створення до історії здач (S1–S13) (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at SuiteContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/lifecycle.test.js:17:15)
+      at TestHook.runInAsyncScope (node:async_hooks:227:14)
+      at TestHook.run (node:internal/test_runner/test:1402:25)
+      at TestHook.run (node:internal/test_runner/test:1757:18)
+      at TestHook.run (node:internal/util:581:20)
+
+test at tests/scenarios/client.js:17:1
+✖ /private<tmp>/repo/tests/scenarios/client.js (<ms>)
+  Error: немає DATABASE_URL: cp .env.example .env і make db-up (README, «Середовище»)
+      at urlFor (file:///private<tmp>/repo/tests/db/harness.js:22:11)
+      at admin (file:///private<tmp>/repo/tests/db/harness.js:36:15)
+      at createTestDb (file:///private<tmp>/repo/tests/db/harness.js:75:22)
+      at freshDatabase (file:///private<tmp>/repo/tests/scenarios/client.js:24:14)
+      at createClient (file:///private<tmp>/repo/tests/scenarios/client.js:40:43)
+      at SuiteContext.<anonymous> (file:///private<tmp>/repo/tests/scenarios/lifecycle.test.js:17:15)
+      at TestHook.runInAsyncScope (node:async_hooks:227:14)
+      at TestHook.run (node:internal/test_runner/test:1402:25)
+      at TestHook.run (node:internal/test_runner/test:1757:18)
+      at TestHook.run (node:internal/util:581:20)
 husky - pre-push script failed (code 2)
-make[1]: *** [smoke] Error 1
+.env not found. Continuing without it.
+.env not found. Continuing without it.
+make[1]: *** [scenarios] Error 1
 error: failed to push some refs to '<tmp>/remote.git'

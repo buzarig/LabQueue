@@ -1,6 +1,6 @@
 # К9: сценарна сюїта S1–S13 і каталог помилок на статиці (STORAGE=memory)
-# Відтворення: make report-scenarios, вихідний коміт 0b47dd2a1994495fcd814d2f029d7dacb5316897
-# Команда: node --test tests/scenarios/**/*.test.js
+# Відтворення: make report-scenarios-memory, вихідний коміт d6f3592ce27d15a56411ba6e6e0bf4e7d11dc5ff
+# Команда: node --test tests/scenarios/**/*.test.js (STORAGE=memory)
 # Код виходу: 0 (очікувано 0)
 
 ✔ К8: кожен код каталогу data.md має сценарний тест або обґрунтований виняток (<ms>)
@@ -27,9 +27,9 @@
 ✔ SUBMITTING_IN_PROGRESS → 409 (<ms>)
 ✔ SCORE_MISMATCH → 422 (<ms>)
 ✔ IDEMPOTENCY_KEY_REUSED → 409 (<ms>)
-﹣ CONFLICT → 409: на статиці не виникає (<ms>) # друга лінія — порушення унікального індексу 23505, є лише на PostgreSQL (крок БД)
-﹣ SOURCE_UNAVAILABLE → 503: на статиці не виникає (<ms>) # збій БД — лише на PostgreSQL, reports/lab2/failures.txt (крок БД)
-﹣ INTERNAL → 500: на статиці не виникає (<ms>) # непередбачена помилка — tests/unit/platform/server.test.js
+﹣ CONFLICT → 409: перевіряється поза сюїтою (<ms>) # друга лінія (23505) через HTTP лише під гонкою з прямим записом у БД — tests/db/failures.test.js
+﹣ SOURCE_UNAVAILABLE → 503: перевіряється поза сюїтою (<ms>) # збій джерела (обрив, недоступність, statement_timeout) — tests/db/failures.test.js
+﹣ INTERNAL → 500: перевіряється поза сюїтою (<ms>) # непередбачена помилка — tests/unit/platform/server.test.js
 ▶ заняття від створення до історії здач (S1–S13)
   ✔ S1. Викладач створює заняття (<ms>)
   ✔ S2. Викладач відкриває запис (<ms>)

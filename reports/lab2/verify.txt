@@ -1,6 +1,6 @@
 # make verify — звіт для DEFENSE
-дата:  2026-10-23T21:40:59.357Z
-sha:   0b47dd2a1994495fcd814d2f029d7dacb5316897
+дата:  2026-10-24T13:47:42.085Z
+sha:   d6f3592ce27d15a56411ba6e6e0bf4e7d11dc5ff
 дерево: чисте (без урахування reports/)
 
 Sha — коміт, на якому запускали verify. Коміт із цим звітом іде одразу після нього.
@@ -23,7 +23,7 @@ npm run --silent typecheck:probe
 ℹ duration_ms <ms>
 npm run --silent boundaries
 
-✔ no dependency violations found (43 modules, 40 dependencies cruised)
+✔ no dependency violations found (51 modules, 52 dependencies cruised)
 
 npm run --silent test
 ✔ seed: групи, предмети й лаби з data.md (<ms>)
@@ -82,6 +82,9 @@ npm run --silent test
 ✔ помилки: невідомий маршрут → 404 ROUTE_NOT_FOUND у тому самому форматі (<ms>)
 ✔ ідемпотентність: POST без Idempotency-Key або з задовгим ключем → 400 (<ms>)
 ✔ ідемпотентність: ключ, хеш і статус успіху маршруту лягають у контекст (<ms>)
+✔ збої БД: недоступна → 503 SOURCE_UNAVAILABLE з Retry-After (ADR-0034) (<ms>)
+✔ збої БД: друга лінія 23505 → 409 CONFLICT і помилка в лог (<ms>)
+✔ /ready: 200 ready, а без джерела — 503 unavailable; X-User-Id не потрібен (<ms>)
 ✔ контекст: current() поза запитом — помилка, а не тиха робота без контексту (<ms>)
 ✔ запис поза unitOfWork — помилка (<ms>)
 ✔ коміт лишає записи; непередбачена помилка відкочує всі записи транзакції (<ms>)
@@ -107,15 +110,15 @@ npm run --silent test
 ✔ ESLint: try/catch у platform/ і repo-pg.js — дозволено (<ms>)
 ✔ ESLint: драйвер БД поза repo-pg.js і platform/db — помилка (К4) (<ms>)
 ✔ ESLint: sql.unsafe заборонено навіть у repo-pg.js (ADR-0032) (<ms>)
-ℹ tests 81
+ℹ tests 84
 ℹ suites 0
-ℹ pass 81
+ℹ pass 84
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
 ℹ duration_ms <ms>
-npm run --silent scenarios
+STORAGE=memory npm run --silent scenarios
 ✔ К8: кожен код каталогу data.md має сценарний тест або обґрунтований виняток (<ms>)
 ✔ VALIDATION_FAILED → 400 (<ms>)
 ✔ UNAUTHENTICATED → 401 (<ms>)
@@ -140,9 +143,9 @@ npm run --silent scenarios
 ✔ SUBMITTING_IN_PROGRESS → 409 (<ms>)
 ✔ SCORE_MISMATCH → 422 (<ms>)
 ✔ IDEMPOTENCY_KEY_REUSED → 409 (<ms>)
-﹣ CONFLICT → 409: на статиці не виникає (<ms>) # друга лінія — порушення унікального індексу 23505, є лише на PostgreSQL (крок БД)
-﹣ SOURCE_UNAVAILABLE → 503: на статиці не виникає (<ms>) # збій БД — лише на PostgreSQL, reports/lab2/failures.txt (крок БД)
-﹣ INTERNAL → 500: на статиці не виникає (<ms>) # непередбачена помилка — tests/unit/platform/server.test.js
+﹣ CONFLICT → 409: перевіряється поза сюїтою (<ms>) # друга лінія (23505) через HTTP лише під гонкою з прямим записом у БД — tests/db/failures.test.js
+﹣ SOURCE_UNAVAILABLE → 503: перевіряється поза сюїтою (<ms>) # збій джерела (обрив, недоступність, statement_timeout) — tests/db/failures.test.js
+﹣ INTERNAL → 500: перевіряється поза сюїтою (<ms>) # непередбачена помилка — tests/unit/platform/server.test.js
 ▶ заняття від створення до історії здач (S1–S13)
   ✔ S1. Викладач створює заняття (<ms>)
   ✔ S2. Викладач відкриває запис (<ms>)
@@ -166,6 +169,104 @@ npm run --silent scenarios
 ℹ skipped 3
 ℹ todo 0
 ℹ duration_ms <ms>
+STORAGE=pg npm run --silent scenarios
+✔ К8: кожен код каталогу data.md має сценарний тест або обґрунтований виняток (<ms>)
+✔ VALIDATION_FAILED → 400 (<ms>)
+✔ UNAUTHENTICATED → 401 (<ms>)
+✔ ROUTE_NOT_FOUND → 404 (<ms>)
+✔ FORBIDDEN_ROLE → 403 (<ms>)
+✔ NOT_SESSION_OWNER → 403 (<ms>)
+✔ NOT_IN_GROUP → 403 (<ms>)
+✔ NOT_ENTRY_OWNER → 403 (<ms>)
+✔ SESSION_NOT_FOUND → 404 (<ms>)
+✔ ENTRY_NOT_FOUND → 404 (<ms>)
+✔ NO_ACTIVE_ENTRY → 404 (<ms>)
+✔ UNKNOWN_REFERENCE → 422 (<ms>)
+✔ SESSION_STATE_CONFLICT → 409 (<ms>)
+✔ ENROLLMENT_CLOSED → 409 (<ms>)
+✔ LAB_NOT_ACCEPTED → 409 (<ms>)
+✔ QUEUE_LIMIT_REACHED → 409 (<ms>)
+✔ ALREADY_IN_QUEUE → 409 (<ms>)
+✔ DROPPED_FROM_SESSION → 409 (<ms>)
+✔ TEACHER_BUSY → 409 (<ms>)
+✔ QUEUE_EMPTY → 409 (<ms>)
+✔ ENTRY_STATE_CONFLICT → 409 (<ms>)
+✔ SUBMITTING_IN_PROGRESS → 409 (<ms>)
+✔ SCORE_MISMATCH → 422 (<ms>)
+✔ IDEMPOTENCY_KEY_REUSED → 409 (<ms>)
+﹣ CONFLICT → 409: перевіряється поза сюїтою (<ms>) # друга лінія (23505) через HTTP лише під гонкою з прямим записом у БД — tests/db/failures.test.js
+﹣ SOURCE_UNAVAILABLE → 503: перевіряється поза сюїтою (<ms>) # збій джерела (обрив, недоступність, statement_timeout) — tests/db/failures.test.js
+﹣ INTERNAL → 500: перевіряється поза сюїтою (<ms>) # непередбачена помилка — tests/unit/platform/server.test.js
+▶ заняття від створення до історії здач (S1–S13)
+  ✔ S1. Викладач створює заняття (<ms>)
+  ✔ S2. Викладач відкриває запис (<ms>)
+  ✔ S10. Студенти стають у чергу (<ms>)
+  ✔ S9. Студент бачить заняття своєї групи й стан черг (<ms>)
+  ✔ S11. Студент бачить свою позицію й орієнтовний час (<ms>)
+  ✔ S12. Студент виходить із черги (<ms>)
+  ✔ S5. Викладач викликає наступного (<ms>)
+  ✔ S8. Викладач позначає неявку — студент у кінець черги (<ms>)
+  ✔ S6. Викладач починає прийом (<ms>)
+  ✔ S7. Викладач фіксує результат (<ms>)
+  ✔ S3. Викладач закриває запис — черга продовжує рухатись (<ms>)
+  ✔ S4. Викладач завершує заняття — викликаний без здачі стає missed (<ms>)
+  ✔ S13. Студент переглядає історію здач (<ms>)
+✔ заняття від створення до історії здач (S1–S13) (<ms>)
+ℹ tests 40
+ℹ suites 1
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 3
+ℹ todo 0
+ℹ duration_ms <ms>
+npm run --silent test:db
+✔ I2, I3: 20 одночасних записів при ліміті 5 — рівно 5, seq 1–5 без повторів (<ms>)
+✔ I1: той самий студент двічі одночасно — один запис, другий 409 ALREADY_IN_QUEUE (<ms>)
+✔ I4: «викликати наступного» одночасно на двох заняттях викладача — один виклик (<ms>)
+✔ I6: закриття запису одночасно з записами — після закриття жодного нового запису (<ms>)
+✔ обрив з'єднання посеред транзакції → повтор цілої транзакції → 200 (<ms>)
+✔ довше за statement_timeout (3 с) → 503 SOURCE_UNAVAILABLE з Retry-After, без повтору (<ms>)
+✔ друга лінія: запис повз застосунок під гонкою → 23505 → 409 CONFLICT і помилка в лог (<ms>)
+✔ БД недоступна → 503 на POST і GET, /ready 503, /health 200 (<ms>)
+✔ БД повернулась → /ready 200, запити знову працюють без перезапуску (<ms>)
+▶ ранер міграцій на порожній базі
+  ✔ два одночасні запуски застосовують кожну міграцію рівно один раз (<ms>)
+  ✔ повторний запуск нічого не змінює (<ms>)
+  ✔ seed повторюваний: двічі — ті самі 7 користувачів і 5 лаб (<ms>)
+✔ ранер міграцій на порожній базі (<ms>)
+▶ обмеження схеми — друга лінія
+  ✔ шаблон містить схему й seed (<ms>)
+  ✔ I9: бал лише в passed і в межах 0–100 (<ms>)
+  ✔ I1: другий активний запис студента на занятті — 23505 (<ms>)
+  ✔ I3: однаковий seq на занятті — 23505 (<ms>)
+  ✔ I4: другий called/submitting у викладача навіть на іншому занятті — 23505 (<ms>)
+✔ обмеження схеми — друга лінія (<ms>)
+✔ К16: N = 1 і N = 10 — однакова кількість запитів, як у data.md (<ms>)
+✔ БД недоступна на старті → код 1 за кілька секунд, без пароля в повідомленні (<ms>)
+✔ STORAGE=pg без DATABASE_URL → код 1 (<ms>)
+✔ з БД — слухає порт, /ready → 200 (<ms>)
+✔ запис поза unitOfWork — помилка; читання — через пул (<ms>)
+✔ коміт лишає записи; непередбачена помилка відкочує всю транзакцію (<ms>)
+✔ ідемпотентність: повтор — збережений результат (jsonb), без нового виклику (<ms>)
+✔ ідемпотентність: доменна відмова відкочує savepoint, ключ комітиться й повторюється (<ms>)
+✔ ідемпотентність: той самий ключ з іншим запитом → 409 IDEMPOTENCY_KEY_REUSED (<ms>)
+✔ ідемпотентність: одночасні запити з одним ключем — сервіс виконується один раз (<ms>)
+✔ ідемпотентність: ключ старший за 24 години — виконується знову (<ms>)
+✔ повтори: тимчасова помилка (40001) — ціла транзакція ще раз, до успіху (<ms>)
+✔ повтори вичерпано (3) → 503 SOURCE_UNAVAILABLE з Retry-After (<ms>)
+✔ справжнє порушення унікальності — 409 CONFLICT без повтору (<ms>)
+✔ statement_timeout 3 с → 503 SOURCE_UNAVAILABLE без повтору (<ms>)
+✔ /ready: справжня БД — true; закритий пул — false (<ms>)
+✔ fail-fast: БД недоступна на старті — помилка одразу, без пароля в тексті (<ms>)
+ℹ tests 34
+ℹ suites 2
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms <ms>
 npm run --silent build
 npm run --silent smoke
 ✔ dist/: GET /health → 200 {status: ok} (<ms>)
@@ -180,9 +281,9 @@ npm run --silent smoke
 ℹ todo 0
 ℹ duration_ms <ms>
 npm run --silent commits
-CHK-07/08: 31 комітів у origin/main..HEAD — OK
+CHK-07/08: 43 комітів у origin/main..HEAD — OK
 npm run --silent hygiene
-CHK-09: 213 відстежуваних файлів — OK
+CHK-09: 255 відстежуваних файлів — OK
 make check: OK
 
 ## Звіти (CHK-11)
@@ -193,4 +294,7 @@ branch-protection.txt: - pr-protection (active), гілки: ~DEFAULT_BRANCH
   правила: deletion, non_fast_forward, pull_request, required_status_checks
   обов'язкові перевірки: check
   дозволені способи merge: merge
-scenarios-memory.txt: сюїта зелена на 0b47dd2
+scenarios-memory.txt: зелено на d6f3592
+scenarios-pg.txt: зелено на d6f3592
+failures.txt: зелено на d6f3592
+queries.txt: 13 сценаріїв без N+1 на d6f3592

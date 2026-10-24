@@ -1,5 +1,5 @@
 # К10: порушення меж модулів валить make check
-# Відтворення: make verify, вихідний коміт 0b47dd2a1994495fcd814d2f029d7dacb5316897
+# Відтворення: make verify, вихідний коміт d6f3592ce27d15a56411ba6e6e0bf4e7d11dc5ff
 
 ## Обхід точки входу: queue імпортує внутрішній файл sessions — очікуване правило arch-1-entry-only (правило 1)
 # Команда: make check
@@ -26,7 +26,7 @@ npm run --silent boundaries
   error layer-known-roles: src/modules/queue/index.js → src/modules/sessions/internal.js
   error arch-1-entry-only: src/modules/queue/index.js → src/modules/sessions/internal.js
 
-x 3 dependency violations (3 errors, 0 warnings). 44 modules, 42 dependencies cruised.
+x 3 dependency violations (3 errors, 0 warnings). 52 modules, 54 dependencies cruised.
 
 make[1]: *** [boundaries] Error 3
 
@@ -58,7 +58,7 @@ npm run --silent boundaries
       src/modules/queue/b.js →
       src/modules/queue/a.js
 
-x 4 dependency violations (4 errors, 0 warnings). 45 modules, 43 dependencies cruised.
+x 4 dependency violations (4 errors, 0 warnings). 53 modules, 55 dependencies cruised.
 
 make[1]: *** [boundaries] Error 4
 
@@ -85,7 +85,7 @@ npm run --silent boundaries
 
   error arch-3-catalog-leaf: src/modules/catalog/index.js → src/modules/identity/index.js
 
-x 1 dependency violations (1 errors, 0 warnings). 43 modules, 41 dependencies cruised.
+x 1 dependency violations (1 errors, 0 warnings). 51 modules, 53 dependencies cruised.
 
 make[1]: *** [boundaries] Error 1
 
@@ -113,6 +113,6 @@ npm run --silent boundaries
   error layer-known-roles: src/modules/queue/index.js → src/modules/queue/logic.js
   error arch-7-domain-without-http: src/modules/queue/logic.js → node_modules/fastify/fastify.js
 
-x 2 dependency violations (2 errors, 0 warnings). 44 modules, 42 dependencies cruised.
+x 2 dependency violations (2 errors, 0 warnings). 52 modules, 54 dependencies cruised.
 
 make[1]: *** [boundaries] Error 2
