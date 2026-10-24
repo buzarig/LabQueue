@@ -1,5 +1,9 @@
 # DEFENSE — Лаба 1: фундамент і структура LabQueue
 
+> **Архів лаби 1.** Захищено й злито в `main` PR #1 (`7a80ced`). Перенесено
+> з кореня, коли почалася здача лаби 2: у корені — `DEFENSE.md` поточної
+> лаби (sf-2 лаби 1). Текст не змінено, лише відносні посилання.
+
 ## 1. Що і навіщо
 
 **Проблема.** Черга на здачу лаб живе в чаті. Незрозуміло, хто наступний;
@@ -8,14 +12,14 @@
 **LabQueue** — електронна черга на заняття з чесними правилами неявки.
 
 Лаба 1 — фундамент без бізнес-логіки:
-- [spec](docs/specs/lab1-foundation/spec.md) з перевірюваними критеріями К1–К15;
-- [архітектура](docs/specs/lab1-foundation/architecture.md), виведена з
+- [spec](../../docs/specs/lab1-foundation/spec.md) з перевірюваними критеріями К1–К15;
+- [архітектура](../../docs/specs/lab1-foundation/architecture.md), виведена з
   правил черги: 4 модулі, ER, стани, 13 сценаріїв з інваріантами;
-- власні [стандарти](standards/);
-- 20 [ADR](docs/adr/);
+- власні [стандарти](../../standards/);
+- 20 [ADR](../../docs/adr/);
 - конвеєр, який реально блокує брудний коміт і пуш.
 
-Статус кожного критерію — [аудит](docs/audit/lab1.md), розділ (а).
+Статус кожного критерію — [аудит](../../docs/audit/lab1.md), розділ (а).
 
 ## 2. Топ-3 розбіжності реалізації зі spec → коміт
 
@@ -26,15 +30,15 @@
 | **К4:** ADR-0020 і правки стандартів з'явились після першого коміту коду | sf-20 `4a5ccf3`: початковий набір — до коду, подальші зміни — за промптом із прийняттям |
 
 Деталі й топ-3 «зрізаних кутів» ШІ (промпт → фідбек → правка стандарту) —
-[аудит](docs/audit/lab1.md), розділи Р і (в).
+[аудит](../../docs/audit/lab1.md), розділи Р і (в).
 
 ## 3. Ключове рішення
 
 **Межі модулів за володінням даними, з автоматичним контролем.**
-- [ADR-0013](docs/adr/0013-dependency-cruiser.md) — dependency-cruiser.
-- [ADR-0005](docs/adr/0005-koordynatsiia-zavershennia-zaniattia.md) — хто
+- [ADR-0013](../../docs/adr/0013-dependency-cruiser.md) — dependency-cruiser.
+- [ADR-0005](../../docs/adr/0005-koordynatsiia-zavershennia-zaniattia.md) — хто
   координує завершення.
-- [ADR-0002](docs/adr/0002-zakhyst-vid-honky-zapysiv.md) — серіалізація
+- [ADR-0002](../../docs/adr/0002-zakhyst-vid-honky-zapysiv.md) — серіалізація
   змін черги.
 
 Альтернативи контролю:
@@ -70,9 +74,9 @@ CI `check` зелений у PR #1.
 **Sha.** Sha у `verify.txt` — коміт, на якому запускали `make verify`.
 Коміт зі звітами йде одразу після нього, тож звіт не може містити власний
 sha. PR зливається без squash, тому обидва коміти лишаються в `main`
-([ADR-0018](docs/adr/0018-merge-bez-squash.md)).
+([ADR-0018](../../docs/adr/0018-merge-bez-squash.md)).
 
 **`/version`** повертає sha коміту, з якого зібрано `dist/`
-([ADR-0019](docs/adr/0019-dzherelo-sha-dlia-version.md)). Smoke-тест
+([ADR-0019](../../docs/adr/0019-dzherelo-sha-dlia-version.md)). Smoke-тест
 порівнює його з `git rev-parse HEAD`. Відтворення: `make build`, потім
 `PORT=3000 node dist/main.js` і `curl localhost:3000/version`.
