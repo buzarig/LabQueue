@@ -71,6 +71,10 @@ CI ([.github/workflows/check.yml](.github/workflows/check.yml)) запускає
    | `make db-down` | зупиняє кластер, дані лишаються |
    | `make db-destroy` | зупиняє й видаляє `.pgdata/` разом з усіма даними |
 
+   Далі — `make db-migrate` (схема, [ADR-0026](docs/adr/0026-mihratsii-sql-i-vlasnyi-raner.md))
+   і `make db-seed` (довідники й користувачі). Тести (`make check`) беруть ту
+   саму роль і створюють окрему базу на кожен прогін.
+
    Лог сервера — `.pgdata/server.log`. Роль `labqueue` не суперкористувач;
    `CREATEDB` має, бо тести створюють окрему БД на кожен прогін.
 4. **pgAdmin (необов'язково).** Register → Server: host `127.0.0.1`, port
@@ -106,4 +110,5 @@ CI ([.github/workflows/check.yml](.github/workflows/check.yml)) запускає
 | `dependency-cruiser` | dev | межі модулів, цикли, напрями залежностей, not-to-dev-dep; CHK-04 ([ADR-0013](docs/adr/0013-dependency-cruiser.md)) |
 | `esbuild` | dev | збірка `src/` у `dist/` і вшивання sha для `/version`; CHK-05 ([ADR-0012](docs/adr/0012-esbuild-i-smoke-po-dist.md), [ADR-0019](docs/adr/0019-dzherelo-sha-dlia-version.md)) |
 | `husky` | dev | встановлює git-hooks під час `npm install`: pre-commit, commit-msg, pre-push ([ADR-0011](docs/adr/0011-husky-i-lint-staged.md)) |
+| `postgres` | prod | драйвер PostgreSQL із tagged templates: репозиторії, `unitOfWork`, міграції ([ADR-0032](docs/adr/0032-postgresql-postgres-js.md)) |
 | `lint-staged` | dev | pre-commit перевіряє формат і лінт лише staged-файлів ([ADR-0011](docs/adr/0011-husky-i-lint-staged.md)) |

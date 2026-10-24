@@ -1,5 +1,5 @@
 # Єдиний інтерфейс команд (ADR-0014). Склад цілей — standards/checks.md.
-.PHONY: check verify format lint typecheck typecheck-probe boundaries test scenarios build smoke commits hygiene report-scenarios db-up db-down db-destroy
+.PHONY: check verify format lint typecheck typecheck-probe boundaries test scenarios test-db build smoke commits hygiene report-scenarios db-up db-down db-destroy db-migrate db-seed
 
 # Маркер встановлених пакетів: npm ci, якщо node_modules відсутній або
 # package-lock.json новіший за нього (sf-4).
@@ -10,7 +10,7 @@ $(DEPS): package-lock.json
 	@mkdir -p node_modules && touch $@
 
 # Брама: запускають pre-push і CI. Файли під git не змінює.
-check: format lint typecheck typecheck-probe boundaries test scenarios smoke commits hygiene
+check: format lint typecheck typecheck-probe boundaries test scenarios test-db smoke commits hygiene
 	@echo "make check: OK"
 
 # CHK-01: формат коду (лише JS, JSON, YAML — Markdown не форматуємо).
@@ -41,6 +41,11 @@ test: $(DEPS)
 # CHK-15: сценарна сюїта S1–S13 і каталог помилок через HTTP (К7, К8).
 scenarios: $(DEPS)
 	npm run --silent scenarios
+
+# CHK-17: тести на PostgreSQL (К10–К17): окрема БД на прогін із шаблону
+# (ADR-0033). Без запущеного кластера — зупинка з підказкою make db-up.
+test-db: $(DEPS)
+	npm run --silent test:db
 
 # CHK-05: збірка — tsc-перевірка + бандл esbuild у dist/ з вшитим sha.
 # Пише лише в dist/, який ігнорує git.
@@ -79,3 +84,10 @@ db-down:
 
 db-destroy:
 	node scripts/db.js destroy
+
+# Міграції (ADR-0026) і seed-дані (data.md) у базу з DATABASE_URL.
+db-migrate: $(DEPS)
+	node --env-file-if-exists=.env scripts/migrate.js
+
+db-seed: $(DEPS)
+	node --env-file-if-exists=.env scripts/seed.js
