@@ -28,6 +28,10 @@ const KNOWN_VIOLATIONS = new Map([
     "5ae87d25f3537b9bd18abefdc441bd34703ce347",
     "CHK-07: файл промпту 044 потрапив лише в наступний коміт d8c78b2 — docs/audit/lab2.md, кандидат 2",
   ],
+  [
+    "40b01508f6ef4c73652fa61949c21a8afa2d5b27",
+    "CHK-07: коміт без файлу промпту за рішенням автора (--no-verify) — docs/audit/lab2.md, кандидат 5",
+  ],
 ]);
 
 /** @param {string[]} args */
