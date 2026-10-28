@@ -34,7 +34,11 @@ function counted(api, prefix, calls) {
   );
 }
 
-export async function createTestApp() {
+/**
+ * @param {{ logStream?: { write: (line: string) => void } }} [options]
+ *   logStream — увімкнути логи й писати їх сюди (тест логів з рівня сервісу)
+ */
+export async function createTestApp({ logStream } = {}) {
   /** @type {Map<string, number>} */
   const calls = new Map();
   let now = new Date("2026-10-23T09:00:00Z");
@@ -43,6 +47,12 @@ export async function createTestApp() {
   const store = createMemoryStore({ context });
   const unitOfWork = createUnitOfWork({ context, clock, backend: store });
   const storage = /** @type {const} */ ({ kind: "memory", store });
+  const app = createServer({
+    sha: "test",
+    context,
+    logger: Boolean(logStream),
+    ...(logStream ? { logStream } : {}),
+  });
   const identity = createIdentityModule({ storage, context });
   const catalog = createCatalogModule({ storage });
   const sessions = createSessionsModule({
@@ -58,8 +68,8 @@ export async function createTestApp() {
     catalog: counted(catalog.api, "catalog", calls),
     unitOfWork,
     clock,
+    log: app.log,
   });
-  const app = createServer({ sha: "test", context, logger: false });
   for (const plugin of [
     identity.plugin,
     catalog.plugin,

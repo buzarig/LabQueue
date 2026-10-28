@@ -14,6 +14,7 @@ import { createQueueService } from "./service.js";
  *   catalog: import("../catalog/index.js").CatalogApi,
  *   unitOfWork: import("../../platform/unit-of-work.js").UnitOfWork,
  *   clock: { now: () => Date },
+ *   log: { info: (fields: object, msg: string) => void },
  * }} deps
  */
 export function createQueueModule({
@@ -23,6 +24,7 @@ export function createQueueModule({
   catalog,
   unitOfWork,
   clock,
+  log,
 }) {
   const service = createQueueService({
     repo:
@@ -34,6 +36,7 @@ export function createQueueModule({
     catalog,
     unitOfWork,
     clock,
+    log,
   });
   return {
     /**

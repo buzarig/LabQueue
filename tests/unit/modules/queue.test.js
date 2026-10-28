@@ -321,3 +321,29 @@ test("S10: повторний запис після rework — у кінець, 
     "друга неявка на парі (студент, заняття)",
   );
 });
+
+test("S10: бізнес-лог із рівня сервісу має processId і userId без параметрів (К5)", async () => {
+  /** @type {Array<Record<string, unknown>>} */
+  const logs = [];
+  const t = await createTestApp({
+    logStream: { write: (line) => void logs.push(JSON.parse(line)) },
+  });
+  const { id } = await t.openSession();
+  const res = await t.app.inject({
+    method: "POST",
+    url: `/sessions/${id}/queue`,
+    headers: {
+      "x-user-id": "s-1",
+      "x-request-id": "p-enqueue",
+      "idempotency-key": "k-enqueue",
+    },
+    payload: { labId: "nodejs-1" },
+  });
+  const entry = expect(res, 201);
+  const line = logs.find((l) => l.msg === "студент записався в чергу");
+  assert.ok(line, "бізнес-лог S10 не знайдено");
+  assert.equal(line.processId, "p-enqueue");
+  assert.equal(line.userId, "s-1");
+  assert.equal(line.entryId, entry.id);
+  assert.equal(line.sessionId, id);
+});

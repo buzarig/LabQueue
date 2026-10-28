@@ -89,6 +89,7 @@ export async function createApp({
     catalog: catalog.api,
     unitOfWork,
     clock,
+    log: app.log,
   });
 
   for (const plugin of [

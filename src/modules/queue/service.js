@@ -42,6 +42,7 @@ const ETA_DEFAULT_MINUTES = 10;
  *   catalog: import("../catalog/index.js").CatalogApi,
  *   unitOfWork: import("../../platform/unit-of-work.js").UnitOfWork,
  *   clock: { now: () => Date },
+ *   log: { info: (fields: object, msg: string) => void },
  * }} deps
  */
 export function createQueueService({
@@ -51,6 +52,7 @@ export function createQueueService({
   catalog,
   unitOfWork,
   clock,
+  log,
 }) {
   const now = () => clock.now().toISOString();
 
@@ -280,6 +282,11 @@ export function createQueueService({
           score: null,
         };
         await repo.insertEntry(entry);
+        // processId і userId дописує логер із контексту запиту (ADR-0030).
+        log.info(
+          { sessionId, entryId: entry.id, labId, seq: entry.seq },
+          "студент записався в чергу",
+        );
         return entry;
       });
     },
