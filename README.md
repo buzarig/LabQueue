@@ -117,3 +117,7 @@ CI ([.github/workflows/check.yml](.github/workflows/check.yml)) запускає
 | `husky` | dev | встановлює git-hooks під час `npm install`: pre-commit, commit-msg, pre-push ([ADR-0011](docs/adr/0011-husky-i-lint-staged.md)) |
 | `postgres` | prod | драйвер PostgreSQL із tagged templates: репозиторії, `unitOfWork`, міграції ([ADR-0032](docs/adr/0032-postgresql-postgres-js.md)) |
 | `lint-staged` | dev | pre-commit перевіряє формат і лінт лише staged-файлів ([ADR-0011](docs/adr/0011-husky-i-lint-staged.md)) |
+| `vitest` | dev | unit-тести `transitions.js`, які мутує Stryker; решта тестів — `node:test` ([ADR-0038](docs/adr/0038-vitest-dlia-transitions.md)) |
+| `c8` | dev | покриття V8: звіт по `src/` і поріг гілок для `transitions.js` у `make test` ([ADR-0039](docs/adr/0039-c8-pokryttia.md)) |
+| `@stryker-mutator/core` | dev | мутаційне тестування `transitions.js`, `make mutation` ([ADR-0040](docs/adr/0040-stryker-mutatsii-transitions.md)) |
+| `@stryker-mutator/vitest-runner` | dev | раннер Vitest для Stryker: покриття мутантів на тест ([ADR-0040](docs/adr/0040-stryker-mutatsii-transitions.md)) |
