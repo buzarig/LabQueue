@@ -30,7 +30,7 @@
 | 10 | Повний HTTP-сценарій проходить повторно, дані тестів ізольовані | E2E |
 | **E** | **Покриття й мутації** | |
 | 11 | `c8` формує звіт для `src/` за unit та integration | coverage report |
-| 12 | Ціль — 100% branch coverage `transitions.js`, мінімум 80%; нижче порогу `make test` падає, непокриті гілки пояснені | `make test` |
+| 12 | Ціль — 100% branch і function coverage `transitions.js`, мінімум 80% для кожного; нижче порогу `make test` падає, непокриті гілки пояснені (sf-1) | `make test` |
 | 13 | Stryker + Vitest мутує лише `transitions.js`; прогін відтворюється командою `make mutation` | mutation report |
 | 14 | Вижилі мутанти класифіковані: реальна прогалина, еквівалентний або прийнятний, із поясненням | `reports/lab3/` |
 | **F** | **Аудит і здача** | |
