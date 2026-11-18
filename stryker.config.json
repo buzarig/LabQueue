@@ -1,0 +1,11 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "testRunner": "vitest",
+  "mutate": ["src/modules/queue/transitions.js"],
+  "coverageAnalysis": "perTest",
+  "tsconfigFile": "no-tsconfig.json",
+  "ignorePatterns": [".pgdata", "dist", "reports", "coverage"],
+  "reporters": ["clear-text", "progress", "json", "html"],
+  "jsonReporter": { "fileName": "coverage/mutation/mutation.json" },
+  "htmlReporter": { "fileName": "coverage/mutation/mutation.html" }
+}

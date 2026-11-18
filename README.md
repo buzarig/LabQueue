@@ -47,6 +47,7 @@ make verify   # make check + звіти в reports/lab2/ + дата й sha (пе
 | `make verify` | `make check` + відтворення відмов hook-ів і порушень меж у тимчасовому клоні + прогін сценаріїв → `reports/lab2/`, підсумок — `reports/lab2/verify.txt` (звіти лаби 1 — `reports/lab1/`) |
 | `make report-scenarios` | лише звіт сценарної сюїти на статиці → `reports/lab2/scenarios-memory.txt` (К9) |
 | `make report-scenarios-pg`, `make report-failures`, `make report-queries` | звіти етапу БД: сюїта на PostgreSQL (К10), збої (К14), запити без N+1 (К16) → `reports/lab2/` |
+| `make mutation` (`make test-mutation`) | мутаційне тестування `transitions.js` (Stryker + Vitest) і звіт із класифікацією вижилих → `reports/lab3/mutation.txt`; HTML Stryker — `coverage/mutation/mutation.html`. Не входить у `make check` |
 | `make build` і `node --env-file=.env dist/main.js` | запуск застосунку на PostgreSQL (`STORAGE=pg` типово, `DATABASE_URL`); `STORAGE=memory` — статика без БД. Без БД застосунок не стартує (код 1). Технічні маршрути: `GET /health`, `GET /ready`, `GET /version`; порт — `PORT`, за замовчуванням 3000 |
 
 Git-hooks ставляться під час `npm install`:

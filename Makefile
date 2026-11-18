@@ -1,5 +1,5 @@
 # Єдиний інтерфейс команд (ADR-0014). Склад цілей — standards/checks.md.
-.PHONY: check verify format lint typecheck typecheck-probe boundaries test test-unit scenarios test-db build smoke commits hygiene report-scenarios report-scenarios-pg report-failures report-queries db-up db-down db-destroy db-migrate db-seed
+.PHONY: check verify mutation test-mutation format lint typecheck typecheck-probe boundaries test test-unit scenarios test-db build smoke commits hygiene report-scenarios report-scenarios-pg report-failures report-queries db-up db-down db-destroy db-migrate db-seed
 
 # Маркер встановлених пакетів: npm ci, якщо node_modules відсутній або
 # package-lock.json новіший за нього (sf-4).
@@ -72,6 +72,15 @@ commits: $(DEPS)
 # CHK-09: гігієна відстежуваних файлів (standards/repo-hygiene.md).
 hygiene: $(DEPS)
 	npm run --silent hygiene
+
+# CHK-20: мутаційне тестування transitions.js (Stryker + Vitest, ADR-0040) і
+# звіт із класифікацією вижилих → reports/<лаба>/mutation.txt. Не входить у
+# check: запускається окремо (spec лаби 3, критерій 13).
+mutation: $(DEPS)
+	npm run --silent mutation
+	node scripts/report-mutation.js
+
+test-mutation: mutation
 
 # Докази для здачі: make check + звіти в reports/<лаба>/ (CHK-11, CHK-16) + дата
 # й sha у reports/<лаба>/verify.txt (CHK-12). Запускає автор перед здачею; на неї

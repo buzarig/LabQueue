@@ -1,0 +1,37 @@
+[
+  {
+    "mutator": "ArrayDeclaration",
+    "line": 28,
+    "replacement": "[\"Stryker was here\"]",
+    "class": "еквівалентний",
+    "reason": "passed: [] → [\"Stryker was here\"]. Кінцевий стан отримує ціль, якої немає серед EntryStatus. canTransition приймає лише EntryStatus (JSDoc, tsc --checkJs у make check), тож для кожного допустимого входу відповідь та сама — false."
+  },
+  {
+    "mutator": "ArrayDeclaration",
+    "line": 29,
+    "replacement": "[\"Stryker was here\"]",
+    "class": "еквівалентний",
+    "reason": "rework: [] → [\"Stryker was here\"]. Та сама причина, що й для passed: фіктивна ціль недосяжна з допустимих входів."
+  },
+  {
+    "mutator": "ArrayDeclaration",
+    "line": 30,
+    "replacement": "[\"Stryker was here\"]",
+    "class": "еквівалентний",
+    "reason": "left: [] → [\"Stryker was here\"]. Та сама причина, що й для passed."
+  },
+  {
+    "mutator": "ArrayDeclaration",
+    "line": 31,
+    "replacement": "[\"Stryker was here\"]",
+    "class": "еквівалентний",
+    "reason": "dropped: [] → [\"Stryker was here\"]. Та сама причина, що й для passed."
+  },
+  {
+    "mutator": "ArrayDeclaration",
+    "line": 32,
+    "replacement": "[\"Stryker was here\"]",
+    "class": "еквівалентний",
+    "reason": "missed: [] → [\"Stryker was here\"]. Та сама причина, що й для passed; MISSED_ON_FINISH шукає лише ціль missed, тож і він не змінюється."
+  }
+]

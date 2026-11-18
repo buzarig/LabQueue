@@ -7,8 +7,8 @@ import { join, resolve } from "node:path";
 
 export const root = resolve(".");
 // Звіти поточної лаби. Звіти попередніх лаб — докази на їхніх sha, їх не
-// перезаписуємо (лаба 1 — reports/lab1/).
-export const LAB = "lab2";
+// перезаписуємо (лаба 1 — reports/lab1/, лаба 2 — reports/lab2/).
+export const LAB = "lab3";
 export const reports = join(root, "reports", LAB);
 
 /**
