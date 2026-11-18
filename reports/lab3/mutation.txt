@@ -1,5 +1,5 @@
 # К13–К14 лаби 3: мутаційне тестування transitions.js (Stryker + Vitest)
-# Відтворення: make mutation, вихідний коміт 54c56183099f7e3a97f3b090597046fd728263a8
+# Відтворення: make mutation, вихідний коміт 68bcd17605334cd8bc149e84847f86bee68df9cf
 # Файли: src/modules/queue/transitions.js
 # Класифікація вижилих: tests/vitest/transitions.survivors.json
 
