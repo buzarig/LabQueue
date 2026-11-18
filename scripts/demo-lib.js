@@ -47,14 +47,21 @@ export function must(cmd, args, cwd) {
 
 /**
  * Прибирає з виводу те, що змінюється від запуску до запуску (тимчасові шляхи,
- * тривалості, хеш бекапу lint-staged), щоб повторний make verify на тому ж
- * коміті не давав диффу в reports/ (standards/repo-hygiene.md).
+ * абсолютний шлях проєкту, тривалості, час старту Vitest, хеш бекапу
+ * lint-staged), щоб повторний make verify на тому ж коміті чи іншій машині не
+ * давав диффу в reports/ (standards/repo-hygiene.md).
  * @param {string} output
  * @param {string} [tmp]
  */
 export function normalize(output, tmp) {
-  const text = tmp ? output.replaceAll(tmp, "<tmp>") : output;
+  const text = (tmp ? output.replaceAll(tmp, "<tmp>") : output).replaceAll(
+    root,
+    "<root>",
+  );
   return text
+    .split("\n")
+    .filter((line) => !/^\s*(Start at|Duration)\s/.test(line))
+    .join("\n")
     .replace(/\(\d+(\.\d+)?ms\)/g, "(<ms>)")
     .replace(/duration_ms \d+(\.\d+)?/g, "duration_ms <ms>")
     .replace(/original state \([0-9a-f]+\)/g, "original state (<hash>)")

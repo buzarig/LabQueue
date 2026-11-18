@@ -19,17 +19,6 @@ if (!existsSync(join(root, TMP))) {
 const sha = must("git", ["rev-parse", "HEAD"], root).trim();
 mkdirSync(reports, { recursive: true });
 
-/**
- * Вивід Vitest без рядків, що змінюються між прогонами (час старту,
- * тривалість), і без абсолютного шляху проєкту.
- * @param {string} output
- */
-const stable = (output) =>
-  normalize(output.replaceAll(root, "<root>"))
-    .split("\n")
-    .filter((line) => !/^\s*(Start at|Duration)\s/.test(line))
-    .join("\n");
-
 const src = run(
   "node_modules/.bin/c8",
   [
@@ -53,7 +42,7 @@ writeFileSync(
     `# Команда: c8 report --include "src/**" --temp-directory ${TMP} (дані — make test)`,
     `# Код виходу: ${src.code} (очікувано 0)`,
     "",
-    stable(src.output),
+    normalize(src.output),
     "",
   ].join("\n"),
 );
@@ -65,7 +54,7 @@ writeFileSync(
     "# Команда: npm run test:transitions (c8 --check-coverage --branches 80 --functions 80 vitest run)",
     `# Код виходу: ${transitions.code} (очікувано 0)`,
     "",
-    stable(transitions.output),
+    normalize(transitions.output),
     "",
   ].join("\n"),
 );
