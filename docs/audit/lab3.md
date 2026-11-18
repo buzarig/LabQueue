@@ -1,8 +1,33 @@
 # Аудит лаби 3
 
 Чернетку склав ШІ як аналіз (`standards/ai-workflow.md`, «Роль ШІ»); вибір
-топ-3 погоджує автор. Доказова база — тести в `make test` і ручні баги з
-журналу нижче.
+топ-3 погоджує автор. Доказова база — `reports/lab3/` (`make verify`), тести в
+`make test` і ручні баги з журналу нижче.
+
+## (а) Критерії 1–20
+
+| № | Статус | Доказ |
+|---|---|---|
+| 1 | виконано | spec — автор (`e64890b`), без трейлера ШІ; перший код лаби — `1004ecc` |
+| 2 | виконано | `src/modules/queue/transitions.js` (`1004ecc`): S4–S8, S12; лише модель і помилки ([ADR-0037](../adr/0037-chysta-mashyna-staniv-transitions.md), правила `layer-transitions*`) |
+| 3 | виконано | рефакторинг `1004ecc` — окремим комітом до перших нових тестів (`54c5618`), `make check` зелений на ньому |
+| 4 | виконано | `tests/vitest/transitions.test.js` — 127 випадків (`coverage-transitions.txt`); решта unit — `node:test` (`unit.txt`) |
+| 5 | виконано | там само: таблиця дозволених і заборонених переходів, перша й друга неявка, бал 0 і бал не до результату (`SCORE_MISMATCH`), завершення з `submitting` |
+| 6 | виконано | повторний перехід із недопустимого стану → `ENTRY_STATE_CONFLICT` (Vitest і E2E «повторний старт»); ідемпотентність — поза модулем |
+| 7 | виконано | `make test-integration` — наявні `tests/db` і сценарна сюїта; нові сценарні тести аудиту — посилення, не дублі |
+| 8 | виконано | `scenarios-memory.txt`, `scenarios-pg.txt`, `db.txt` (транзакції, гонки, збої) |
+| 9 | виконано | `e2e.txt`: `node dist/main.js` окремим процесом, `STORAGE=pg` |
+| 10 | виконано | `e2e.txt`: S1–S13 через HTTP; свіжа БД із шаблону на прогін, після — видаляється |
+| 11 | виконано | `coverage-src.txt` — c8 по `src/` за unit та integration |
+| 12 | виконано | `coverage-transitions.txt` — 100 % гілок і функцій (поріг 80 %, sf-1); непокритих гілок немає |
+| 13 | виконано | `mutation.txt`: Stryker + Vitest лише `transitions.js`, `make mutation` |
+| 14 | виконано | `mutation.txt`: 5 вижилих — усі «еквівалентний», з причиною; скрипт падає на некласифікованому |
+| 15 | виконано | цей документ, «Топ-3 слабкі місця» |
+| 16 | виконано | `make test` = БД і міграції → unit → integration → E2E → покриття; `make check` викликає `make test` (CHK-21, CHK-22) |
+| 17 | виконано з приміткою | гілка `DATABASE_URL` у `make db-ready` перевірена локально («локальний кластер не запускаю»); CI задає `DATABASE_URL` і контейнер `postgres:17`. Прогону CI немає: GitHub Actions не стартує через блокування акаунта (білінг) |
+| 18 | виконано | `reports/lab3/`: `unit.txt`, `db.txt`, `e2e.txt`, сценарії, `coverage-*.txt`, `mutation.txt`, `verify.txt` |
+| 19 | очікує автора | `docs/defense/lab3.md` і `DEFENSE.md` пише автор |
+| 20 | виконано | промпти — `ai/lab3/`; CHK-07/08 у `make check` (`verify.txt`) |
 
 ## Метод
 
