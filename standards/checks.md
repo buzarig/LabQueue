@@ -57,6 +57,7 @@
 | CHK-16 | Звіт прогону сценарної сюїти на статиці (К9, лаба 2): весь вивід `node --test`, код виходу 0, sha | `scripts/report-tests.js scenarios-memory` → `reports/lab2/scenarios-memory.txt`; падає, якщо сюїта впала | verify (`make report-scenarios`) | здачу |
 | CHK-17 | Тести на PostgreSQL `tests/db/` (лаба 2): міграції застосовуються рівно раз і повторно нічого не змінюють (К17), обмеження схеми ловлять порушення I1, I3, I4, I9; `unitOfWork` на PostgreSQL (повтори, 503, ідемпотентність); без БД застосунок не стартує — код 1 (К15) | `node:test`, окрема БД на прогін (ADR-0033) | check | пуш, CI |
 | CHK-18 | Звіти етапу БД (лаба 2): сценарна сюїта на PostgreSQL (К10, `scenarios-pg.txt`), збої джерела через HTTP (К14, `failures.txt`), кількість SQL-запитів сценаріїв при N = 1 і N = 10 поряд із data.md (К16, `queries.txt`) | `scripts/report-tests.js`, `scripts/report-queries.js` → `reports/lab2/`; падають, якщо прогін упав, кількість залежить від N чи розходиться з data.md | verify (`make report-*`) | здачу |
+| CHK-19 | Vitest-тести `tests/vitest/transitions.test.js` (лаба 3): усі переходи запису й умови S4–S8, S12; покриття `transitions.js` — гілки й функції ≥ 80 %, ціль 100 % (sf-1 лаби 3; [ADR-0038](../docs/adr/0038-vitest-dlia-transitions.md), [ADR-0039](../docs/adr/0039-c8-pokryttia.md)) | Vitest під c8 (`--check-coverage`) | check (`make test-unit`) | пуш, CI |
 
 **Автоматичні коміти git.** Це коміти, повідомлення яких git сформував сам:
 - починається з `Merge ` — merge гілки чи PR;

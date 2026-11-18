@@ -1,5 +1,5 @@
 # Єдиний інтерфейс команд (ADR-0014). Склад цілей — standards/checks.md.
-.PHONY: check verify format lint typecheck typecheck-probe boundaries test scenarios test-db build smoke commits hygiene report-scenarios report-scenarios-pg report-failures report-queries db-up db-down db-destroy db-migrate db-seed
+.PHONY: check verify format lint typecheck typecheck-probe boundaries test test-unit scenarios test-db build smoke commits hygiene report-scenarios report-scenarios-pg report-failures report-queries db-up db-down db-destroy db-migrate db-seed
 
 # Маркер встановлених пакетів: npm ci, якщо node_modules відсутній або
 # package-lock.json новіший за нього (sf-4).
@@ -10,7 +10,7 @@ $(DEPS): package-lock.json
 	@mkdir -p node_modules && touch $@
 
 # Брама: запускають pre-push і CI. Файли під git не змінює.
-check: format lint typecheck typecheck-probe boundaries test scenarios test-db smoke commits hygiene
+check: format lint typecheck typecheck-probe boundaries test-unit scenarios test-db smoke commits hygiene
 	@echo "make check: OK"
 
 # CHK-01: формат коду (лише JS, JSON, YAML — Markdown не форматуємо).
@@ -34,9 +34,16 @@ typecheck-probe: $(DEPS)
 boundaries: $(DEPS)
 	npm run --silent boundaries
 
-# CHK-14: юніт-тести src/ (node:test, ADR-0010).
-test: $(DEPS)
+# CHK-14: юніт-тести src/ (node:test, ADR-0010). CHK-19: Vitest-тести
+# transitions.js під c8 — нижче 80 % гілок чи функцій ціль падає (ADR-0038,
+# ADR-0039, sf-1 лаби 3).
+test-unit: $(DEPS)
 	npm run --silent test
+	npm run --silent test:transitions
+
+# Поки що test = test-unit; з наступним кроком лаби 3 make test запускатиме
+# всі рівні (spec лаби 3, критерій 16).
+test: test-unit
 
 # CHK-15: сценарна сюїта S1–S13 і каталог помилок через HTTP (К7, К8) — та
 # сама на обох сховищах (К10): статика й PostgreSQL.
