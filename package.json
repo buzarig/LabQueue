@@ -19,6 +19,7 @@
     "mutation": "stryker run",
     "test:transitions": "c8 --include src/modules/queue/transitions.js --check-coverage --branches 80 --functions 80 --lines 0 --reporter text --report-dir coverage/transitions vitest run",
     "scenarios": "node --env-file-if-exists=.env --test --test-timeout=60000 \"tests/scenarios/**/*.test.js\"",
+    "test:e2e": "node --env-file-if-exists=.env --test --test-timeout=60000 \"tests/e2e/**/*.test.js\"",
     "test:db": "node --env-file-if-exists=.env --test --test-timeout=60000 \"tests/db/**/*.test.js\"",
     "commits": "node scripts/check-commits.js",
     "hygiene": "node scripts/check-hygiene.js",

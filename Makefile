@@ -1,5 +1,5 @@
 # Єдиний інтерфейс команд (ADR-0014). Склад цілей — standards/checks.md.
-.PHONY: check verify mutation test-mutation format lint typecheck typecheck-probe boundaries test test-unit test-integration db-ready coverage coverage-clean scenarios test-db build smoke commits hygiene report-scenarios report-scenarios-pg report-failures report-queries db-up db-down db-destroy db-migrate db-seed
+.PHONY: check verify mutation test-mutation format lint typecheck typecheck-probe boundaries test test-unit test-integration test-e2e db-ready coverage coverage-clean scenarios test-db build smoke commits hygiene report-scenarios report-scenarios-pg report-failures report-queries db-up db-down db-destroy db-migrate db-seed
 
 # Маркер встановлених пакетів: npm ci, якщо node_modules відсутній або
 # package-lock.json новіший за нього (sf-4).
@@ -48,13 +48,18 @@ test-unit: $(DEPS)
 	npm run --silent test:transitions
 
 # Одна команда для всіх рівнів (spec лаби 3, критерій 16): БД і міграції,
-# unit, інтеграційні, звіт покриття src/.
-test: coverage-clean db-ready test-unit test-integration coverage
+# unit, інтеграційні, E2E, звіт покриття src/.
+test: coverage-clean db-ready test-unit test-integration test-e2e coverage
 
 # Інтеграційні тести — наявні сценарна сюїта (memory і pg) і tests/db
 # (spec лаби 3, критерії 7–8), під c8 для звіту покриття.
 test-integration: db-ready
 	$(C8_SRC) $(MAKE) --no-print-directory scenarios test-db
+
+# CHK-22: E2E — зібраний dist/ окремим процесом на PostgreSQL, S1–S13 через
+# HTTP (spec лаби 3, критерії 9–10). У звіт покриття src/ не входить: це бандл.
+test-e2e: db-ready build
+	npm run --silent test:e2e
 
 # БД для тестів (критерій 17): якщо DATABASE_URL задано в середовищі (CI —
 # контейнер), локальний кластер не запускаємо; інакше make db-up. Далі —

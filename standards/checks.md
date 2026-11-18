@@ -60,6 +60,7 @@
 | CHK-19 | Vitest-тести `tests/vitest/transitions.test.js` (лаба 3): усі переходи запису й умови S4–S8, S12; покриття `transitions.js` — гілки й функції ≥ 80 %, ціль 100 % (sf-1 лаби 3; [ADR-0038](../docs/adr/0038-vitest-dlia-transitions.md), [ADR-0039](../docs/adr/0039-c8-pokryttia.md)) | Vitest під c8 (`--check-coverage`) | check (`make test-unit`) | пуш, CI |
 | CHK-20 | Мутаційне тестування `transitions.js` (лаба 3): кожен вижилий мутант класифікований як реальна прогалина, еквівалентний або прийнятний, з причиною; класифікація не розходиться зі звітом Stryker ([ADR-0040](../docs/adr/0040-stryker-mutatsii-transitions.md)) | Stryker + Vitest, `scripts/report-mutation.js` → `reports/lab3/mutation.txt` | `make mutation` (не в check) | — |
 | CHK-21 | Покриття `src/` за unit- та інтеграційними тестами (лаба 3, критерій 11): один звіт c8 зі спільної теки даних V8; порогу немає, поріг — лише в CHK-19 ([ADR-0039](../docs/adr/0039-c8-pokryttia.md)) | c8 (`make test`: `test-unit`, `test-integration`, `coverage`) | check | — |
+| CHK-22 | E2E (лаба 3, критерії 9–10): зібраний `dist/main.js` окремим процесом на свіжій БД із шаблону, повний сценарій S1–S13 через HTTP; БД видаляється після прогону | `node:test` + `fetch`, `tests/e2e/` | check (`make test-e2e`) | пуш, CI |
 
 **Автоматичні коміти git.** Це коміти, повідомлення яких git сформував сам:
 - починається з `Merge ` — merge гілки чи PR;
