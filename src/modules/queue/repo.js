@@ -3,6 +3,7 @@
 
 /**
  * @typedef {import("./model.js").Entry} Entry
+ * @typedef {import("./model.js").EntryStatus} EntryStatus
  * @typedef {{
  *   lockTeacher: (teacherId: string) => Promise<void>,
  *   findEntry: (id: string) => Promise<Entry | undefined>,
@@ -16,7 +17,7 @@
  *   noShowCount: (sessionId: string, studentId: string) => Promise<number>,
  *   addNoShow: (sessionId: string, studentId: string) => Promise<number>,
  *   hasSubmitting: (sessionId: string) => Promise<boolean>,
- *   missActive: (sessionId: string, at: string) => Promise<number>,
+ *   missActive: (sessionId: string, statuses: readonly EntryStatus[], at: string) => Promise<number>,
  *   summaries: (sessionIds: string[]) => Promise<import("./model.js").QueueSummary[]>,
  *   rankOf: (sessionId: string, seq: number) => Promise<number>,
  *   averageDurationMs: (sessionId: string, limit: number) => Promise<number | null>,
