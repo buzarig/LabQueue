@@ -1,5 +1,5 @@
 # Єдиний інтерфейс команд (ADR-0014). Склад цілей — standards/checks.md.
-.PHONY: check verify mutation test-mutation format lint typecheck typecheck-probe boundaries test test-unit test-integration test-e2e db-ready coverage coverage-clean scenarios test-db build smoke commits hygiene report-scenarios report-scenarios-pg report-failures report-queries db-up db-down db-destroy db-migrate db-seed
+.PHONY: check verify mutation test-mutation format lint typecheck typecheck-probe boundaries test test-unit test-integration test-e2e db-ready coverage coverage-clean scenarios test-db build smoke commits hygiene report-scenarios report-scenarios-pg report-failures report-queries report-unit report-db report-e2e report-coverage db-up db-down db-destroy db-migrate db-seed
 
 # Маркер встановлених пакетів: npm ci, якщо node_modules відсутній або
 # package-lock.json новіший за нього (sf-4).
@@ -136,6 +136,21 @@ report-failures: $(DEPS)
 
 report-queries: $(DEPS)
 	node --env-file-if-exists=.env scripts/report-queries.js
+
+# Звіти лаби 3 (критерій 18) → reports/<лаба>/: unit (К4–К6), integration на
+# PostgreSQL (К7–К8), E2E (К9–К10), покриття src/ і transitions.js (К11–К12).
+# Мутації (К13–К14) — make mutation. Усе разом — make verify.
+report-unit: $(DEPS)
+	node scripts/report-tests.js unit
+
+report-db: db-ready
+	node scripts/report-tests.js db
+
+report-e2e: db-ready build
+	node scripts/report-tests.js e2e
+
+report-coverage: test
+	node scripts/report-coverage.js
 
 # Локальний кластер PostgreSQL 17 у .pgdata/ на 127.0.0.1:55432 (ADR-0033).
 # Роль, пароль і БД — з DATABASE_URL у .env. db-destroy видаляє всі дані.
