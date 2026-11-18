@@ -98,8 +98,8 @@ CI ([.github/workflows/check.yml](.github/workflows/check.yml)) запускає
 | Контракт, схема БД, запити, помилки | [data.md](docs/specs/lab2-db-scenarios/data.md) |
 | Стандарти | [standards/](standards/) |
 | Рішення (ADR) | [docs/adr/](docs/adr/) |
-| Аудит | [лаба 1](docs/audit/lab1.md), [лаба 2](docs/audit/lab2.md) |
-| Промпти роботи з ШІ | [ai/lab1/](ai/lab1/), [ai/lab2/](ai/lab2/) |
+| Аудит | [лаба 1](docs/audit/lab1.md), [лаба 2](docs/audit/lab2.md), [лаба 3](docs/audit/lab3.md) |
+| Промпти роботи з ШІ | [ai/lab1/](ai/lab1/), [ai/lab2/](ai/lab2/), [ai/lab3/](ai/lab3/) |
 | Звіти | [reports/lab1/](reports/lab1/), [reports/lab2/](reports/lab2/) |
 
 ## Залежності
