@@ -1,5 +1,5 @@
 # Єдиний інтерфейс команд (ADR-0014). Склад цілей — standards/checks.md.
-.PHONY: check verify mutation test-mutation format lint typecheck typecheck-probe boundaries test test-unit scenarios test-db build smoke commits hygiene report-scenarios report-scenarios-pg report-failures report-queries db-up db-down db-destroy db-migrate db-seed
+.PHONY: check verify mutation test-mutation format lint typecheck typecheck-probe boundaries test test-unit test-integration db-ready coverage coverage-clean scenarios test-db build smoke commits hygiene report-scenarios report-scenarios-pg report-failures report-queries db-up db-down db-destroy db-migrate db-seed
 
 # Маркер встановлених пакетів: npm ci, якщо node_modules відсутній або
 # package-lock.json новіший за нього (sf-4).
@@ -9,8 +9,14 @@ $(DEPS): package-lock.json
 	npm ci
 	@mkdir -p node_modules && touch $@
 
+# Покриття src/ (ADR-0039): unit- та інтеграційні прогони пишуть дані V8 в одну
+# теку, ціль coverage зводить їх в один звіт. Порогу тут немає.
+C8 := node_modules/.bin/c8
+COVERAGE_TMP := coverage/src/tmp
+C8_SRC := $(C8) --include "src/**" --temp-directory $(COVERAGE_TMP) --clean=false --reporter none
+
 # Брама: запускають pre-push і CI. Файли під git не змінює.
-check: format lint typecheck typecheck-probe boundaries test-unit scenarios test-db smoke commits hygiene
+check: format lint typecheck typecheck-probe boundaries test smoke commits hygiene
 	@echo "make check: OK"
 
 # CHK-01: формат коду (лише JS, JSON, YAML — Markdown не форматуємо).
@@ -38,12 +44,35 @@ boundaries: $(DEPS)
 # transitions.js під c8 — нижче 80 % гілок чи функцій ціль падає (ADR-0038,
 # ADR-0039, sf-1 лаби 3).
 test-unit: $(DEPS)
-	npm run --silent test
+	$(C8_SRC) npm run --silent test
 	npm run --silent test:transitions
 
-# Поки що test = test-unit; з наступним кроком лаби 3 make test запускатиме
-# всі рівні (spec лаби 3, критерій 16).
-test: test-unit
+# Одна команда для всіх рівнів (spec лаби 3, критерій 16): БД і міграції,
+# unit, інтеграційні, звіт покриття src/.
+test: coverage-clean db-ready test-unit test-integration coverage
+
+# Інтеграційні тести — наявні сценарна сюїта (memory і pg) і tests/db
+# (spec лаби 3, критерії 7–8), під c8 для звіту покриття.
+test-integration: db-ready
+	$(C8_SRC) $(MAKE) --no-print-directory scenarios test-db
+
+# БД для тестів (критерій 17): якщо DATABASE_URL задано в середовищі (CI —
+# контейнер), локальний кластер не запускаємо; інакше make db-up. Далі —
+# міграції в базу з DATABASE_URL. Тести беруть окрему БД із шаблону (ADR-0033).
+db-ready: $(DEPS)
+ifdef DATABASE_URL
+	@echo "db-ready: DATABASE_URL задано в середовищі — локальний кластер не запускаю"
+else
+	node scripts/db.js up
+endif
+	node --env-file-if-exists=.env scripts/migrate.js
+
+# Звіт покриття src/ за unit та integration (критерій 11).
+coverage: $(DEPS)
+	$(C8) report --include "src/**" --temp-directory $(COVERAGE_TMP) --report-dir coverage/src --reporter text
+
+coverage-clean:
+	rm -rf coverage/src
 
 # CHK-15: сценарна сюїта S1–S13 і каталог помилок через HTTP (К7, К8) — та
 # сама на обох сховищах (К10): статика й PostgreSQL.

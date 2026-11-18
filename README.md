@@ -37,13 +37,15 @@ LabQueue дає окрему чергу на кожне заняття:
 Потрібні Node.js 24 (`.nvmrc`), npm і `make`. Пакети ставляться самі.
 
 ```sh
+make test     # усі рівні тестів: БД і міграції, unit, integration, покриття src/
 make check    # усі перевірки — та сама брама, що в pre-push і CI
 make verify   # make check + звіти в reports/lab2/ + дата й sha (перед здачею)
 ```
 
 | Команда | Що робить |
 |---|---|
-| `make check` | формат, лінт, типи, проба JSDoc, межі модулів, юніт-тести, сценарна сюїта, збірка, smoke-тест, історія комітів, гігієна ([standards/checks.md](standards/checks.md)) |
+| `make check` | формат, лінт, типи, проба JSDoc, межі модулів, `make test`, збірка, smoke-тест, історія комітів, гігієна ([standards/checks.md](standards/checks.md)) |
+| `make test` | БД (`make db-up`, якщо `DATABASE_URL` не задано в середовищі) і міграції → `test-unit` (`node:test` + Vitest для `transitions.js` з порогом c8) → `test-integration` (сценарна сюїта на memory і pg, `tests/db`) → звіт покриття `src/` (c8) |
 | `make verify` | `make check` + відтворення відмов hook-ів і порушень меж у тимчасовому клоні + прогін сценаріїв → `reports/lab2/`, підсумок — `reports/lab2/verify.txt` (звіти лаби 1 — `reports/lab1/`) |
 | `make report-scenarios` | лише звіт сценарної сюїти на статиці → `reports/lab2/scenarios-memory.txt` (К9) |
 | `make report-scenarios-pg`, `make report-failures`, `make report-queries` | звіти етапу БД: сюїта на PostgreSQL (К10), збої (К14), запити без N+1 (К16) → `reports/lab2/` |
