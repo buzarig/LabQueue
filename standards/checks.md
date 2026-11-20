@@ -11,7 +11,7 @@
 ## Цілі make
 
 **`make check`** — швидка «брама».
-- **Що запускає:** CHK-01…CHK-09 і CHK-13.
+- **Що запускає:** CHK-01…CHK-09, CHK-13…CHK-15 і CHK-17. З лаби 2 потребує PostgreSQL: локально `make db-up`, у CI — сервіс `postgres:17`.
 - **Хто запускає:** pre-push hook і CI.
 - **Запис у файли.** Файли під git не змінює. Збірка пише лише в `dist/`, а
   його ігнорує `.gitignore`.
@@ -19,8 +19,8 @@
   відсутній або lockfile новіший за нього (sf-4).
 - **Навіщо:** на свіжому клоні вистачає однієї команди.
 
-**`make verify`** = `make check` + CHK-11 + CHK-12.
-- **Що додає:** генерує звіти в `reports/lab1/` і виводить дату та git sha.
+**`make verify`** = `make check` + CHK-11 + CHK-12 + CHK-16 + CHK-18.
+- **Що додає:** генерує звіти в `reports/<лаба>/` (лаба 1 — `reports/lab1/`, з лаби 2 — `reports/lab2/`) і виводить дату та git sha.
 - **Хто запускає:** автор перед здачею.
 - **Навіщо:** на неї посилається DEFENSE. Це окрема ціль, бо звіти пишуть
   файли, а брама — ні.
@@ -40,18 +40,23 @@
 | ID | Що | Команда / інструмент | Етап | Що блокує |
 |---|---|---|---|---|
 | CHK-01 | Формат коду | Prettier (`--check`) | pre-commit, check | коміт, пуш, CI |
-| CHK-02 | Лінт | ESLint (flat config) | pre-commit, check | коміт, пуш, CI |
+| CHK-02 | Лінт; з лаби 2 — `try/catch` лише в `src/platform/` і `repo-pg.js` (К6), драйвер БД лише в `repo-pg.js` і `src/platform/db/`, без `sql.unsafe` (К4) ([ADR-0031](../docs/adr/0031-rivni-dekompozytsii-i-modeli.md)) | ESLint (flat config) | pre-commit, check | коміт, пуш, CI |
 | CHK-03 | Статичний аналіз типів | `tsc --noEmit --checkJs` (strict), JSDoc-типи | check | пуш, CI |
-| CHK-04 | Межі модулів: імпорт в обхід точки входу, цикли, заборонені напрями (К9, К10); домен без `fastify` поза `index.js`/`routes.js` (правило 7, sf-21); `src/` не імпортує `devDependencies` ([ADR-0013](../docs/adr/0013-dependency-cruiser.md)) | dependency-cruiser | check | пуш, CI |
+| CHK-04 | Межі модулів: імпорт в обхід точки входу, цикли, заборонені напрями (К9, К10); домен без `fastify` поза `index.js`/`routes.js` (правило 7, sf-21); `src/` не імпортує `devDependencies` ([ADR-0013](../docs/adr/0013-dependency-cruiser.md)); з лаби 2 — ролі файлів модуля й дозволені імпорти між ними, правила `layer-*` (К4, [ADR-0031](../docs/adr/0031-rivni-dekompozytsii-i-modeli.md)) | dependency-cruiser | check | пуш, CI |
 | CHK-05 | Збірка | `tsc`-перевірка + esbuild бандл у `dist/` | check | пуш, CI |
 | CHK-06 | Smoke-тест зібраного `dist/`: `GET /health` → 200 `{"status":"ok"}`, `GET /version` → `{"sha":…}` (К8) | `node:test` | check | пуш, CI |
 | CHK-07 | Трейлер промпта (К12). Коміт з `Co-Authored-By: … <noreply@anthropic.com>` має `Prompt: ai/labN/NNN-назва.md`, файл існує | скрипт історії | commit-msg, check (`main..HEAD`) | коміт, пуш, CI |
 | CHK-08 | Формат повідомлення: Conventional Commit з типом із [commits.md](commits.md), опис містить кирилицю. Автоматичні коміти git — виняток (див. нижче) | скрипт історії | commit-msg, check (`main..HEAD`) | коміт, пуш, CI |
 | CHK-09 | Гігієна: відстежувані файли не збігаються із забороненими шаблонами, файли без розширення — лише з дозволеного списку (К11) | скрипт над `git ls-files` за [repo-hygiene.md](repo-hygiene.md) | check | пуш, CI |
 | CHK-10 | Обсяг spec ≤ 450 слів без розмітки таблиць | `sed -E '/^\|[-: \|]+\|$/d; s/\|/ /g' spec.md \| wc -w` | вручну, команда | — |
-| CHK-11 | Звіти: відмова pre-commit, відмова pre-push (К7, `hook-*.txt`); обхід точки входу, цикл, заборонений напрям, fastify у логіці модуля валять `make check` (К10, `boundaries.txt`) | `scripts/demo-*.js` у тимчасовому клоні → `reports/lab1/` | verify | здачу |
-| CHK-12 | Дата, sha вершини гілки й стан дерева для DEFENSE (sf-7) разом із виводом `make check` | `scripts/verify.js` → `reports/lab1/verify.txt` | verify | здачу |
+| CHK-11 | Звіти: відмова pre-commit, відмова pre-push (К7, `hook-*.txt`); обхід точки входу, цикл, заборонений напрям, fastify у логіці модуля валять `make check` (К10, `boundaries.txt`) | `scripts/demo-*.js` у тимчасовому клоні → `reports/<лаба>/` | verify | здачу |
+| CHK-12 | Дата, sha вершини гілки й стан дерева для DEFENSE (sf-7) разом із виводом `make check` | `scripts/verify.js` → `reports/<лаба>/verify.txt` | verify | здачу |
 | CHK-13 | Регресія перевірки JSDoc (частина «статичного аналізу» з К5, промпт 015): `tsc` ловить помилку рівно в кожному рядку з міткою ERR у `tests/typecheck/fixture/probe.js` ([ADR-0020](../docs/adr/0020-versiia-typescript-dlia-checkjs.md)) | `node:test` + `tsc` | check | пуш, CI |
+| CHK-14 | Юніт-тести `tests/unit/` (лаба 2): платформа — processId і користувач у логах, один обробник помилок (К5, К6), транзакції в пам'яті; далі — модулі | `node:test` | check | пуш, CI |
+| CHK-15 | Сценарна сюїта `tests/scenarios/` (лаба 2): S1–S13 через HTTP на зібраному `createApp` — двічі, `STORAGE=memory` і `STORAGE=pg`, без змін (К7, К10); кожен код каталогу помилок `data.md` — тест з його статусом або обґрунтований виняток (К8) | `node:test` | check | пуш, CI |
+| CHK-16 | Звіт прогону сценарної сюїти на статиці (К9, лаба 2): весь вивід `node --test`, код виходу 0, sha | `scripts/report-tests.js scenarios-memory` → `reports/lab2/scenarios-memory.txt`; падає, якщо сюїта впала | verify (`make report-scenarios`) | здачу |
+| CHK-17 | Тести на PostgreSQL `tests/db/` (лаба 2): міграції застосовуються рівно раз і повторно нічого не змінюють (К17), обмеження схеми ловлять порушення I1, I3, I4, I9; `unitOfWork` на PostgreSQL (повтори, 503, ідемпотентність); без БД застосунок не стартує — код 1 (К15) | `node:test`, окрема БД на прогін (ADR-0033) | check | пуш, CI |
+| CHK-18 | Звіти етапу БД (лаба 2): сценарна сюїта на PostgreSQL (К10, `scenarios-pg.txt`), збої джерела через HTTP (К14, `failures.txt`), кількість SQL-запитів сценаріїв при N = 1 і N = 10 поряд із data.md (К16, `queries.txt`) | `scripts/report-tests.js`, `scripts/report-queries.js` → `reports/lab2/`; падають, якщо прогін упав, кількість залежить від N чи розходиться з data.md | verify (`make report-*`) | здачу |
 
 **Автоматичні коміти git.** Це коміти, повідомлення яких git сформував сам:
 - починається з `Merge ` — merge гілки чи PR;
@@ -79,6 +84,7 @@ CHK-07 і CHK-08 в CI потребують повної історії та г�
 | MAN-07 | DEFENSE ≤ 1 сторінки за шаблоном курсу | рев'ю |
 | MAN-08 | Кожен стандарт має «навіщо» і розділ «Як перевіряється» | рев'ю `standards/` |
 | MAN-09 | Branch protection на `main`: обов'язкова перевірка `check`, лише merge commit ([ADR-0015](../docs/adr/0015-github-actions.md), [ADR-0018](../docs/adr/0018-merge-bez-squash.md)). Налаштовується вручну; доказ — [`reports/lab1/branch-protection.txt`](../reports/lab1/branch-protection.txt) (`gh api …/rulesets`, оновлює `make verify`) | рев'ю звіту |
+| MAN-10 | З лаби 2 `spec.md`, додаток spec і `DEFENSE.md` написав автор: `git log --format='%h %an %(trailers:key=Co-Authored-By)' -- <файли>` після чернетки ШІ (`2fd04e2`) не має комітів ШІ, крім дрібних правок за промптом автора, кожна з яких перелічена в sf-пункті ([ai-workflow.md](ai-workflow.md), «Роль ШІ») | рев'ю історії |
 
 ## Як перевіряється
 
@@ -88,7 +94,7 @@ CHK-07 і CHK-08 в CI потребують повної історії та г�
 відповіді маскувала помилку. Це помітили лише під час ручної поломки (коміт
 `2a4b7a6`, аудит, розбіжність Р1). Зараз доказ є для CHK-01, CHK-06
 (`hook-*.txt`), CHK-04 (`boundaries.txt`), CHK-07/08 (commit-msg відхилив
-коміт ШІ під час роботи) і CHK-13 (тест проби).
+коміт ШІ під час роботи), CHK-13 (тест проби) і CHK-14: тест «невідомі поля → 400» упав на першому прогоні, бо Fastify за замовчуванням мовчки видаляє зайві поля (`removeAdditional`); виправлено в `src/platform/server.js`. Правила шарів CHK-02 і CHK-04 (лаба 2) мають доказ у `tests/unit/rules/layers.test.js`: навмисні порушення в тимчасовому дереві й через API ESLint. CHK-17: тести з навмисними порушеннями обмежень (23505, 23514). CHK-15: перевірка покриття каталогу падає на коді без тесту — `tests/unit/rules/error-coverage.test.js`. CHK-18: лічильник запитів упав на справжній розбіжності коду з data.md (S1, S4, S10, S11 — аудит, кандидат 4), а тести збоїв — на справжньому падінні процесу при обриві з'єднання (ADR-0036).
 
 Сам реєстр перевіряється вручну на рев'ю (MAN-08). Кожна автоматична
 перевірка має відповідну ціль у `Makefile` або крок hook-а. Розбіжність між

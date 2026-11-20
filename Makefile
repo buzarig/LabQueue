@@ -1,5 +1,5 @@
 # Єдиний інтерфейс команд (ADR-0014). Склад цілей — standards/checks.md.
-.PHONY: check verify format lint typecheck typecheck-probe boundaries build smoke commits hygiene
+.PHONY: check verify format lint typecheck typecheck-probe boundaries test scenarios test-db build smoke commits hygiene report-scenarios report-scenarios-pg report-failures report-queries db-up db-down db-destroy db-migrate db-seed
 
 # Маркер встановлених пакетів: npm ci, якщо node_modules відсутній або
 # package-lock.json новіший за нього (sf-4).
@@ -10,7 +10,7 @@ $(DEPS): package-lock.json
 	@mkdir -p node_modules && touch $@
 
 # Брама: запускають pre-push і CI. Файли під git не змінює.
-check: format lint typecheck typecheck-probe boundaries smoke commits hygiene
+check: format lint typecheck typecheck-probe boundaries test scenarios test-db smoke commits hygiene
 	@echo "make check: OK"
 
 # CHK-01: формат коду (лише JS, JSON, YAML — Markdown не форматуємо).
@@ -34,6 +34,21 @@ typecheck-probe: $(DEPS)
 boundaries: $(DEPS)
 	npm run --silent boundaries
 
+# CHK-14: юніт-тести src/ (node:test, ADR-0010).
+test: $(DEPS)
+	npm run --silent test
+
+# CHK-15: сценарна сюїта S1–S13 і каталог помилок через HTTP (К7, К8) — та
+# сама на обох сховищах (К10): статика й PostgreSQL.
+scenarios: $(DEPS)
+	STORAGE=memory npm run --silent scenarios
+	STORAGE=pg npm run --silent scenarios
+
+# CHK-17: тести на PostgreSQL (К10–К17): окрема БД на прогін із шаблону
+# (ADR-0033). Без запущеного кластера — зупинка з підказкою make db-up.
+test-db: $(DEPS)
+	npm run --silent test:db
+
 # CHK-05: збірка — tsc-перевірка + бандл esbuild у dist/ з вшитим sha.
 # Пише лише в dist/, який ігнорує git.
 build: typecheck
@@ -51,8 +66,41 @@ commits: $(DEPS)
 hygiene: $(DEPS)
 	npm run --silent hygiene
 
-# Докази для здачі: make check + звіти в reports/lab1/ (CHK-11) + дата й sha
-# у reports/lab1/verify.txt (CHK-12). Запускає автор перед здачею; на неї
+# Докази для здачі: make check + звіти в reports/<лаба>/ (CHK-11, CHK-16) + дата
+# й sha у reports/<лаба>/verify.txt (CHK-12). Запускає автор перед здачею; на неї
 # посилається DEFENSE.
 verify: $(DEPS)
 	node scripts/verify.js
+
+# CHK-16 (К9): звіт прогону сценарної сюїти на статиці → reports/<лаба>/scenarios-memory.txt.
+report-scenarios: $(DEPS)
+	node scripts/report-tests.js scenarios-memory
+
+# CHK-18: звіти етапу БД → reports/<лаба>/: та сама сюїта на PostgreSQL (К10),
+# збої джерела (К14), кількість запитів без N+1 (К16).
+report-scenarios-pg: $(DEPS)
+	node scripts/report-tests.js scenarios-pg
+
+report-failures: $(DEPS)
+	node scripts/report-tests.js failures
+
+report-queries: $(DEPS)
+	node --env-file-if-exists=.env scripts/report-queries.js
+
+# Локальний кластер PostgreSQL 17 у .pgdata/ на 127.0.0.1:55432 (ADR-0033).
+# Роль, пароль і БД — з DATABASE_URL у .env. db-destroy видаляє всі дані.
+db-up:
+	node scripts/db.js up
+
+db-down:
+	node scripts/db.js down
+
+db-destroy:
+	node scripts/db.js destroy
+
+# Міграції (ADR-0026) і seed-дані (data.md) у базу з DATABASE_URL.
+db-migrate: $(DEPS)
+	node --env-file-if-exists=.env scripts/migrate.js
+
+db-seed: $(DEPS)
+	node --env-file-if-exists=.env scripts/seed.js

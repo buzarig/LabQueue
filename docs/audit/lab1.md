@@ -30,7 +30,7 @@
 | 11 | виконано | CHK-09 (`make check`) — `verify.txt`; `.gitignore` |
 | 12 | виконано | `ai/lab1/001–015` + журнал коротких повідомлень [000-korotki-povidomlennia.md](../../ai/lab1/000-korotki-povidomlennia.md) (відновлено за 015, правило в `ai-workflow.md`, `688358c`); CHK-07 зелений по `main..HEAD`, виняток `ca2d008` — кандидат 4 |
 | 13 | виконано | Цей файл: (а), Р, (б), (в) з фідбеком автора (автор, ai/lab1/015) |
-| 14 | виконано | [DEFENSE.md](../../DEFENSE.md) у корені, ≤ 1 сторінки, за шаблоном курсу |
+| 14 | виконано | [DEFENSE лаби 1](../defense/lab1.md) (до лаби 2 — `DEFENSE.md` у корені), ≤ 1 сторінки, за шаблоном курсу |
 | 15 | ще ні | PR #1 відкритий. Лишилися коментарі автора й merge — ruleset уже дозволяє лише merge commit і вимагає `check` (`reports/lab1/branch-protection.txt`) |
 
 ## Р. Розбіжності реалізації зі spec (топ-3, для DEFENSE п.2)

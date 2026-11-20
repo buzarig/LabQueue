@@ -1,5 +1,5 @@
 // MAN-09: доказ branch protection — вивід gh api …/rulesets у
-// reports/lab1/branch-protection.txt. Без gh або доступу до репо звіт не
+// reports/<лаба>/branch-protection.txt. Без gh або доступу до репо звіт не
 // оновлюється, make verify не падає (відповідь автора, промпт 015).
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";

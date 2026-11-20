@@ -1,0 +1,32 @@
+{
+  "groups": [
+    { "id": "kn-21", "name": "КН-21" },
+    { "id": "kn-22", "name": "КН-22" }
+  ],
+  "subjects": [
+    { "id": "nodejs", "name": "Node.js" },
+    { "id": "db", "name": "Бази даних" }
+  ],
+  "labs": [
+    {
+      "id": "nodejs-1",
+      "subjectId": "nodejs",
+      "number": 1,
+      "title": "Фундамент і структура"
+    },
+    {
+      "id": "nodejs-2",
+      "subjectId": "nodejs",
+      "number": 2,
+      "title": "Сценарії і БД"
+    },
+    {
+      "id": "nodejs-3",
+      "subjectId": "nodejs",
+      "number": 3,
+      "title": "Тестування"
+    },
+    { "id": "db-1", "subjectId": "db", "number": 1, "title": "Нормалізація" },
+    { "id": "db-2", "subjectId": "db", "number": 2, "title": "Індекси" }
+  ]
+}

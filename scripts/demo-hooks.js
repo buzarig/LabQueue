@@ -1,5 +1,5 @@
 // CHK-11 (К7): коміт з порушенням стилю й пуш зі зламаним smoke-тестом
-// відхиляються hook-ами. Реальний вивід — reports/lab1/hook-*.txt.
+// відхиляються hook-ами. Реальний вивід — reports/<лаба>/hook-*.txt.
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { must, run, withSandbox, writeReport } from "./demo-lib.js";

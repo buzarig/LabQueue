@@ -1,6 +1,6 @@
 // CHK-11 (К10): обхід точки входу, цикл, заборонений напрям і залежність
 // домену від fastify (правило 7) валять make check. Кожне порушення — окремо, у чистому тимчасовому клоні.
-// Реальний вивід — reports/lab1/boundaries.txt.
+// Реальний вивід — reports/<лаба>/boundaries.txt.
 import { appendFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { must, run, withSandbox, writeReport } from "./demo-lib.js";
@@ -40,7 +40,7 @@ const VIOLATIONS = [
     rule: "arch-3-catalog-leaf (правило 3)",
     append: {
       "src/modules/catalog/index.js":
-        'export { plugin as identityPlugin } from "../identity/index.js";\n',
+        'export { createIdentityModule } from "../identity/index.js";\n',
     },
   },
   {
