@@ -27,6 +27,10 @@ const dirty = must(
   .filter(Boolean);
 
 const check = step("make check", "make", ["check"]);
+// Одразу після make check: зведення покриття бере дані його make test.
+const coverage = step("К11–К12 лаби 3: покриття", "node", [
+  "scripts/report-coverage.js",
+]);
 const hooks = step("К7: відмови hook-ів", "node", ["scripts/demo-hooks.js"]);
 const bounds = step("К10: порушення меж", "node", [
   "scripts/demo-boundaries.js",
@@ -45,6 +49,22 @@ const scenariosPg = step("К10: сценарії на PostgreSQL", "node", [
 const failures = step("К14: збої джерела", "node", [
   "scripts/report-tests.js",
   "failures",
+]);
+const unit = step("К4–К6 лаби 3: unit", "node", [
+  "scripts/report-tests.js",
+  "unit",
+]);
+const db = step("К7–К8 лаби 3: integration на PostgreSQL", "node", [
+  "scripts/report-tests.js",
+  "db",
+]);
+const e2e = step("К9–К10 лаби 3: E2E", "node", [
+  "scripts/report-tests.js",
+  "e2e",
+]);
+const mutation = step("К13–К14 лаби 3: мутації", "make", [
+  "--no-print-directory",
+  "mutation",
 ]);
 const queries = step("К16: запити без N+1", "node", [
   "--env-file-if-exists=.env",
@@ -70,6 +90,11 @@ const text = [
   scenariosPg.trim(),
   failures.trim(),
   queries.trim(),
+  unit.trim(),
+  db.trim(),
+  e2e.trim(),
+  coverage.trim(),
+  mutation.trim().split("\n").at(-1),
   "",
 ].join("\n");
 writeFileSync(join(reports, "verify.txt"), text);

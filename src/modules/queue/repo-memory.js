@@ -71,9 +71,9 @@ export function createQueueRepoMemory({ store }) {
         (entry) => entry.status === "submitting",
       );
     },
-    async missActive(sessionId, at) {
-      const active = ofSession(sessionId).filter(
-        (entry) => entry.status === "waiting" || entry.status === "called",
+    async missActive(sessionId, statuses, at) {
+      const active = ofSession(sessionId).filter((entry) =>
+        statuses.includes(entry.status),
       );
       for (const entry of active) {
         entries.put(entry.id, { ...entry, status: "missed", finishedAt: at });

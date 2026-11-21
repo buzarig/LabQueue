@@ -19,7 +19,7 @@
   відсутній або lockfile новіший за нього (sf-4).
 - **Навіщо:** на свіжому клоні вистачає однієї команди.
 
-**`make verify`** = `make check` + CHK-11 + CHK-12 + CHK-16 + CHK-18.
+**`make verify`** = `make check` + CHK-11 + CHK-12 + CHK-16 + CHK-18 + CHK-20 + CHK-23.
 - **Що додає:** генерує звіти в `reports/<лаба>/` (лаба 1 — `reports/lab1/`, з лаби 2 — `reports/lab2/`) і виводить дату та git sha.
 - **Хто запускає:** автор перед здачею.
 - **Навіщо:** на неї посилається DEFENSE. Це окрема ціль, бо звіти пишуть
@@ -42,7 +42,7 @@
 | CHK-01 | Формат коду | Prettier (`--check`) | pre-commit, check | коміт, пуш, CI |
 | CHK-02 | Лінт; з лаби 2 — `try/catch` лише в `src/platform/` і `repo-pg.js` (К6), драйвер БД лише в `repo-pg.js` і `src/platform/db/`, без `sql.unsafe` (К4) ([ADR-0031](../docs/adr/0031-rivni-dekompozytsii-i-modeli.md)) | ESLint (flat config) | pre-commit, check | коміт, пуш, CI |
 | CHK-03 | Статичний аналіз типів | `tsc --noEmit --checkJs` (strict), JSDoc-типи | check | пуш, CI |
-| CHK-04 | Межі модулів: імпорт в обхід точки входу, цикли, заборонені напрями (К9, К10); домен без `fastify` поза `index.js`/`routes.js` (правило 7, sf-21); `src/` не імпортує `devDependencies` ([ADR-0013](../docs/adr/0013-dependency-cruiser.md)); з лаби 2 — ролі файлів модуля й дозволені імпорти між ними, правила `layer-*` (К4, [ADR-0031](../docs/adr/0031-rivni-dekompozytsii-i-modeli.md)) | dependency-cruiser | check | пуш, CI |
+| CHK-04 | Межі модулів: імпорт в обхід точки входу, цикли, заборонені напрями (К9, К10); домен без `fastify` поза `index.js`/`routes.js` (правило 7, sf-21); `src/` не імпортує `devDependencies` ([ADR-0013](../docs/adr/0013-dependency-cruiser.md)); з лаби 2 — ролі файлів модуля й дозволені імпорти між ними, правила `layer-*` (К4, [ADR-0031](../docs/adr/0031-rivni-dekompozytsii-i-modeli.md)); з лаби 3 — роль `transitions.js` ([ADR-0037](../docs/adr/0037-chysta-mashyna-staniv-transitions.md)) | dependency-cruiser | check | пуш, CI |
 | CHK-05 | Збірка | `tsc`-перевірка + esbuild бандл у `dist/` | check | пуш, CI |
 | CHK-06 | Smoke-тест зібраного `dist/`: `GET /health` → 200 `{"status":"ok"}`, `GET /version` → `{"sha":…}` (К8) | `node:test` | check | пуш, CI |
 | CHK-07 | Трейлер промпта (К12). Коміт з `Co-Authored-By: … <noreply@anthropic.com>` має `Prompt: ai/labN/NNN-назва.md`, файл існує | скрипт історії | commit-msg, check (`main..HEAD`) | коміт, пуш, CI |
@@ -57,6 +57,11 @@
 | CHK-16 | Звіт прогону сценарної сюїти на статиці (К9, лаба 2): весь вивід `node --test`, код виходу 0, sha | `scripts/report-tests.js scenarios-memory` → `reports/lab2/scenarios-memory.txt`; падає, якщо сюїта впала | verify (`make report-scenarios`) | здачу |
 | CHK-17 | Тести на PostgreSQL `tests/db/` (лаба 2): міграції застосовуються рівно раз і повторно нічого не змінюють (К17), обмеження схеми ловлять порушення I1, I3, I4, I9; `unitOfWork` на PostgreSQL (повтори, 503, ідемпотентність); без БД застосунок не стартує — код 1 (К15) | `node:test`, окрема БД на прогін (ADR-0033) | check | пуш, CI |
 | CHK-18 | Звіти етапу БД (лаба 2): сценарна сюїта на PostgreSQL (К10, `scenarios-pg.txt`), збої джерела через HTTP (К14, `failures.txt`), кількість SQL-запитів сценаріїв при N = 1 і N = 10 поряд із data.md (К16, `queries.txt`) | `scripts/report-tests.js`, `scripts/report-queries.js` → `reports/lab2/`; падають, якщо прогін упав, кількість залежить від N чи розходиться з data.md | verify (`make report-*`) | здачу |
+| CHK-19 | Vitest-тести `tests/vitest/transitions.test.js` (лаба 3): усі переходи запису й умови S4–S8, S12; покриття `transitions.js` — гілки й функції ≥ 80 %, ціль 100 % (sf-1 лаби 3; [ADR-0038](../docs/adr/0038-vitest-dlia-transitions.md), [ADR-0039](../docs/adr/0039-c8-pokryttia.md)) | Vitest під c8 (`--check-coverage`) | check (`make test-unit`) | пуш, CI |
+| CHK-20 | Мутаційне тестування `transitions.js` (лаба 3): кожен вижилий мутант класифікований як реальна прогалина, еквівалентний або прийнятний, з причиною; класифікація не розходиться зі звітом Stryker ([ADR-0040](../docs/adr/0040-stryker-mutatsii-transitions.md)) | Stryker + Vitest, `scripts/report-mutation.js` → `reports/lab3/mutation.txt` | `make mutation` (не в check) | — |
+| CHK-21 | Покриття `src/` за unit- та інтеграційними тестами (лаба 3, критерій 11): один звіт c8 зі спільної теки даних V8; порогу немає, поріг — лише в CHK-19 ([ADR-0039](../docs/adr/0039-c8-pokryttia.md)) | c8 (`make test`: `test-unit`, `test-integration`, `coverage`) | check | — |
+| CHK-22 | E2E (лаба 3, критерії 9–10): зібраний `dist/main.js` окремим процесом на свіжій БД із шаблону, повний сценарій S1–S13 через HTTP; БД видаляється після прогону | `node:test` + `fetch`, `tests/e2e/` | check (`make test-e2e`) | пуш, CI |
+| CHK-23 | Звіти тестів і покриття лаби 3 (критерій 18): unit (`unit.txt`), інтеграційні на PostgreSQL (`db.txt`), E2E (`e2e.txt`) — весь вивід `node --test`, код виходу, sha; покриття `src/` (`coverage-src.txt`) і `transitions.js` з порогом (`coverage-transitions.txt`) | `scripts/report-tests.js`, `scripts/report-coverage.js` → `reports/lab3/`; падають, якщо прогін упав або поріг не виконано | verify (`make report-*`) | здачу |
 
 **Автоматичні коміти git.** Це коміти, повідомлення яких git сформував сам:
 - починається з `Merge ` — merge гілки чи PR;

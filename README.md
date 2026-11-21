@@ -29,6 +29,9 @@ LabQueue дає окрему чергу на кожне заняття:
 - **Лаба 2** — сценарії S1–S13 через HTTP: спершу на статиці в пам'яті, потім
   на PostgreSQL 17 з тією самою поведінкою. Транзакції під блокуванням за
   викладачем, ідемпотентність, обробка збоїв джерела, без N+1.
+- **Лаба 3** — тести всіх рівнів: unit (машина станів `transitions.js`),
+  integration на PostgreSQL, E2E зібраного `dist/`; покриття c8, мутації
+  Stryker і аудит слабких тестів.
 
 **Для рев'ю почніть з [DEFENSE.md](DEFENSE.md).**
 
@@ -37,16 +40,20 @@ LabQueue дає окрему чергу на кожне заняття:
 Потрібні Node.js 24 (`.nvmrc`), npm і `make`. Пакети ставляться самі.
 
 ```sh
+make test     # усі рівні тестів: БД і міграції, unit, integration, E2E, покриття src/
 make check    # усі перевірки — та сама брама, що в pre-push і CI
-make verify   # make check + звіти в reports/lab2/ + дата й sha (перед здачею)
+make verify   # make check + звіти в reports/lab3/ + дата й sha (перед здачею)
 ```
 
 | Команда | Що робить |
 |---|---|
-| `make check` | формат, лінт, типи, проба JSDoc, межі модулів, юніт-тести, сценарна сюїта, збірка, smoke-тест, історія комітів, гігієна ([standards/checks.md](standards/checks.md)) |
-| `make verify` | `make check` + відтворення відмов hook-ів і порушень меж у тимчасовому клоні + прогін сценаріїв → `reports/lab2/`, підсумок — `reports/lab2/verify.txt` (звіти лаби 1 — `reports/lab1/`) |
-| `make report-scenarios` | лише звіт сценарної сюїти на статиці → `reports/lab2/scenarios-memory.txt` (К9) |
-| `make report-scenarios-pg`, `make report-failures`, `make report-queries` | звіти етапу БД: сюїта на PostgreSQL (К10), збої (К14), запити без N+1 (К16) → `reports/lab2/` |
+| `make check` | формат, лінт, типи, проба JSDoc, межі модулів, `make test`, збірка, smoke-тест, історія комітів, гігієна ([standards/checks.md](standards/checks.md)) |
+| `make test` | БД (`make db-up`, якщо `DATABASE_URL` не задано в середовищі) і міграції → `test-unit` (`node:test` + Vitest для `transitions.js` з порогом c8) → `test-integration` (сценарна сюїта на memory і pg, `tests/db`) → `test-e2e` (зібраний `dist/` на PostgreSQL через HTTP) → звіт покриття `src/` (c8) |
+| `make verify` | `make check` + відтворення відмов hook-ів і порушень меж у тимчасовому клоні + звіти тестів, покриття й мутацій → `reports/lab3/`, підсумок — `reports/lab3/verify.txt` (звіти попередніх лаб — `reports/lab1/`, `reports/lab2/`) |
+| `make report-scenarios` | лише звіт сценарної сюїти на статиці → `reports/lab3/scenarios-memory.txt` (К9 лаби 2) |
+| `make report-scenarios-pg`, `make report-failures`, `make report-queries` | звіти етапу БД лаби 2: сюїта на PostgreSQL (К10), збої (К14), запити без N+1 (К16) → `reports/lab3/` |
+| `make report-unit`, `make report-db`, `make report-e2e`, `make report-coverage` | звіти лаби 3 (критерій 18): unit, інтеграційні на PostgreSQL, E2E, покриття `src/` і `transitions.js` → `reports/lab3/` |
+| `make mutation` (`make test-mutation`) | мутаційне тестування `transitions.js` (Stryker + Vitest) і звіт із класифікацією вижилих → `reports/lab3/mutation.txt`; HTML Stryker — `coverage/mutation/mutation.html`. Не входить у `make check` |
 | `make build` і `node --env-file=.env dist/main.js` | запуск застосунку на PostgreSQL (`STORAGE=pg` типово, `DATABASE_URL`); `STORAGE=memory` — статика без БД. Без БД застосунок не стартує (код 1). Технічні маршрути: `GET /health`, `GET /ready`, `GET /version`; порт — `PORT`, за замовчуванням 3000 |
 
 Git-hooks ставляться під час `npm install`:
@@ -90,14 +97,14 @@ CI ([.github/workflows/check.yml](.github/workflows/check.yml)) запускає
 | Що | Де |
 |---|---|
 | Захист лаби | [DEFENSE.md](DEFENSE.md) |
-| Spec і журнал змін | лаба 1: [spec.md](docs/specs/lab1-foundation/spec.md), [spec-fix.md](docs/specs/lab1-foundation/spec-fix.md); лаба 2: [spec.md](docs/specs/lab2-db-scenarios/spec.md), [spec-fix.md](docs/specs/lab2-db-scenarios/spec-fix.md) |
+| Spec і журнал змін | лаба 1: [spec.md](docs/specs/lab1-foundation/spec.md), [spec-fix.md](docs/specs/lab1-foundation/spec-fix.md); лаба 2: [spec.md](docs/specs/lab2-db-scenarios/spec.md), [spec-fix.md](docs/specs/lab2-db-scenarios/spec-fix.md); лаба 3: [spec.md](docs/specs/lab3-testing-mutation/spec.md), [spec-fix.md](docs/specs/lab3-testing-mutation/spec-fix.md) |
 | Архітектура й домен | [architecture.md](docs/specs/lab1-foundation/architecture.md) |
 | Контракт, схема БД, запити, помилки | [data.md](docs/specs/lab2-db-scenarios/data.md) |
 | Стандарти | [standards/](standards/) |
 | Рішення (ADR) | [docs/adr/](docs/adr/) |
-| Аудит | [лаба 1](docs/audit/lab1.md), [лаба 2](docs/audit/lab2.md) |
-| Промпти роботи з ШІ | [ai/lab1/](ai/lab1/), [ai/lab2/](ai/lab2/) |
-| Звіти | [reports/lab1/](reports/lab1/), [reports/lab2/](reports/lab2/) |
+| Аудит | [лаба 1](docs/audit/lab1.md), [лаба 2](docs/audit/lab2.md), [лаба 3](docs/audit/lab3.md) |
+| Промпти роботи з ШІ | [ai/lab1/](ai/lab1/), [ai/lab2/](ai/lab2/), [ai/lab3/](ai/lab3/) |
+| Звіти | [reports/lab1/](reports/lab1/), [reports/lab2/](reports/lab2/), [reports/lab3/](reports/lab3/) |
 
 ## Залежності
 
@@ -117,3 +124,7 @@ CI ([.github/workflows/check.yml](.github/workflows/check.yml)) запускає
 | `husky` | dev | встановлює git-hooks під час `npm install`: pre-commit, commit-msg, pre-push ([ADR-0011](docs/adr/0011-husky-i-lint-staged.md)) |
 | `postgres` | prod | драйвер PostgreSQL із tagged templates: репозиторії, `unitOfWork`, міграції ([ADR-0032](docs/adr/0032-postgresql-postgres-js.md)) |
 | `lint-staged` | dev | pre-commit перевіряє формат і лінт лише staged-файлів ([ADR-0011](docs/adr/0011-husky-i-lint-staged.md)) |
+| `vitest` | dev | unit-тести `transitions.js`, які мутує Stryker; решта тестів — `node:test` ([ADR-0038](docs/adr/0038-vitest-dlia-transitions.md)) |
+| `c8` | dev | покриття V8: звіт по `src/` і поріг гілок для `transitions.js` у `make test` ([ADR-0039](docs/adr/0039-c8-pokryttia.md)) |
+| `@stryker-mutator/core` | dev | мутаційне тестування `transitions.js`, `make mutation` ([ADR-0040](docs/adr/0040-stryker-mutatsii-transitions.md)) |
+| `@stryker-mutator/vitest-runner` | dev | раннер Vitest для Stryker: покриття мутантів на тест ([ADR-0040](docs/adr/0040-stryker-mutatsii-transitions.md)) |

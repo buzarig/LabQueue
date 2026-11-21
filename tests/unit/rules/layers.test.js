@@ -34,7 +34,9 @@ function tree(extra = {}) {
       [`src/modules/${m}/routes.js`]:
         'import "./service.js";\nimport "./errors.js";\n',
       [`src/modules/${m}/service.js`]:
-        'import "./repo.js";\nimport "./model.js";\nimport "./errors.js";\n',
+        'import "./repo.js";\nimport "./transitions.js";\nimport "./model.js";\nimport "./errors.js";\n',
+      [`src/modules/${m}/transitions.js`]:
+        'import "./model.js";\nimport "./errors.js";\n',
       [`src/modules/${m}/repo.js`]: 'import "./model.js";\n',
       [`src/modules/${m}/repo-memory.js`]:
         'import "./repo.js";\nimport "./model.js";\n',
@@ -91,6 +93,9 @@ test("dependency-cruiser: кожне порушення шарів ловить 
       "src/modules/queue/index.js":
         'import "./routes.js";\nimport "./repo-memory.js";\nimport "./helpers.js";\n',
       "src/modules/queue/helpers.js": "export {};\n",
+      "src/modules/sessions/transitions.js": 'import "./repo.js";\n',
+      "src/modules/catalog/repo.js":
+        'import "./model.js";\nimport "./transitions.js";\n',
     }),
   );
   for (const expected of [
@@ -99,6 +104,8 @@ test("dependency-cruiser: кожне порушення шарів ловить 
     "layer-repo src/modules/catalog/repo-memory.js",
     "layer-leaf src/modules/identity/model.js",
     "layer-known-roles src/modules/queue/index.js",
+    "layer-transitions src/modules/sessions/transitions.js",
+    "layer-transitions-users src/modules/catalog/repo.js",
   ]) {
     assert.ok(
       violations.includes(expected),

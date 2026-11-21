@@ -71,13 +71,13 @@ module.exports = {
     {
       name: "layer-known-roles",
       comment:
-        "ADR-0031: файли модуля — лише index, routes, service, repo, repo-memory, repo-pg, model, errors, seed.json.",
+        "ADR-0031, ADR-0037: файли модуля — лише index, routes, service, transitions, repo, repo-memory, repo-pg, model, errors, seed.json.",
       severity: "error",
       from: {},
       to: {
         path: "^src/modules/[^/]+/",
         pathNot:
-          "^src/modules/[^/]+/(index|routes|service|repo|repo-memory|repo-pg|model|errors)\\.js$|^src/modules/[^/]+/seed\\.json$",
+          "^src/modules/[^/]+/(index|routes|service|transitions|repo|repo-memory|repo-pg|model|errors)\\.js$|^src/modules/[^/]+/seed\\.json$",
       },
     },
     {
@@ -94,7 +94,7 @@ module.exports = {
     {
       name: "layer-service",
       comment:
-        "ADR-0031: service.js не бачить HTTP і конкретного сховища — лише repo, model, errors свого модуля й index.js інших.",
+        "ADR-0031, ADR-0037: service.js не бачить HTTP і конкретного сховища — лише repo, transitions, model, errors свого модуля й index.js інших.",
       severity: "error",
       from: { path: "^src/modules/([^/]+)/service\\.js$" },
       to: {
@@ -112,6 +112,25 @@ module.exports = {
         pathNot:
           "^src/modules/$1/(repo|model|errors)\\.js$|^src/modules/$1/seed\\.json$",
       },
+    },
+    {
+      name: "layer-transitions",
+      comment:
+        "ADR-0037: transitions.js — чисті переходи, імпортує лише model і errors свого модуля.",
+      severity: "error",
+      from: { path: "^src/modules/([^/]+)/transitions\\.js$" },
+      to: {
+        path: "^src/",
+        pathNot: "^src/modules/$1/(model|errors)\\.js$",
+      },
+    },
+    {
+      name: "layer-transitions-users",
+      comment:
+        "ADR-0037: transitions.js імпортує лише service.js свого модуля.",
+      severity: "error",
+      from: { path: "^src/", pathNot: "^src/modules/[^/]+/service\\.js$" },
+      to: { path: "^src/modules/[^/]+/transitions\\.js$" },
     },
     {
       name: "layer-leaf",
