@@ -44,7 +44,7 @@
 | CHK-03 | Статичний аналіз типів | `tsc --noEmit --checkJs` (strict), JSDoc-типи | check | пуш, CI |
 | CHK-04 | Межі модулів: імпорт в обхід точки входу, цикли, заборонені напрями (К9, К10); домен без `fastify` поза `index.js`/`routes.js` (правило 7, sf-21); `src/` не імпортує `devDependencies` ([ADR-0013](../docs/adr/0013-dependency-cruiser.md)); з лаби 2 — ролі файлів модуля й дозволені імпорти між ними, правила `layer-*` (К4, [ADR-0031](../docs/adr/0031-rivni-dekompozytsii-i-modeli.md)) | dependency-cruiser | check | пуш, CI |
 | CHK-05 | Збірка | `tsc`-перевірка + esbuild бандл у `dist/` | check | пуш, CI |
-| CHK-06 | Smoke-тест зібраного `dist/`: `GET /health` → 200 `{"status":"ok"}`, `GET /version` → `{"sha":…}` (К8) | `node:test` | check | пуш, CI |
+| CHK-06 | Smoke-тест зібраного `dist/`: `GET /health` → 200 `{"status":"ok"}`, `GET /version` → `{"sha":…}` (К8); з лаби 4 — збірка без git бере sha з `RAILWAY_GIT_COMMIT_SHA`, а не-sha дає `unknown` ([ADR-0043](../docs/adr/0043-dockerfile-i-sha-zbirky.md)) | `node:test` | check | пуш, CI |
 | CHK-07 | Трейлер промпта (К12). Коміт з `Co-Authored-By: … <noreply@anthropic.com>` має `Prompt: ai/labN/NNN-назва.md`, файл існує | скрипт історії | commit-msg, check (`main..HEAD`) | коміт, пуш, CI |
 | CHK-08 | Формат повідомлення: Conventional Commit з типом із [commits.md](commits.md), опис містить кирилицю. Автоматичні коміти git — виняток (див. нижче) | скрипт історії | commit-msg, check (`main..HEAD`) | коміт, пуш, CI |
 | CHK-09 | Гігієна: відстежувані файли не збігаються із забороненими шаблонами, файли без розширення — лише з дозволеного списку (К11) | скрипт над `git ls-files` за [repo-hygiene.md](repo-hygiene.md) | check | пуш, CI |
