@@ -24,5 +24,5 @@ export function readConfig(env) {
       "STORAGE=pg потребує DATABASE_URL (README, «Середовище»), або STORAGE=memory",
     );
   }
-  return { host, port, storage, databaseUrl };
+  return { host, port: raw, storage, databaseUrl };
 }
