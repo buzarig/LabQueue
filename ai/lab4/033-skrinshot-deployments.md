@@ -1,0 +1,1 @@
+[скріншот Railway: проєкт remarkable-happiness, середовище production; сервіс LabQueue — ACTIVE «Merge pull request #4 … 16 minutes ago via GitHub», Deployment successful; HISTORY: REMOVED PR #4 (19 і 26 хв тому), REMOVED PR #2 (28 і 42 хв тому); postgres-17 Online, postgres-17-volume] я правильно дивлюсь?
