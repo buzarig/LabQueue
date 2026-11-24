@@ -38,13 +38,13 @@ LabQueue дає окрему чергу на кожне заняття:
 
 ```sh
 make check    # усі перевірки — та сама брама, що в pre-push і CI
-make verify   # make check + звіти в reports/lab2/ + дата й sha (перед здачею)
+make verify   # make check + звіти в reports/lab4/ + дата й sha (перед здачею)
 ```
 
 | Команда | Що робить |
 |---|---|
 | `make check` | формат, лінт, типи, проба JSDoc, межі модулів, юніт-тести, сценарна сюїта, збірка, smoke-тест, історія комітів, гігієна ([standards/checks.md](standards/checks.md)) |
-| `make verify` | `make check` + відтворення відмов hook-ів і порушень меж у тимчасовому клоні + прогін сценаріїв → `reports/lab2/`, підсумок — `reports/lab2/verify.txt` (звіти лаби 1 — `reports/lab1/`) |
+| `make verify` | `make check` + відтворення відмов hook-ів і порушень меж у тимчасовому клоні + прогін сценаріїв + PR з навмисними порушеннями CI (CHK-24) → `reports/lab4/`, підсумок — `reports/lab4/verify.txt` (звіти попередніх лаб — `reports/lab1/`, `reports/lab2/`) |
 | `make report-scenarios` | лише звіт сценарної сюїти на статиці → `reports/lab2/scenarios-memory.txt` (К9) |
 | `make report-scenarios-pg`, `make report-failures`, `make report-queries` | звіти етапу БД: сюїта на PostgreSQL (К10), збої (К14), запити без N+1 (К16) → `reports/lab2/` |
 | `make build` і `node --env-file=.env dist/main.js` | запуск застосунку на PostgreSQL (`STORAGE=pg` типово, `DATABASE_URL`); `STORAGE=memory` — статика без БД. Без БД застосунок не стартує (код 1). Технічні маршрути: `GET /health`, `GET /ready`, `GET /version`; порт — `PORT`, за замовчуванням 3000; адреса — `HOST`, за замовчуванням `localhost` (у контейнері `::`, ADR-0043) |

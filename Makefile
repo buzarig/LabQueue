@@ -1,5 +1,5 @@
 # Єдиний інтерфейс команд (ADR-0014). Склад цілей — standards/checks.md.
-.PHONY: check verify format lint typecheck typecheck-probe boundaries test scenarios test-db build smoke commits hygiene report-scenarios report-scenarios-pg report-failures report-queries db-up db-down db-destroy db-migrate db-seed
+.PHONY: check verify format lint typecheck typecheck-probe boundaries test scenarios test-db build smoke commits hygiene report-scenarios report-scenarios-pg report-failures report-queries report-ci-violations db-up db-down db-destroy db-migrate db-seed
 
 # Маркер встановлених пакетів: npm ci, якщо node_modules відсутній або
 # package-lock.json новіший за нього (sf-4).
@@ -86,6 +86,11 @@ report-failures: $(DEPS)
 
 report-queries: $(DEPS)
 	node --env-file-if-exists=.env scripts/report-queries.js
+
+# CHK-24 (критерій 13 лаби 4): PR із навмисними порушеннями червоні й не
+# злиті → reports/<лаба>/ci-violations.txt. Потрібен gh із доступом до репо.
+report-ci-violations: $(DEPS)
+	node scripts/report-ci-violations.js
 
 # Локальний кластер PostgreSQL 17 у .pgdata/ на 127.0.0.1:55432 (ADR-0033).
 # Роль, пароль і БД — з DATABASE_URL у .env. db-destroy видаляє всі дані.
