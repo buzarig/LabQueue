@@ -2,10 +2,13 @@
  * Конфіг застосунку зі змінних оточення.
  * STORAGE — `pg` (типово) або `memory` (статика, ADR-0027); для `pg`
  * обов'язковий DATABASE_URL.
+ * HOST — адреса прослуховування: типово `localhost`; у контейнері `::`, бо
+ * інакше застосунок недосяжний ззовні (ADR-0043).
  * @param {NodeJS.ProcessEnv} env
- * @returns {{ port: number, storage: "memory" | "pg", databaseUrl: string | undefined }}
+ * @returns {{ host: string, port: number, storage: "memory" | "pg", databaseUrl: string | undefined }}
  */
 export function readConfig(env) {
+  const host = env.HOST || "localhost";
   const raw = env.PORT ?? "3000";
   const port = Number(raw);
   if (!Number.isInteger(port) || port < 0 || port > 65535) {
@@ -21,5 +24,5 @@ export function readConfig(env) {
       "STORAGE=pg потребує DATABASE_URL (README, «Середовище»), або STORAGE=memory",
     );
   }
-  return { port, storage, databaseUrl };
+  return { host, port, storage, databaseUrl };
 }
