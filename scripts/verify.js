@@ -49,6 +49,9 @@ const failures = step("К14: збої джерела", "node", [
 const ciViolations = step("К13 лаби 4: CI на навмисних порушеннях", "node", [
   "scripts/report-ci-violations.js",
 ]);
+const staging = step("К4–К5 лаби 4: staging", "node", [
+  "scripts/report-staging.js",
+]);
 const queries = step("К16: запити без N+1", "node", [
   "--env-file-if-exists=.env",
   "scripts/report-queries.js",
@@ -74,6 +77,7 @@ const text = [
   failures.trim(),
   queries.trim(),
   ciViolations.trim(),
+  staging.trim(),
   "",
 ].join("\n");
 writeFileSync(join(reports, "verify.txt"), text);
