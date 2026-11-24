@@ -1,9 +1,27 @@
 # Аудит лаби 4
 
 Чернетку складає ШІ як аналіз (`standards/ai-workflow.md`, «Роль ШІ»);
-висновки погоджує автор. Таблиця критеріїв додається перед здачею; нижче —
-аудит CI (критерій 13) і журнал знахідок розгортання в порядку, в якому вони
-трапились.
+висновки погоджує автор. Доказова база — `reports/lab4/` (`make verify`),
+журнал знахідок нижче і промпти `ai/lab4/`.
+
+## (а) Критерії 1–14
+
+| № | Статус | Доказ |
+|---|---|---|
+| 1 | виконано з приміткою | `check.yml` → `make check` (формат, лінт, типи, межі, тести, збірка, smoke, CHK-07/08, гігієна) на `pull_request` і push у `main`. Примітка: з PR #10 push у робочу гілку без PR CI не запускає — ціна прапорця «Wait for CI» (З6, ADR-0042) |
+| 2 | виконано | ruleset `main`: обов'язкова `check`, лише merge commit (`branch-protection.txt`); PR #4–#11 злиті merge-комітами після зеленого `check` |
+| 3 | виконано | `check.yml`: власний `postgres:17` у контейнері сервісу; у GitHub немає токенів Railway і SSH, деплой ініціює Railway (ADR-0042) |
+| 4 | виконано | PR #11 (`9d50a4a`): деплой «WAITING FOR CI» ([062](../../ai/lab4/062-skrinshot-waiting-for-ci.md)), CI 23:17:54, нова версія 23:18:30 (З6); PostgreSQL 17.12 ([024](../../ai/lab4/024-server-version-17.md)); `staging.txt` |
+| 5 | виконано | `staging.txt`: публічний `/version` = вершина `origin/main` |
+| 6 | виконано з приміткою | health check `/ready` (лог Railway: «Healthcheck succeeded»); PR #8 і #11 — 26 і 53 запити `/ready` під час перемикання, усі 200. Примітка: до З5 поле було порожнє, і перемикання PR #7 дало 502 |
+| 7 | виконано | Deploy Logs `fefb513`: окремий «Starting Container» з `db-migrate` до контейнера HTTP; Pre-deploy — README «Staging», ADR-0044 |
+| 8 | виконано з приміткою | правило «лише додаємо, видаляємо окремим релізом» — ADR-0044. Нових структурних міграцій у лабі 4 немає (лише базова `001`), тож ручного сценарію на старій версії не було: перевіряти нічого |
+| 9 | виконано | `data/001-trim-room`: Deploy Logs `fefb513` — пакет 1 і HTTP-запит під час прогону; `"  101  "` → `"101"` ([032](../../ai/lab4/032-zaniattia-101-stvoreno.md)); `tests/db/migrate-background.test.js` — пакети 100/100/50 |
+| 10 | виконано | `indexes/001-entries-eta`: Deploy Logs `fefb513` — індекс за 0.1 с; тест — валідний частковий індекс і відновлення після невалідного |
+| 11 | виконано | `tests/db/seed-on-start.test.js` — без прапорця, з `0` і двічі з `1`; Deploy Logs — `seed-on-start` перед HTTP; `staging.txt` — `/sessions` від `s-1` 200 |
+| 12 | виконано | `migrations/` (структура, `001-schema.sql` без змін з `f273201`), `migrations/data/`, `migrations/indexes/` |
+| 13 | виконано | PR #12–#17, `ci-violations.txt` (CHK-24) |
+| 14 | очікує автора | автодеплой — `staging.txt` і З6; ADR-0041–0045; DEFENSE пише автор |
 
 ## Аудит CI: навмисні порушення (критерій 13)
 
@@ -98,6 +116,18 @@ GitHub Actions. Скрипт падає, якщо хоч один PR злити�
   порушує критерій 6 і ADR-0045.
 - **Як виправлено:** автор задав `/ready`
   ([046](../../ai/lab4/046-hotui-healthcheck-dopysav.md)).
+  Лог збірки деплою `7881dac` (експорт автора,
+  [052](../../ai/lab4/052-lohy-ostannoho-deploiu.md)), UTC:
+
+  ```
+  22:38:39 ==================== Starting Healthcheck ====================
+  22:38:39 Path: /ready
+  22:38:39 Retry window: 5m0s
+  22:38:42 [1/1] Healthcheck succeeded!
+  ```
+
+  Спостерігач щосекунди: перемикання PR #8 — 26 запитів `/ready`, PR #11 —
+  53, жодного не 200.
 
 ### З6. Деплой раніше за CI — немає «Wait for CI»
 
