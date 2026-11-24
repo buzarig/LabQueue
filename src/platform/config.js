@@ -9,6 +9,7 @@
  */
 export function readConfig(env) {
   const host = env.HOST || "localhost";
+  const unusedForAudit = 1;
   const raw = env.PORT ?? "3000";
   const port = Number(raw);
   if (!Number.isInteger(port) || port < 0 || port > 65535) {
