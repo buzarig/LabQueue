@@ -92,7 +92,7 @@ describe("фонові міграції на одній БД", () => {
       select name from public.schema_migrations order by name`;
     assert.deepEqual(
       rows.map((r) => r.name),
-      ["001-schema.sql", ...NAMES],
+      ["001-schema.sql", "002-sessions-created-at.sql", ...NAMES],
     );
   });
 });
