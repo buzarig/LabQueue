@@ -9,7 +9,7 @@ const PG = { DATABASE_URL: "postgres://u:p@127.0.0.1:5432/db" };
 test("типово: localhost:3000, pg", () => {
   assert.deepEqual(readConfig(PG), {
     host: "localhost",
-    port: 3000,
+    port: 3001,
     storage: "pg",
     databaseUrl: PG.DATABASE_URL,
   });
