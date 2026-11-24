@@ -2,6 +2,7 @@
 // бекенд unitOfWork із повторами (ADR-0030, ADR-0034, ADR-0035), доступ
 // репозиторіїв до поточної транзакції. Драйвер імпортується лише тут і в
 // repo-pg.js модулів (ADR-0031).
+import { readdirSync } from "node:fs";
 import { setTimeout as sleep } from "node:timers/promises";
 import postgres from "postgres";
 import { KEY_TTL_MS } from "../unit-of-work.js";
@@ -81,18 +82,39 @@ export function createDbAccess({ sql, context }) {
 
 /** @typedef {ReturnType<typeof createDbAccess>} DbAccess */
 
+/** Структурна міграція — як у scripts/migrate.js (ADR-0026). */
+const MIGRATION = /^\d{3}-[a-z0-9-]+\.sql$/;
+
 /**
- * Готовність (`GET /ready`): `select 1` за 1 с.
- * @param {Sql} sql
+ * Імена структурних міграцій із теки (без підтек data/ та indexes/ —
+ * їх `/ready` не чекає, ADR-0044).
+ * @param {string} dir
+ * @returns {string[]}
  */
-export function readiness(sql) {
+export function structuralMigrations(dir) {
+  return readdirSync(dir)
+    .filter((name) => MIGRATION.test(name))
+    .sort();
+}
+
+/**
+ * Готовність (`GET /ready`) за 1 с: з'єднання працює і застосовано всі
+ * структурні міграції, з якими зібрано застосунок. Без схеми версія не
+ * готова: інакше blue-green пустить трафік на версію, що на кожен запит
+ * відповідає 500 (аудит лаби 4, ADR-0045).
+ * @param {Sql} sql
+ * @param {string[]} [migrations] очікувані записи public.schema_migrations
+ */
+export function readiness(sql, migrations = []) {
   return async () => {
     try {
-      await Promise.race([
-        sql`select 1`,
+      const [row] = await Promise.race([
+        sql`
+          select count(*)::int as applied from public.schema_migrations
+          where name = any(${migrations}::text[])`,
         sleep(1000).then(() => Promise.reject(new Error("timeout"))),
       ]);
-      return true;
+      return row.applied === migrations.length;
     } catch {
       return false;
     }

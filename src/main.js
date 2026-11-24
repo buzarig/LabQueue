@@ -1,6 +1,7 @@
 // Композиційний корінь: створює ресурси один раз і передає їх модулям
 // (ADR-0030). Модулі не створюють одне одного й не імпортують platform.
 // createApp — та сама збірка для запуску й для сценарної сюїти (К7, К10).
+import { resolve } from "node:path";
 import { createCatalogModule } from "./modules/catalog/index.js";
 import { createIdentityModule } from "./modules/identity/index.js";
 import { createQueueModule } from "./modules/queue/index.js";
@@ -16,8 +17,12 @@ import {
   createUnitOfWork,
   readConfig,
   readiness,
+  structuralMigrations,
   systemClock,
 } from "./platform/index.js";
+
+/** Структурні міграції поруч із застосунком: src/../ і dist/../ (ADR-0044). */
+const MIGRATIONS_DIR = resolve(import.meta.dirname, "../migrations");
 
 /**
  * Застосунок з усіма модулями на обраному сховищі (ADR-0027). Для pg пул
@@ -29,6 +34,7 @@ import {
  *   logger?: boolean,
  *   logStream?: { write: (line: string) => void },
  *   onQuery?: (query: string) => void,
+ *   migrationsDir?: string,
  * }} [options]
  */
 export async function createApp({
@@ -38,6 +44,7 @@ export async function createApp({
   logger = true,
   logStream,
   onQuery,
+  migrationsDir = MIGRATIONS_DIR,
 } = {}) {
   const context = createContext();
   const sql =
@@ -50,7 +57,9 @@ export async function createApp({
     context,
     logger,
     ...(logStream ? { logStream } : {}),
-    ...(sql ? { ready: readiness(sql) } : {}),
+    ...(sql
+      ? { ready: readiness(sql, structuralMigrations(migrationsDir)) }
+      : {}),
   });
 
   /** @type {import("./platform/index.js").Storage} */

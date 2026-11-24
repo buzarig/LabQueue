@@ -101,7 +101,7 @@ Railway сам збирає образ із [Dockerfile](Dockerfile); у GitHub 
 | сервіс застосунку → Source | репозиторій `buzarig/LabQueue`, гілка `main` | CD з `main` (ADR-0042) |
 | → Settings → Wait for CI | увімкнено | деплой лише після зеленого `check`; перевіряти після кожного ручного Redeploy |
 | → Settings → Pre-deploy Command | `node scripts/migrate.js` | структурні міграції до нової версії (ADR-0044) |
-| → Settings → Start Command | порожньо — `CMD` з Dockerfile | seed за прапорцем, потім HTTP |
+| → Settings → Start Command | порожньо — `CMD` з Dockerfile | seed за прапорцем, потім фонові міграції даних та індексів поруч із HTTP (ADR-0044) |
 | → Settings → Healthcheck Path | `/ready` | трафік — лише на готову версію з БД (ADR-0045) |
 | → Settings → Healthcheck Timeout | 300 с (типово) | вистачає на seed |
 | → Settings → Networking | публічний домен Railway | доступ з інтернету |

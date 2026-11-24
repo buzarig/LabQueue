@@ -25,10 +25,12 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts --no-audit --no-fund
 COPY --from=build /app/dist ./dist
 COPY migrations ./migrations
-COPY scripts/migrate.js scripts/seed.js scripts/seed-on-start.js ./scripts/
+COPY scripts/migrate.js scripts/migrate-background.js scripts/seed.js scripts/seed-on-start.js ./scripts/
 COPY src/modules/catalog/seed.json ./src/modules/catalog/seed.json
 COPY src/modules/identity/seed.json ./src/modules/identity/seed.json
 USER node
 # Seed — окремий крок перед HTTP, лише з SEED_ON_START=1 (критерій 11); якщо
-# він упаде, HTTP не стартує. Структурні міграції — не тут, а в Pre-deploy.
-CMD ["sh", "-c", "node scripts/seed-on-start.js && exec node dist/main.js"]
+# він упаде, HTTP не стартує. Фонові міграції даних та індексів — окремим
+# процесом поруч із HTTP: /ready їх не чекає (ADR-0044). Структурні міграції —
+# не тут, а в Pre-deploy.
+CMD ["sh", "-c", "node scripts/seed-on-start.js && (node scripts/migrate-background.js &) && exec node dist/main.js"]

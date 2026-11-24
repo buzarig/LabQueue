@@ -1,0 +1,1 @@
+[скріншот Railway: «Deployment failed during the build process» — Build › Build image: «Railpack failed to prepare the build. Please check the build logs for more details.»; Deploy і Post-deploy — Not started]

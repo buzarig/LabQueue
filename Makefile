@@ -98,9 +98,11 @@ db-down:
 db-destroy:
 	node scripts/db.js destroy
 
-# Міграції (ADR-0026) і seed-дані (data.md) у базу з DATABASE_URL.
+# Міграції у базу з DATABASE_URL: структурні (ADR-0026), потім фонові дані й
+# індекси (ADR-0044); seed-дані (data.md) — окремо, make db-seed.
 db-migrate: $(DEPS)
 	node --env-file-if-exists=.env scripts/migrate.js
+	node --env-file-if-exists=.env scripts/migrate-background.js
 
 db-seed: $(DEPS)
 	node --env-file-if-exists=.env scripts/seed.js
