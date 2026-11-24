@@ -5,4 +5,4 @@
  */
 
 /** @type {Clock} */
-export const systemClock = { now: () => new Date() };
+export const systemClock = {now:()=>new Date()};
