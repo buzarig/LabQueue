@@ -1,0 +1,12 @@
+# Контекст збірки образу (Dockerfile): лише те, що потрібно для npm ci і збірки.
+.git
+.husky
+.pgdata
+.stryker-tmp
+.env
+node_modules
+dist
+coverage
+reports
+ai
+docs

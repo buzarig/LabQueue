@@ -104,11 +104,11 @@ export async function createApp({
 }
 
 if (import.meta.main) {
-  const { port, storage, databaseUrl } = readConfig(process.env);
+  const { host, port, storage, databaseUrl } = readConfig(process.env);
   const app = await createApp({ storage, databaseUrl }).catch((error) => {
     // Fail-fast (ADR-0034, К15): зрозуміле повідомлення й код 1.
     console.error(`labqueue: старт неможливий — ${error.message}`);
     process.exit(1);
   });
-  await app.listen({ port });
+  await app.listen({ host, port });
 }

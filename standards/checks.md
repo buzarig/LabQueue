@@ -44,7 +44,7 @@
 | CHK-03 | Статичний аналіз типів | `tsc --noEmit --checkJs` (strict), JSDoc-типи | check | пуш, CI |
 | CHK-04 | Межі модулів: імпорт в обхід точки входу, цикли, заборонені напрями (К9, К10); домен без `fastify` поза `index.js`/`routes.js` (правило 7, sf-21); `src/` не імпортує `devDependencies` ([ADR-0013](../docs/adr/0013-dependency-cruiser.md)); з лаби 2 — ролі файлів модуля й дозволені імпорти між ними, правила `layer-*` (К4, [ADR-0031](../docs/adr/0031-rivni-dekompozytsii-i-modeli.md)) | dependency-cruiser | check | пуш, CI |
 | CHK-05 | Збірка | `tsc`-перевірка + esbuild бандл у `dist/` | check | пуш, CI |
-| CHK-06 | Smoke-тест зібраного `dist/`: `GET /health` → 200 `{"status":"ok"}`, `GET /version` → `{"sha":…}` (К8) | `node:test` | check | пуш, CI |
+| CHK-06 | Smoke-тест зібраного `dist/`: `GET /health` → 200 `{"status":"ok"}`, `GET /version` → `{"sha":…}` (К8); з лаби 4 — збірка без git бере sha з `RAILWAY_GIT_COMMIT_SHA`, а не-sha дає `unknown` ([ADR-0043](../docs/adr/0043-dockerfile-i-sha-zbirky.md)) | `node:test` | check | пуш, CI |
 | CHK-07 | Трейлер промпта (К12). Коміт з `Co-Authored-By: … <noreply@anthropic.com>` має `Prompt: ai/labN/NNN-назва.md`, файл існує | скрипт історії | commit-msg, check (`main..HEAD`) | коміт, пуш, CI |
 | CHK-08 | Формат повідомлення: Conventional Commit з типом із [commits.md](commits.md), опис містить кирилицю. Автоматичні коміти git — виняток (див. нижче) | скрипт історії | commit-msg, check (`main..HEAD`) | коміт, пуш, CI |
 | CHK-09 | Гігієна: відстежувані файли не збігаються із забороненими шаблонами, файли без розширення — лише з дозволеного списку (К11) | скрипт над `git ls-files` за [repo-hygiene.md](repo-hygiene.md) | check | пуш, CI |
@@ -55,7 +55,7 @@
 | CHK-14 | Юніт-тести `tests/unit/` (лаба 2): платформа — processId і користувач у логах, один обробник помилок (К5, К6), транзакції в пам'яті; далі — модулі | `node:test` | check | пуш, CI |
 | CHK-15 | Сценарна сюїта `tests/scenarios/` (лаба 2): S1–S13 через HTTP на зібраному `createApp` — двічі, `STORAGE=memory` і `STORAGE=pg`, без змін (К7, К10); кожен код каталогу помилок `data.md` — тест з його статусом або обґрунтований виняток (К8) | `node:test` | check | пуш, CI |
 | CHK-16 | Звіт прогону сценарної сюїти на статиці (К9, лаба 2): весь вивід `node --test`, код виходу 0, sha | `scripts/report-tests.js scenarios-memory` → `reports/lab2/scenarios-memory.txt`; падає, якщо сюїта впала | verify (`make report-scenarios`) | здачу |
-| CHK-17 | Тести на PostgreSQL `tests/db/` (лаба 2): міграції застосовуються рівно раз і повторно нічого не змінюють (К17), обмеження схеми ловлять порушення I1, I3, I4, I9; `unitOfWork` на PostgreSQL (повтори, 503, ідемпотентність); без БД застосунок не стартує — код 1 (К15) | `node:test`, окрема БД на прогін (ADR-0033) | check | пуш, CI |
+| CHK-17 | Тести на PostgreSQL `tests/db/` (лаба 2): міграції застосовуються рівно раз і повторно нічого не змінюють (К17), обмеження схеми ловлять порушення I1, I3, I4, I9; `unitOfWork` на PostgreSQL (повтори, 503, ідемпотентність); без БД застосунок не стартує — код 1 (К15); з лаби 4 — seed на старті лише з `SEED_ON_START=1`, повтор без дублів (критерій 11, ADR-0044) | `node:test`, окрема БД на прогін (ADR-0033) | check | пуш, CI |
 | CHK-18 | Звіти етапу БД (лаба 2): сценарна сюїта на PostgreSQL (К10, `scenarios-pg.txt`), збої джерела через HTTP (К14, `failures.txt`), кількість SQL-запитів сценаріїв при N = 1 і N = 10 поряд із data.md (К16, `queries.txt`) | `scripts/report-tests.js`, `scripts/report-queries.js` → `reports/lab2/`; падають, якщо прогін упав, кількість залежить від N чи розходиться з data.md | verify (`make report-*`) | здачу |
 
 **Автоматичні коміти git.** Це коміти, повідомлення яких git сформував сам:
@@ -85,6 +85,7 @@ CHK-07 і CHK-08 в CI потребують повної історії та г�
 | MAN-08 | Кожен стандарт має «навіщо» і розділ «Як перевіряється» | рев'ю `standards/` |
 | MAN-09 | Branch protection на `main`: обов'язкова перевірка `check`, лише merge commit ([ADR-0015](../docs/adr/0015-github-actions.md), [ADR-0018](../docs/adr/0018-merge-bez-squash.md)). Налаштовується вручну; доказ — [`reports/lab1/branch-protection.txt`](../reports/lab1/branch-protection.txt) (`gh api …/rulesets`, оновлює `make verify`) | рев'ю звіту |
 | MAN-10 | З лаби 2 `spec.md`, додаток spec і `DEFENSE.md` написав автор: `git log --format='%h %an %(trailers:key=Co-Authored-By)' -- <файли>` після чернетки ШІ (`2fd04e2`) не має комітів ШІ, крім дрібних правок за промптом автора, кожна з яких перелічена в sf-пункті ([ai-workflow.md](ai-workflow.md), «Роль ШІ») | рев'ю історії |
+| MAN-11 | З лаби 4 налаштування сервісів Railway (Wait for CI, Pre-deploy, health check `/ready`, змінні, образ БД) збігаються з таблицею README, «Staging» ([ADR-0041](../docs/adr/0041-railway-zastosunok-i-postgresql.md)) | рев'ю панелі Railway |
 
 ## Як перевіряється
 

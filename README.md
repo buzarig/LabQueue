@@ -47,7 +47,7 @@ make verify   # make check + звіти в reports/lab2/ + дата й sha (пе
 | `make verify` | `make check` + відтворення відмов hook-ів і порушень меж у тимчасовому клоні + прогін сценаріїв → `reports/lab2/`, підсумок — `reports/lab2/verify.txt` (звіти лаби 1 — `reports/lab1/`) |
 | `make report-scenarios` | лише звіт сценарної сюїти на статиці → `reports/lab2/scenarios-memory.txt` (К9) |
 | `make report-scenarios-pg`, `make report-failures`, `make report-queries` | звіти етапу БД: сюїта на PostgreSQL (К10), збої (К14), запити без N+1 (К16) → `reports/lab2/` |
-| `make build` і `node --env-file=.env dist/main.js` | запуск застосунку на PostgreSQL (`STORAGE=pg` типово, `DATABASE_URL`); `STORAGE=memory` — статика без БД. Без БД застосунок не стартує (код 1). Технічні маршрути: `GET /health`, `GET /ready`, `GET /version`; порт — `PORT`, за замовчуванням 3000 |
+| `make build` і `node --env-file=.env dist/main.js` | запуск застосунку на PostgreSQL (`STORAGE=pg` типово, `DATABASE_URL`); `STORAGE=memory` — статика без БД. Без БД застосунок не стартує (код 1). Технічні маршрути: `GET /health`, `GET /ready`, `GET /version`; порт — `PORT`, за замовчуванням 3000; адреса — `HOST`, за замовчуванням `localhost` (у контейнері `::`, ADR-0043) |
 
 Git-hooks ставляться під час `npm install`:
 - **pre-commit** — формат і лінт staged-файлів;
@@ -84,6 +84,31 @@ CI ([.github/workflows/check.yml](.github/workflows/check.yml)) запускає
    `CREATEDB` має, бо тести створюють окрему БД на кожен прогін.
 4. **pgAdmin (необов'язково).** Register → Server: host `127.0.0.1`, port
    `55432`, user `labqueue`, пароль з `.env`.
+
+## Staging
+
+З лаби 4 коміт у `main` після зеленого CI автоматично розгортається на
+Railway ([ADR-0041](docs/adr/0041-railway-zastosunok-i-postgresql.md)–[ADR-0045](docs/adr/0045-blue-green-healthcheck-ready.md)).
+Railway сам збирає образ із [Dockerfile](Dockerfile); у GitHub немає ні
+токенів Railway, ні SSH, а CI не має доступу до БД staging.
+
+Налаштування задаються в панелі Railway, бо `railway.json` застарів
+(ADR-0041). Ось вони всі — на них спирається рев'ю MAN-11:
+
+| Де | Що | Навіщо |
+|---|---|---|
+| сервіс БД | шаблон Railway з образом `ghcr.io/railwayapp-templates/postgres-ssl:17`; перевірка — `SHOW server_version` | PostgreSQL 17, як у CI (ADR-0041) |
+| сервіс застосунку → Source | репозиторій `buzarig/LabQueue`, гілка `main` | CD з `main` (ADR-0042) |
+| → Settings → Wait for CI | увімкнено | деплой лише після зеленого `check`; перевіряти після кожного ручного Redeploy |
+| → Settings → Pre-deploy Command | `node scripts/migrate.js` | структурні міграції до нової версії (ADR-0044) |
+| → Settings → Start Command | порожньо — `CMD` з Dockerfile | seed за прапорцем, потім HTTP |
+| → Settings → Healthcheck Path | `/ready` | трафік — лише на готову версію з БД (ADR-0045) |
+| → Settings → Healthcheck Timeout | 300 с (типово) | вистачає на seed |
+| → Settings → Networking | публічний домен Railway | доступ з інтернету |
+| → Variables | `DATABASE_URL` — посилання на змінну сервісу БД (`${{<назва сервісу БД>.DATABASE_URL}}`), `SEED_ON_START=1` | БД з приватної мережі; seed лише на staging |
+
+`PORT` задає Railway, `HOST=::` і `NODE_ENV=production` — образ. Перевірка
+після деплою: `curl https://<домен>/version` повертає sha коміту з `main`.
 
 ## Документи
 

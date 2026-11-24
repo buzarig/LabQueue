@@ -27,6 +27,7 @@
 - `.gitignore`
 - `.nvmrc`
 - `.editorconfig`
+- `Dockerfile`, `.dockerignore` — образ staging (лаба 4, ADR-0043)
 - `.husky/pre-commit`
 - `.husky/commit-msg`
 - `.husky/pre-push`
