@@ -27,7 +27,7 @@ function buildSha() {
 const outdir = process.argv[2] ?? "dist";
 
 await build({
-  entryPoints: ["src/main.js"],
+  entryPoints: ["src/app.js"],
   outfile: `${outdir}/main.js`,
   bundle: true,
   platform: "node",
