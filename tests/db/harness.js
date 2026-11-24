@@ -4,6 +4,7 @@
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import postgres from "postgres";
+import { migrateBackground } from "../../scripts/migrate-background.js";
 import { migrate } from "../../scripts/migrate.js";
 import { seed } from "../../scripts/seed.js";
 
@@ -61,6 +62,7 @@ async function ensureTemplate(root) {
   const template = postgres(urlFor(TEMPLATE).href, { max: 1, onnotice: noop });
   try {
     await migrate(template);
+    await migrateBackground(template, { log: () => {} });
     await seed(template);
   } finally {
     await template.end();
