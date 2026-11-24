@@ -1,5 +1,5 @@
 # К9: сценарна сюїта S1–S13 і каталог помилок на статиці (STORAGE=memory)
-# Відтворення: make report-scenarios-memory, вихідний коміт 7e687d157590b9ee30ea3d666334bcac445d19c4
+# Відтворення: make report-scenarios-memory, вихідний коміт 8bc740caadbcecf9316d02266a498962211c4cb2
 # Команда: node --test tests/scenarios/**/*.test.js (STORAGE=memory)
 # Код виходу: 0 (очікувано 0)
 

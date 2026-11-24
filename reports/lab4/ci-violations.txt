@@ -7,7 +7,7 @@
 коміт: 6584e90a81ef7f366cb59f2d656b6c0b4bb71576
 check: failure (run 45509085594)
 make зупинився на: format (очікувалось: format)
-злиття: відкритий, mergeStateStatus=BLOCKED
+злиття: закритий без злиття
 лог:
   [warn] Code style issues found in the above file. Run Prettier with --write to fix.
   make: *** [Makefile:18: format] Error 1
@@ -16,7 +16,7 @@ make зупинився на: format (очікувалось: format)
 коміт: 7a1dfb1f89d92db023385b3ad9cbd057cb6835c0
 check: failure (run 45509100010)
 make зупинився на: lint (очікувалось: lint)
-злиття: відкритий, mergeStateStatus=BLOCKED
+злиття: закритий без злиття
 лог:
   12:9  error  'unusedForAudit' is assigned a value but never used  no-unused-vars
   ✖ 1 problem (1 error, 0 warnings)
@@ -26,7 +26,7 @@ make зупинився на: lint (очікувалось: lint)
 коміт: ad754a0de0a7770c104e85ae867a8daa76b708c2
 check: failure (run 45509109055)
 make зупинився на: typecheck (очікувалось: typecheck)
-злиття: відкритий, mergeStateStatus=BLOCKED
+злиття: закритий без злиття
 лог:
   src/platform/config.js(27,18): error TS2322: Type 'string' is not assignable to type 'number'.
   make: *** [Makefile:26: typecheck] Error 1
@@ -35,7 +35,7 @@ make зупинився на: typecheck (очікувалось: typecheck)
 коміт: 873ad9f59933edba6198a8ad88369a7c7ee8c6fd
 check: failure (run 45509123322)
 make зупинився на: test (очікувалось: test)
-злиття: відкритий, mergeStateStatus=BLOCKED
+злиття: закритий без злиття
 лог:
   ✖ типово: localhost:3000, pg (<ms>)
   make: *** [Makefile:39: test] Error 1
@@ -44,7 +44,7 @@ make зупинився на: test (очікувалось: test)
 коміт: c55034d176d6d3e5e133f6e2ac6aba06f51c2550
 check: failure (run 45509131855)
 make зупинився на: build (очікувалось: build)
-злиття: відкритий, mergeStateStatus=BLOCKED
+злиття: закритий без злиття
 лог:
   ✘ [ERROR] The entry point "src/app.js" cannot be marked as external
   make: *** [Makefile:55: build] Error 1
@@ -53,7 +53,7 @@ make зупинився на: build (очікувалось: build)
 коміт: feafb2b15a80f46f7ce448e21bb9a760f1c6e258
 check: failure (run 45509143185)
 make зупинився на: commits (очікувалось: commits)
-злиття: відкритий, mergeStateStatus=BLOCKED
+злиття: закритий без злиття
 лог:
   CHK-08: заголовок не у форматі «тип(область)?: опис», типи: feat, fix, docs, chore, test, ci, refactor
   make: *** [Makefile:63: commits] Error 1

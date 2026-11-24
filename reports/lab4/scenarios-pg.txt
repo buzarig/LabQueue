@@ -1,5 +1,5 @@
 # К10: та сама сценарна сюїта на PostgreSQL (STORAGE=pg)
-# Відтворення: make report-scenarios-pg, вихідний коміт 7e687d157590b9ee30ea3d666334bcac445d19c4
+# Відтворення: make report-scenarios-pg, вихідний коміт 8bc740caadbcecf9316d02266a498962211c4cb2
 # Команда: node --test tests/scenarios/**/*.test.js (STORAGE=pg)
 # Код виходу: 0 (очікувано 0)
 

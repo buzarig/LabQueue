@@ -1,6 +1,6 @@
 # make verify — звіт для DEFENSE
-дата:  2026-11-24T23:35:19.902Z
-sha:   7e687d157590b9ee30ea3d666334bcac445d19c4
+дата:  2026-11-24T23:50:34.711Z
+sha:   8bc740caadbcecf9316d02266a498962211c4cb2
 дерево: чисте (без урахування reports/)
 
 Sha — коміт, на якому запускали verify. Коміт із цим звітом іде одразу після нього.
@@ -226,6 +226,7 @@ STORAGE=pg npm run --silent scenarios
 ℹ todo 0
 ℹ duration_ms <ms>
 npm run --silent test:db
+✔ вставка старої версії (без created_at) після 002 — БД ставить created_at (<ms>)
 ✔ I2, I3: 20 одночасних записів при ліміті 5 — рівно 5, seq 1–5 без повторів (<ms>)
 ✔ I1: той самий студент двічі одночасно — один запис, другий 409 ALREADY_IN_QUEUE (<ms>)
 ✔ I4: «викликати наступного» одночасно на двох заняттях викладача — один виклик (<ms>)
@@ -279,9 +280,9 @@ npm run --silent test:db
 ✔ statement_timeout 3 с → 503 SOURCE_UNAVAILABLE без повтору (<ms>)
 ✔ /ready: справжня БД — true; закритий пул — false (<ms>)
 ✔ fail-fast: БД недоступна на старті — помилка одразу, без пароля в тексті (<ms>)
-ℹ tests 43
+ℹ tests 44
 ℹ suites 5
-ℹ pass 43
+ℹ pass 44
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
@@ -304,9 +305,9 @@ npm run --silent smoke
 ℹ todo 0
 ℹ duration_ms <ms>
 npm run --silent commits
-CHK-07/08: 3 комітів у origin/main..HEAD — OK
+CHK-07/08: 6 комітів у origin/main..HEAD — OK
 npm run --silent hygiene
-CHK-09: 362 відстежуваних файлів — OK
+CHK-09: 381 відстежуваних файлів — OK
 make check: OK
 
 ## Звіти (CHK-11)
@@ -317,9 +318,9 @@ branch-protection.txt: - pr-protection (active), гілки: ~DEFAULT_BRANCH
   правила: deletion, non_fast_forward, pull_request, required_status_checks
   обов'язкові перевірки: check
   дозволені способи merge: merge
-scenarios-memory.txt: зелено на 7e687d1
-scenarios-pg.txt: зелено на 7e687d1
-failures.txt: зелено на 7e687d1
-queries.txt: 13 сценаріїв без N+1 на 7e687d1
+scenarios-memory.txt: зелено на 8bc740c
+scenarios-pg.txt: зелено на 8bc740c
+failures.txt: зелено на 8bc740c
+queries.txt: 13 сценаріїв без N+1 на 8bc740c
 ci-violations.txt: 6 PR, усі червоні й не злиті
-staging.txt: /version = origin/main 9d50a4a, CI success
+staging.txt: /version = origin/main 69b1c72, CI success

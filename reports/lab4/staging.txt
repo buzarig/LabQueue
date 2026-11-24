@@ -2,10 +2,10 @@
 # Відтворення: make report-staging
 # Staging: https://labqueue-production-405b3fa1.up.railway.app
 
-origin/main:          9d50a4a0dc0e83049636eb7ad5c8bd4488f7770c
+origin/main:          69b1c720b6c35b6a6894b373ce905188d1fcec0c
 CI (GitHub Actions):  success
 GET /health:          200 {"status":"ok"}
 GET /ready:           200 {"status":"ready"}
-GET /version:         200 {"sha":"9d50a4a0dc0e83049636eb7ad5c8bd4488f7770c"}
+GET /version:         200 {"sha":"69b1c720b6c35b6a6894b373ce905188d1fcec0c"}
 GET /sessions (s-1):  200 (користувач із seed, критерій 11)
 /version = main:      так

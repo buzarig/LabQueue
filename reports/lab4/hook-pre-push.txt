@@ -1,5 +1,5 @@
 # К7: пуш зі зламаним smoke-тестом відхиляється pre-push
-# Відтворення: make verify, вихідний коміт 7e687d157590b9ee30ea3d666334bcac445d19c4
+# Відтворення: make verify, вихідний коміт 8bc740caadbcecf9316d02266a498962211c4cb2
 
 ## pre-push
 # Команда: git push demo HEAD
