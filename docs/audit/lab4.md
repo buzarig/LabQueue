@@ -21,7 +21,7 @@
 | 11 | виконано | `tests/db/seed-on-start.test.js` — без прапорця, з `0` і двічі з `1`; Deploy Logs — `seed-on-start` перед HTTP; `staging.txt` — `/sessions` від `s-1` 200 |
 | 12 | виконано | `migrations/` (структура, `001-schema.sql` без змін з `f273201`), `migrations/data/`, `migrations/indexes/` |
 | 13 | виконано | PR #12–#17, `ci-violations.txt` (CHK-24) |
-| 14 | очікує автора | автодеплой — `staging.txt` і З6; ADR-0041–0045; DEFENSE пише автор |
+| 14 | виконано | автодеплой — `staging.txt`, З6 і PR #11; ADR-0041–0045; `DEFENSE.md` — автор (`4bcf5db`, без трейлера ШІ); DEFENSE лаби 2 — архів `docs/defense/lab2.md` |
 
 ## Сценарій критерію 8: стара версія на новій схемі
 
