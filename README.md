@@ -120,7 +120,7 @@ Railway сам збирає образ із [Dockerfile](Dockerfile); у GitHub 
 | Контракт, схема БД, запити, помилки | [data.md](docs/specs/lab2-db-scenarios/data.md) |
 | Стандарти | [standards/](standards/) |
 | Рішення (ADR) | [docs/adr/](docs/adr/) |
-| Аудит | [лаба 1](docs/audit/lab1.md), [лаба 2](docs/audit/lab2.md) |
+| Аудит | [лаба 1](docs/audit/lab1.md), [лаба 2](docs/audit/lab2.md), [лаба 4](docs/audit/lab4.md) (лаба 3 — у PR #3) |
 | Промпти роботи з ШІ | [ai/lab1/](ai/lab1/), [ai/lab2/](ai/lab2/) |
 | Звіти | [reports/lab1/](reports/lab1/), [reports/lab2/](reports/lab2/) |
 
