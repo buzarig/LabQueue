@@ -1,0 +1,1 @@
+[скріншот Railway → Settings → Source: Source Repo buzarig/LabQueue (Disconnect); Add Root Directory; Upstream Repo buzarig/LabQueue (Eject), «You're on the latest version of this repository.»; Branch connected to production — main (Disconnect); «Auto deploys when pushed to GitHub» (Disable). Рядка Wait for CI немає] ось весь блок
