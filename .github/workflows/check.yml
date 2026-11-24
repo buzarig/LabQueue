@@ -5,9 +5,10 @@ name: check
 on:
   # Явний перелік гілок для push: за документацією Railway прапорець «Wait
   # for CI» з'являється лише для workflow з `on: push` і `branches`
-  # (ADR-0042). "**" — усі гілки, як і раніше.
+  # (ADR-0042). `main` — буквально, як у прикладі Railway (шаблон "**" він,
+  # схоже, не розпізнає); "**" — усі гілки, як і раніше.
   push:
-    branches: ["**"]
+    branches: [main, "**"]
   pull_request:
 
 jobs:
