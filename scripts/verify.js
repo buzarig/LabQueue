@@ -66,6 +66,12 @@ const mutation = step("К13–К14 лаби 3: мутації", "make", [
   "--no-print-directory",
   "mutation",
 ]);
+const ciViolations = step("К13 лаби 4: CI на навмисних порушеннях", "node", [
+  "scripts/report-ci-violations.js",
+]);
+const staging = step("К4–К5 лаби 4: staging", "node", [
+  "scripts/report-staging.js",
+]);
 const queries = step("К16: запити без N+1", "node", [
   "--env-file-if-exists=.env",
   "scripts/report-queries.js",
@@ -95,6 +101,8 @@ const text = [
   e2e.trim(),
   coverage.trim(),
   mutation.trim().split("\n").at(-1),
+  ciViolations.trim(),
+  staging.trim(),
   "",
 ].join("\n");
 writeFileSync(join(reports, "verify.txt"), text);

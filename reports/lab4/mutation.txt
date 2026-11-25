@@ -1,0 +1,30 @@
+# К13–К14 лаби 3: мутаційне тестування transitions.js (Stryker + Vitest)
+# Відтворення: make mutation, вихідний коміт b4ab463e48a41757cce08b96266bb41e9d0628ff
+# Файли: src/modules/queue/transitions.js
+# Класифікація вижилих: tests/vitest/transitions.survivors.json
+
+Мутантів: 91
+  Killed: 86
+  Survived: 5
+Оцінка мутацій: 94.51 % (убиті й таймаути / усі валідні)
+
+Вижилі (5) за класами:
+  реальна прогалина: 0
+  еквівалентний: 5
+  прийнятний: 0
+
+- Survived ArrayDeclaration рядок 28:11 → ["Stryker was here"]
+  клас: еквівалентний
+  чому: passed: [] → ["Stryker was here"]. Кінцевий стан отримує ціль, якої немає серед EntryStatus. canTransition приймає лише EntryStatus (JSDoc, tsc --checkJs у make check), тож для кожного допустимого входу відповідь та сама — false.
+- Survived ArrayDeclaration рядок 29:11 → ["Stryker was here"]
+  клас: еквівалентний
+  чому: rework: [] → ["Stryker was here"]. Та сама причина, що й для passed: фіктивна ціль недосяжна з допустимих входів.
+- Survived ArrayDeclaration рядок 30:9 → ["Stryker was here"]
+  клас: еквівалентний
+  чому: left: [] → ["Stryker was here"]. Та сама причина, що й для passed.
+- Survived ArrayDeclaration рядок 31:12 → ["Stryker was here"]
+  клас: еквівалентний
+  чому: dropped: [] → ["Stryker was here"]. Та сама причина, що й для passed.
+- Survived ArrayDeclaration рядок 32:11 → ["Stryker was here"]
+  клас: еквівалентний
+  чому: missed: [] → ["Stryker was here"]. Та сама причина, що й для passed; MISSED_ON_FINISH шукає лише ціль missed, тож і він не змінюється.

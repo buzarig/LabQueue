@@ -1,0 +1,32 @@
+# К7: пуш зі зламаним smoke-тестом відхиляється pre-push
+# Відтворення: make verify, вихідний коміт b4ab463e48a41757cce08b96266bb41e9d0628ff
+
+## pre-push
+# Команда: git push demo HEAD
+# Код виходу: 1 (очікувано ≠ 0 — відмова)
+
+npm run --silent format:check
+Checking formatting...
+All matched files use Prettier code style!
+npm run --silent lint
+npm run --silent typecheck
+npm run --silent typecheck:probe
+✔ tsc --checkJs ловить помилку в кожній JSDoc-конструкції проби (<ms>)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms <ms>
+npm run --silent boundaries
+
+✔ no dependency violations found (54 modules, 56 dependencies cruised)
+
+rm -rf coverage/src
+node scripts/db.js up
+husky - pre-push script failed (code 2)
+db: немає DATABASE_URL: cp .env.example .env і вкажіть пароль
+make[1]: *** [db-ready] Error 1
+error: failed to push some refs to '<tmp>/remote.git'

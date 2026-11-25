@@ -1,0 +1,11 @@
+# К4, К5, К11 лаби 4: staging на Railway — публічний доступ, версія з main, seed
+# Відтворення: make report-staging
+# Staging: https://labqueue-production-405b3fa1.up.railway.app
+
+origin/main:          b857236cee42695c031964748dfac6486d2f6f46
+CI (GitHub Actions):  success
+GET /health:          200 {"status":"ok"}
+GET /ready:           200 {"status":"ready"}
+GET /version:         200 {"sha":"b857236cee42695c031964748dfac6486d2f6f46"}
+GET /sessions (s-1):  200 (користувач із seed, критерій 11)
+/version = main:      так

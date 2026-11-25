@@ -1,0 +1,1 @@
+[скріншот Railway → Deployments: ACTIVE — «Merge pull request #10 from buzarig/ci-push-main-only…», 2 minutes ago via GitHub, Deployment successful; WAITING FOR CI — «Merge pull request #11 from buzarig/deploy-proof-wait Лаба 4: доказ автодепл…», 36 seconds ago via GitHub] нарешті бачу це

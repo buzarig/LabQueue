@@ -92,7 +92,8 @@ create table sessions.sessions (
   room text not null,
   queue_limit int not null check (queue_limit > 0),
   state text not null default 'planned'
-    check (state in ('planned', 'open', 'closed', 'finished'))
+    check (state in ('planned', 'open', 'closed', 'finished')),
+  created_at timestamptz not null default now() -- заповнює БД, API поле не використовує
 );
 create index on sessions.sessions (group_id, starts_at);
 create table sessions.session_labs (
@@ -254,13 +255,15 @@ N — кількість записів, занять чи історії. Жо�
 
 ## Міграції
 
-migrations/NNN-назва.sql, застосовуються по порядку власним ранером scripts/migrate.js (make db-migrate).
+Структурні міграції лежать у `migrations/NNN-назва.sql`. Їх по порядку застосовує `scripts/migrate.js`: локально через `make db-migrate`, на Railway на етапі Pre-deploy.
 
-Кожна міграція в своїй транзакції під pg_advisory_lock, щоб два одночасні запуски не застосували її двічі. Застосовані пишуться в public.schema_migrations (name, applied_at).
+Кожна структурна міграція в своїй транзакції під pg_advisory_lock, щоб два одночасні запуски не застосували її двічі. Застосовані пишуться в public.schema_migrations (name, applied_at).
 
 Лише вперед, без down-міграцій. Змінювати застосовану міграцію не можна, тільки нова.
 
-make db-seed вантажить seed-дані upsert-ом, повторний запуск нічого не змінює.
+Фоновий скрипт `scripts/migrate-background.js` спершу оновлює дані пакетами з `migrations/data/`, потім створює індекси з `migrations/indexes/` через `CREATE INDEX CONCURRENTLY` поза транзакцією.
+
+Seed виконується окремо: локально через `make db-seed`, на старті контейнера перед HTTP лише за `SEED_ON_START=1`. Повторний запуск не дублює записи. Порядок усіх чотирьох кроків описано в [ADR-0044](../../adr/0044-mihratsii-u-chotyry-kroky.md).
 
 ## Тести й середовище
 

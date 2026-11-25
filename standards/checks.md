@@ -19,7 +19,7 @@
   відсутній або lockfile новіший за нього (sf-4).
 - **Навіщо:** на свіжому клоні вистачає однієї команди.
 
-**`make verify`** = `make check` + CHK-11 + CHK-12 + CHK-16 + CHK-18 + CHK-20 + CHK-23.
+**`make verify`** = `make check` + CHK-11 + CHK-12 + CHK-16 + CHK-18 + CHK-20 + CHK-23 + CHK-24 + CHK-25.
 - **Що додає:** генерує звіти в `reports/<лаба>/` (лаба 1 — `reports/lab1/`, з лаби 2 — `reports/lab2/`) і виводить дату та git sha.
 - **Хто запускає:** автор перед здачею.
 - **Навіщо:** на неї посилається DEFENSE. Це окрема ціль, бо звіти пишуть
@@ -62,6 +62,8 @@
 | CHK-21 | Покриття `src/` за unit- та інтеграційними тестами (лаба 3, критерій 11): один звіт c8 зі спільної теки даних V8; порогу немає, поріг — лише в CHK-19 ([ADR-0039](../docs/adr/0039-c8-pokryttia.md)) | c8 (`make test`: `test-unit`, `test-integration`, `coverage`) | check | — |
 | CHK-22 | E2E (лаба 3, критерії 9–10): зібраний `dist/main.js` окремим процесом на свіжій БД із шаблону, повний сценарій S1–S13 через HTTP; БД видаляється після прогону | `node:test` + `fetch`, `tests/e2e/` | check (`make test-e2e`) | пуш, CI |
 | CHK-23 | Звіти тестів і покриття лаби 3 (критерій 18): unit (`unit.txt`), інтеграційні на PostgreSQL (`db.txt`), E2E (`e2e.txt`) — весь вивід `node --test`, код виходу, sha; покриття `src/` (`coverage-src.txt`) і `transitions.js` з порогом (`coverage-transitions.txt`) | `scripts/report-tests.js`, `scripts/report-coverage.js` → `reports/lab3/`; падають, якщо прогін упав або поріг не виконано | verify (`make report-*`) | здачу |
+| CHK-24 | Аудит CI (лаба 4, критерій 13): шість PR «[аудит CI, не зливати] …» з навмисними порушеннями — формат, лінт, типи, тест, збірка, повідомлення коміту — запушені з `--no-verify`; на кожному `check` червоний, `make check` зупинився на очікуваній цілі, PR не злитий. Номер 24 — бо CHK-19…23 займає лаба 3 (PR #3) | `scripts/report-ci-violations.js` (gh) → `reports/lab4/ci-violations.txt`; падає, якщо PR злитий, `check` не червоний або ціль інша | verify (`make report-ci-violations`) | здачу |
+| CHK-25 | Staging (лаба 4, критерії 4, 5, 11): публічні `/health` і `/ready` — 200, `/version` = вершина `origin/main`, CI на ній зелений, `GET /sessions` від користувача з seed — 200 | `scripts/report-staging.js` (fetch, gh) → `reports/lab4/staging.txt`; падає на будь-якій розбіжності | verify (`make report-staging`) | здачу |
 
 **Автоматичні коміти git.** Це коміти, повідомлення яких git сформував сам:
 - починається з `Merge ` — merge гілки чи PR;

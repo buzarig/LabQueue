@@ -1,9 +1,79 @@
 # Аудит лаби 4
 
 Чернетку складає ШІ як аналіз (`standards/ai-workflow.md`, «Роль ШІ»);
-висновки погоджує автор. Таблиця критеріїв і докази навмисних порушень CI
-(критерій 13) додаються перед здачею; нижче — журнал знахідок у порядку, в
-якому вони трапились.
+висновки погоджує автор. Доказова база — `reports/lab4/` (`make verify`),
+журнал знахідок нижче і промпти `ai/lab4/`.
+
+## (а) Критерії 1–14
+
+| № | Статус | Доказ |
+|---|---|---|
+| 1 | виконано з приміткою | `check.yml` → `make check` (формат, лінт, типи, межі, тести, збірка, smoke, CHK-07/08, гігієна) на `pull_request` і push у `main`. Примітка: з PR #10 push у робочу гілку без PR CI не запускає — ціна прапорця «Wait for CI» (З6, ADR-0042) |
+| 2 | виконано | ruleset `main`: обов'язкова `check`, лише merge commit (`branch-protection.txt`); PR #4–#11 злиті merge-комітами після зеленого `check` |
+| 3 | виконано | `check.yml`: власний `postgres:17` у контейнері сервісу; у GitHub немає токенів Railway і SSH, деплой ініціює Railway (ADR-0042) |
+| 4 | виконано | PR #11 (`9d50a4a`): деплой «WAITING FOR CI» ([062](../../ai/lab4/062-skrinshot-waiting-for-ci.md)), CI 23:17:54, нова версія 23:18:30 (З6); PostgreSQL 17.12 ([024](../../ai/lab4/024-server-version-17.md)); `staging.txt` |
+| 5 | виконано | `staging.txt`: публічний `/version` = вершина `origin/main` |
+| 6 | виконано з приміткою | health check `/ready` (лог Railway: «Healthcheck succeeded»); PR #8 і #11 — 26 і 53 запити `/ready` під час перемикання, усі 200. Примітка: до З5 поле було порожнє, і перемикання PR #7 дало 502 |
+| 7 | виконано | Deploy Logs `fefb513`: окремий «Starting Container» з `db-migrate` до контейнера HTTP; Pre-deploy — README «Staging», ADR-0044 |
+| 8 | виконано | `002-sessions-created-at` — лише розширення (ADR-0044), `tests/db/compat-002.test.js`; ручний сценарій на staging: Rollback на стару версію `9d50a4a` на схемі з `002` — запис і читання через API успішні, `created_at` заповнила БД (розділ «Сценарій критерію 8») |
+| 9 | виконано | `data/001-trim-room`: Deploy Logs `fefb513` — пакет 1 і HTTP-запит під час прогону; `"  101  "` → `"101"` ([032](../../ai/lab4/032-zaniattia-101-stvoreno.md)); `tests/db/migrate-background.test.js` — пакети 100/100/50 |
+| 10 | виконано | `indexes/001-entries-eta`: Deploy Logs `fefb513` — індекс за 0.1 с; тест — валідний частковий індекс і відновлення після невалідного |
+| 11 | виконано | `tests/db/seed-on-start.test.js` — без прапорця, з `0` і двічі з `1`; Deploy Logs — `seed-on-start` перед HTTP; `staging.txt` — `/sessions` від `s-1` 200 |
+| 12 | виконано | `migrations/` (структура, `001-schema.sql` без змін з `f273201`), `migrations/data/`, `migrations/indexes/` |
+| 13 | виконано | PR #12–#17, `ci-violations.txt` (CHK-24) |
+| 14 | виконано | автодеплой — `staging.txt`, З6 і PR #11; ADR-0041–0045; `DEFENSE.md` — автор (`4bcf5db`, без трейлера ШІ); DEFENSE лаби 2 — архів `docs/defense/lab2.md` |
+
+## Сценарій критерію 8: стара версія на новій схемі
+
+1. **Міграція:** PR #19 (`69b1c72`) — `migrations/002-sessions-created-at.sql`,
+   `add column created_at timestamptz not null default now()`. Злиття
+   23:43:22 UTC, CI на `main` — 23:44:00, нова версія — 23:44:29; `/ready`
+   не 200: 0 з 45 запитів.
+2. **Rollback** на деплой PR #11 (`9d50a4a`) у панелі Railway. Deploy Logs
+   старої версії ([071](../../ai/lab4/071-lohy-deploiu-002.md)): Pre-deploy —
+   «нових міграцій немає» (у старому образі лише `001`), seed, «Server
+   listening», `/ready` 200.
+3. **Запис і читання через API старої версії** (23:47 UTC): `POST /sessions`
+   (заняття `compat-002`) — 201, `open` — 200, `s-2` у чергу — 201
+   `waiting`, `GET …/queue/me` — 200 (позиція 1, ETA 10 хв), `GET /sessions`
+   — 200, заняття у списку.
+4. **БД** ([072](../../ai/lab4/072-psql-created-at.md)):
+
+   ```
+       room    |          created_at
+   ------------+-------------------------------
+    compat-002 | 2026-11-24 23:47:17.929703+00
+    101        | 2026-11-24 23:44:17.691737+00
+   ```
+
+   `compat-002` записала стара версія без колонки — значення поставила БД;
+   `101` існувало до міграції — отримало момент застосування `002` у
+   Pre-deploy (23:44:17), до перемикання трафіку (23:44:29).
+5. **Повернення:** Redeploy деплою PR #19 — `/version` = `69b1c72`
+   ([073](../../ai/lab4/073-povernuv.md)).
+
+## Аудит CI: навмисні порушення (критерій 13)
+
+Шість PR від `main` (#12–#17), у кожному одне порушення. Коміти зроблено й
+запушено з `--no-verify`: локальні hook-и (pre-commit, commit-msg,
+pre-push) такі зміни не пропустили б, а CI — остання лінія саме для цього
+випадку.
+
+| PR | Порушення | Де зупинився `make check` | Злиття |
+|---|---|---|---|
+| #12 | формат | `format` (Prettier) | BLOCKED |
+| #13 | невикористана змінна | `lint` (ESLint `no-unused-vars`) | BLOCKED |
+| #14 | `string` замість `number` у JSDoc | `typecheck` (TS2322) | BLOCKED |
+| #15 | хибне очікування в тесті | `test` | BLOCKED |
+| #16 | неіснуюча точка входу збірки | `build` (esbuild) | BLOCKED |
+| #17 | `update readme wording` | `commits` (CHK-08) | BLOCKED |
+
+Доказ — `reports/lab4/ci-violations.txt` (`make report-ci-violations`,
+CHK-24): стан PR, висновок `check`, ціль make і рядки помилки з логу
+GitHub Actions. Скрипт падає, якщо хоч один PR злитий, зелений або впав не
+на очікуваній цілі. Злиття блокує ruleset `main` з обов'язковою перевіркою
+`check` (`branch-protection.txt`). Після фінального `make verify` PR
+закриваються без злиття.
 
 ## Журнал знахідок розгортання
 
@@ -75,6 +145,18 @@
   порушує критерій 6 і ADR-0045.
 - **Як виправлено:** автор задав `/ready`
   ([046](../../ai/lab4/046-hotui-healthcheck-dopysav.md)).
+  Лог збірки деплою `7881dac` (експорт автора,
+  [052](../../ai/lab4/052-lohy-ostannoho-deploiu.md)), UTC:
+
+  ```
+  22:38:39 ==================== Starting Healthcheck ====================
+  22:38:39 Path: /ready
+  22:38:39 Retry window: 5m0s
+  22:38:42 [1/1] Healthcheck succeeded!
+  ```
+
+  Спостерігач щосекунди: перемикання PR #8 — 26 запитів `/ready`, PR #11 —
+  53, жодного не 200.
 
 ### З6. Деплой раніше за CI — немає «Wait for CI»
 
