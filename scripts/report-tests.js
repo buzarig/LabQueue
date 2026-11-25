@@ -1,7 +1,7 @@
 // Звіти прогонів тестів для make verify (CHK-16, CHK-18): весь вивід
 // node --test, код виходу й sha. Падає, якщо прогін упав.
 //
-//   node scripts/report-tests.js scenarios-memory | scenarios-pg | failures
+//   node scripts/report-tests.js unit | scenarios-memory | scenarios-pg | db | failures | e2e
 import { spawnSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -9,6 +9,12 @@ import { must, normalize, reports, root } from "./demo-lib.js";
 
 /** @type {Record<string, { title: string, glob: string, env: Record<string, string> }>} */
 const REPORTS = {
+  unit: {
+    title:
+      "К4–К6 лаби 3: unit-тести node:test (модулі на статиці, платформа, правила)",
+    glob: "tests/unit/**/*.test.js",
+    env: {},
+  },
   "scenarios-memory": {
     title:
       "К9: сценарна сюїта S1–S13 і каталог помилок на статиці (STORAGE=memory)",
@@ -20,10 +26,22 @@ const REPORTS = {
     glob: "tests/scenarios/**/*.test.js",
     env: { STORAGE: "pg" },
   },
+  db: {
+    title:
+      "К7–К8 лаби 3: інтеграційні тести на PostgreSQL — транзакції, гонки, збої, міграції, запити",
+    glob: "tests/db/**/*.test.js",
+    env: {},
+  },
   failures: {
     title:
       "К14: збої джерела через HTTP на PostgreSQL (обрив, таймаут, друга лінія, недоступність)",
     glob: "tests/db/failures.test.js",
+    env: {},
+  },
+  e2e: {
+    title:
+      "К9–К10 лаби 3: E2E — зібраний dist/ окремим процесом на PostgreSQL, S1–S13 через HTTP",
+    glob: "tests/e2e/**/*.test.js",
     env: {},
   },
 };

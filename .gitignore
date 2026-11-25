@@ -4,6 +4,7 @@ node_modules/
 # Артефакти збірки й тестів
 dist/
 coverage/
+.stryker-tmp/
 *.tsbuildinfo
 
 # Логи

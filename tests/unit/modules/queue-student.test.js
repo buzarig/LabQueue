@@ -175,20 +175,28 @@ test("S11: ETA — позиція × середня тривалість ост�
 test("S11: вибірка — лише 5 останніх здач, неявки не входять", async () => {
   const t = await createTestApp();
   const { id } = await t.openSession({ queueLimit: 20 });
-  const ids = ["s-1", "s-2", "s-3", "s-4"];
-  for (const s of ids) await enqueue(t, id, s);
-  // s-1: неявка (не входить у вибірку), потім у кінець
-  const first = expect(
+  for (const s of ["s-1", "s-2", "s-3", "s-4"]) await enqueue(t, id, s);
+  // Шість здач (аудит лаби 3, слабке місце 2): найстаріша — 60 хв, далі п'ять
+  // по 10 хв. Вибірка — п'ять останніх, середнє 10 хв; усі шість дали б
+  // 18,3 хв, п'ять найстаріших — 20 хв.
+  await serveNext(t, id, 60);
+  for (const s of ["s-1", "s-2", "s-3", "s-4"]) {
+    await enqueue(t, id, s, "nodejs-2");
+    await serveNext(t, id, 10);
+  }
+  await serveNext(t, id, 10);
+  // Черга: s-3, s-4. Неявка s-3 (година очікування — не здача) → у кінець.
+  const called = expect(
     await t.post("t-1", `/sessions/${id}/queue/call-next`),
     200,
   );
+  assert.equal(called.studentId, "s-3");
   t.advance(60 * 60_000);
-  await t.post("t-1", `/entries/${first.id}/no-show`);
-  await serveNext(t, id, 10);
-  assert.equal(
-    expect(await t.get("s-3", `/sessions/${id}/queue/me`), 200).etaMinutes,
-    10,
-    "година очікування неявки не врахована",
+  expect(await t.post("t-1", `/entries/${called.id}/no-show`), 200);
+  assert.deepEqual(
+    expect(await t.get("s-3", `/sessions/${id}/queue/me`), 200),
+    { status: "waiting", position: 2, etaMinutes: 20 },
+    "2 × 10 хв: лише п'ять останніх здач, неявка не врахована",
   );
 });
 

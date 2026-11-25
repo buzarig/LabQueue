@@ -3,13 +3,13 @@
 // S4–S13; інваріанти I1–I11). Кожна змінювальна команда
 // — один unitOfWork під блокуванням за викладачем заняття (ADR-0022);
 // доменні відмови — всередині, щоб ключ ідемпотентності зберіг і їх (ADR-0035).
+// Переходи статусів запису — у transitions.js (ADR-0037).
 import { randomUUID } from "node:crypto";
 import {
   alreadyInQueue,
   droppedFromSession,
   enrollmentClosed,
   entryNotFound,
-  entryStateConflict,
   labNotAccepted,
   noActiveEntry,
   notEntryOwner,
@@ -17,18 +17,12 @@ import {
   notSessionOwner,
   queueEmpty,
   queueLimitReached,
-  scoreMismatch,
   sessionNotFound,
-  sessionStateConflict,
-  submittingInProgress,
   teacherBusy,
 } from "./errors.js";
+import * as transitions from "./transitions.js";
 
 /** @typedef {import("./model.js").Entry} Entry */
-/** @typedef {import("./model.js").EntryStatus} EntryStatus */
-
-/** Друга неявка — «вибув» (I7, ADR-0003). */
-const MAX_NO_SHOWS = 2;
 
 /** Орієнтовний час: останні 5 здач заняття, без них — 10 хв (sf-19 лаби 1). */
 const ETA_SAMPLE = 5;
@@ -71,22 +65,17 @@ export function createQueueService({
   /**
    * Запис, яким керує поточний викладач, під блокуванням за ним; після
    * блокування читається ще раз. Ключ блокування — з самого запису (ADR-0029).
+   * Стан перевіряє перехід із transitions.js.
    * @param {string} entryId
-   * @param {EntryStatus} expected
-   * @param {EntryStatus} target для повідомлення про конфлікт
    * @returns {Promise<Entry>}
    */
-  async function ownedEntryLocked(entryId, expected, target) {
+  async function ownedEntryLocked(entryId) {
     const entry = await repo.findEntry(entryId);
     if (!entry) throw entryNotFound();
     const teacher = identity.requireRole("teacher");
     if (entry.teacherId !== teacher.id) throw notSessionOwner();
     await repo.lockTeacher(entry.teacherId);
-    const fresh = /** @type {Entry} */ (await repo.findEntry(entryId));
-    if (fresh.status !== expected) {
-      throw entryStateConflict(fresh.status, target);
-    }
-    return fresh;
+    return /** @type {Entry} */ (await repo.findEntry(entryId));
   }
 
   /**
@@ -124,11 +113,13 @@ export function createQueueService({
         const session = /** @type {typeof known} */ (
           await sessions.getById(sessionId)
         );
-        if (session.state !== "closed") {
-          throw sessionStateConflict(session.state, "finished");
-        }
-        if (await repo.hasSubmitting(sessionId)) throw submittingInProgress();
-        const missedCount = await repo.missActive(sessionId, now());
+        transitions.assertFinishable(session.state);
+        transitions.assertNoSubmitting(await repo.hasSubmitting(sessionId));
+        const missedCount = await repo.missActive(
+          sessionId,
+          transitions.MISSED_ON_FINISH,
+          now(),
+        );
         const finished = await sessions.markFinished(session);
         return { ...finished, missedCount };
       });
@@ -194,10 +185,7 @@ export function createQueueService({
         if (entry.studentId !== student.id) throw notEntryOwner();
         await repo.lockTeacher(entry.teacherId);
         const fresh = /** @type {Entry} */ (await repo.findEntry(entryId));
-        if (fresh.status !== "waiting") {
-          throw entryStateConflict(fresh.status, "left");
-        }
-        return save(fresh, { status: "left", finishedAt: now() });
+        return save(fresh, transitions.leave(fresh, now()));
       });
     },
 
@@ -257,7 +245,9 @@ export function createQueueService({
         );
         if (session.state !== "open") throw enrollmentClosed();
         if (!session.labIds.includes(labId)) throw labNotAccepted();
-        if ((await repo.noShowCount(sessionId, student.id)) >= MAX_NO_SHOWS) {
+        if (
+          transitions.isDropped(await repo.noShowCount(sessionId, student.id))
+        ) {
           throw droppedFromSession();
         }
         if (await repo.activeOfStudent(sessionId, student.id)) {
@@ -303,7 +293,7 @@ export function createQueueService({
         if (await repo.teacherBusy(session.teacherId)) throw teacherBusy();
         const next = await repo.firstWaiting(sessionId);
         if (!next) throw queueEmpty();
-        return save(next, { status: "called", calledAt: now() });
+        return save(next, transitions.call(next, now()));
       });
     },
 
@@ -313,30 +303,20 @@ export function createQueueService({
      */
     start(entryId) {
       return unitOfWork(async () => {
-        const entry = await ownedEntryLocked(entryId, "called", "submitting");
-        return save(entry, { status: "submitting", startedAt: now() });
+        const entry = await ownedEntryLocked(entryId);
+        return save(entry, transitions.start(entry, now()));
       });
     },
 
     /**
      * S7. Результат: submitting → passed (бал 0–100) | rework (без балу), I9.
      * @param {string} entryId
-     * @param {import("./model.js").Result} result
+     * @param {import("./model.js").Result} input
      */
-    result(entryId, { outcome, score }) {
+    result(entryId, input) {
       return unitOfWork(async () => {
-        const entry = await ownedEntryLocked(entryId, "submitting", outcome);
-        if (outcome === "passed" && score === undefined) {
-          throw scoreMismatch("«Зараховано» вимагає бал 0–100");
-        }
-        if (outcome === "rework" && score !== undefined) {
-          throw scoreMismatch("«На доопрацювання» без балу");
-        }
-        return save(entry, {
-          status: outcome,
-          score: outcome === "passed" ? /** @type {number} */ (score) : null,
-          finishedAt: now(),
-        });
+        const entry = await ownedEntryLocked(entryId);
+        return save(entry, transitions.result(entry, input, now()));
       });
     },
 
@@ -348,15 +328,18 @@ export function createQueueService({
      */
     noShow(entryId) {
       return unitOfWork(async () => {
-        const entry = await ownedEntryLocked(entryId, "called", "waiting");
+        const entry = await ownedEntryLocked(entryId);
+        transitions.assertNoShow(entry);
         const count = await repo.addNoShow(entry.sessionId, entry.studentId);
-        const updated =
-          count >= MAX_NO_SHOWS
-            ? await save(entry, { status: "dropped", finishedAt: now() })
-            : await save(entry, {
-                status: "waiting",
-                seq: (await repo.maxSeq(entry.sessionId)) + 1,
-              });
+        const updated = transitions.isDropped(count)
+          ? await save(entry, transitions.drop(entry, now()))
+          : await save(
+              entry,
+              transitions.requeue(
+                entry,
+                (await repo.maxSeq(entry.sessionId)) + 1,
+              ),
+            );
         return { entry: updated, noShowCount: count };
       });
     },
