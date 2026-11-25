@@ -1,5 +1,5 @@
 # К14: збої джерела через HTTP на PostgreSQL (обрив, таймаут, друга лінія, недоступність)
-# Відтворення: make report-failures, вихідний коміт 8bc740caadbcecf9316d02266a498962211c4cb2
+# Відтворення: make report-failures, вихідний коміт b4ab463e48a41757cce08b96266bb41e9d0628ff
 # Команда: node --test tests/db/failures.test.js
 # Код виходу: 0 (очікувано 0)
 
