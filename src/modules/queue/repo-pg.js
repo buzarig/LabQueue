@@ -123,10 +123,10 @@ export function createQueueRepoPg({ db }) {
         ) as busy`;
       return row.busy;
     },
-    async missActive(sessionId, at) {
+    async missActive(sessionId, statuses, at) {
       const result = await db.write()`
         update queue.entries set status = 'missed', finished_at = ${at}
-        where session_id = ${sessionId} and status in ('waiting', 'called')`;
+        where session_id = ${sessionId} and status = any(${statuses}::text[])`;
       return result.count;
     },
     async summaries(sessionIds) {

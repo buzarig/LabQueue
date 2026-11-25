@@ -12,9 +12,12 @@ test("tsc --checkJs ловить помилку в кожній JSDoc-конст
     .split("\n")
     .flatMap((line, i) => (/\/\/ ERR\b/.test(line) ? [i + 1] : []));
 
+  // --pretty false: формат «файл(рядок,стовпець): error» за будь-якого
+  // середовища. Інакше з FORCE_COLOR (термінал IDE) tsc перемикається на
+  // формат «файл:рядок:стовпець - error», і тест не бачить жодної помилки.
   const result = spawnSync(
     "npx",
-    ["tsc", "-p", "tests/typecheck/fixture/tsconfig.json"],
+    ["tsc", "-p", "tests/typecheck/fixture/tsconfig.json", "--pretty", "false"],
     { encoding: "utf8" },
   );
   const reported = [
