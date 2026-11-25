@@ -22,12 +22,15 @@ describe("ранер міграцій на порожній базі", () => {
 
   test("два одночасні запуски застосовують кожну міграцію рівно один раз", async () => {
     const [a, b] = await Promise.all([migrate(sql), migrate(sql)]);
-    assert.deepEqual([...a, ...b], ["001-schema.sql"]);
+    assert.deepEqual([...a, ...b].sort(), [
+      "001-schema.sql",
+      "002-sessions-created-at.sql",
+    ]);
     const rows = await sql`select name from public.schema_migrations`;
-    assert.deepEqual(
-      rows.map((r) => r.name),
-      ["001-schema.sql"],
-    );
+    assert.deepEqual(rows.map((r) => r.name).sort(), [
+      "001-schema.sql",
+      "002-sessions-created-at.sql",
+    ]);
   });
 
   test("повторний запуск нічого не змінює", async () => {

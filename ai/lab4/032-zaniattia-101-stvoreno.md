@@ -1,0 +1,1 @@
+перший запит я виконав і наче успішно а другий так само і є відповідь [{"id":"7d1373e3-e919-45a7-926c-72044210872d","state":"planned","waitingCount":0,"calledStudentId":null,"subjectId":"nodejs","groupId":"kn-21","teacherId":"t-1","startsAt":"2026-11-25T10:00:00.000Z","room":"  101  ","queueLimit":10,"labIds":["nodejs-1"]}]%

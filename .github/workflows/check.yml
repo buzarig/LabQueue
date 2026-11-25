@@ -3,7 +3,13 @@
 name: check
 
 on:
+  # push — дослівно як у документації Railway («Wait for CI» бачить лише
+  # такий workflow, ADR-0042): блоковий список і лише `main`. Робочі гілки
+  # CI перевіряє на pull_request; push у робочу гілку без PR — лише pre-push
+  # (make check) локально.
   push:
+    branches:
+      - main
   pull_request:
 
 jobs:

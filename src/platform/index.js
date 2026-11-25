@@ -8,6 +8,7 @@ export {
   createDbAccess,
   createPgBackend,
   readiness,
+  structuralMigrations,
 } from "./db/index.js";
 export { createMemoryStore } from "./memory.js";
 export { createServer } from "./server.js";

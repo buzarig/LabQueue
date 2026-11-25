@@ -24,6 +24,8 @@ const EXTENSIONLESS_ALLOWED = new Set([
   ".gitignore",
   ".nvmrc",
   ".editorconfig",
+  "Dockerfile",
+  ".dockerignore",
   ".husky/pre-commit",
   ".husky/commit-msg",
   ".husky/pre-push",

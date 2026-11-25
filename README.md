@@ -54,7 +54,7 @@ make verify   # make check + звіти в reports/lab3/ + дата й sha (пе
 | `make report-scenarios-pg`, `make report-failures`, `make report-queries` | звіти етапу БД лаби 2: сюїта на PostgreSQL (К10), збої (К14), запити без N+1 (К16) → `reports/lab3/` |
 | `make report-unit`, `make report-db`, `make report-e2e`, `make report-coverage` | звіти лаби 3 (критерій 18): unit, інтеграційні на PostgreSQL, E2E, покриття `src/` і `transitions.js` → `reports/lab3/` |
 | `make mutation` (`make test-mutation`) | мутаційне тестування `transitions.js` (Stryker + Vitest) і звіт із класифікацією вижилих → `reports/lab3/mutation.txt`; HTML Stryker — `coverage/mutation/mutation.html`. Не входить у `make check` |
-| `make build` і `node --env-file=.env dist/main.js` | запуск застосунку на PostgreSQL (`STORAGE=pg` типово, `DATABASE_URL`); `STORAGE=memory` — статика без БД. Без БД застосунок не стартує (код 1). Технічні маршрути: `GET /health`, `GET /ready`, `GET /version`; порт — `PORT`, за замовчуванням 3000 |
+| `make build` і `node --env-file=.env dist/main.js` | запуск застосунку на PostgreSQL (`STORAGE=pg` типово, `DATABASE_URL`); `STORAGE=memory` — статика без БД. Без БД застосунок не стартує (код 1). Технічні маршрути: `GET /health`, `GET /ready`, `GET /version`; порт — `PORT`, за замовчуванням 3000; адреса — `HOST`, за замовчуванням `localhost` (у контейнері `::`, ADR-0043) |
 
 Git-hooks ставляться під час `npm install`:
 - **pre-commit** — формат і лінт staged-файлів;
@@ -92,6 +92,31 @@ CI ([.github/workflows/check.yml](.github/workflows/check.yml)) запускає
 4. **pgAdmin (необов'язково).** Register → Server: host `127.0.0.1`, port
    `55432`, user `labqueue`, пароль з `.env`.
 
+## Staging
+
+З лаби 4 коміт у `main` після зеленого CI автоматично розгортається на
+Railway ([ADR-0041](docs/adr/0041-railway-zastosunok-i-postgresql.md)–[ADR-0045](docs/adr/0045-blue-green-healthcheck-ready.md)).
+Railway сам збирає образ із [Dockerfile](Dockerfile); у GitHub немає ні
+токенів Railway, ні SSH, а CI не має доступу до БД staging.
+
+Налаштування задаються в панелі Railway, бо `railway.json` застарів
+(ADR-0041). Ось вони всі — на них спирається рев'ю MAN-11:
+
+| Де | Що | Навіщо |
+|---|---|---|
+| сервіс БД | шаблон Railway з образом `ghcr.io/railwayapp-templates/postgres-ssl:17`; перевірка — `SHOW server_version` | PostgreSQL 17, як у CI (ADR-0041) |
+| сервіс застосунку → Source | репозиторій `buzarig/LabQueue`, гілка `main` | CD з `main` (ADR-0042) |
+| → Settings → Wait for CI | увімкнено | деплой лише після зеленого `check`; перевіряти після кожного ручного Redeploy |
+| → Settings → Pre-deploy Command | `node scripts/migrate.js` | структурні міграції до нової версії (ADR-0044) |
+| → Settings → Start Command | порожньо — `CMD` з Dockerfile | seed за прапорцем, потім фонові міграції даних та індексів поруч із HTTP (ADR-0044) |
+| → Settings → Healthcheck Path | `/ready` | трафік — лише на готову версію з БД (ADR-0045) |
+| → Settings → Healthcheck Timeout | 300 с (типово) | вистачає на seed |
+| → Settings → Networking | публічний домен Railway | доступ з інтернету |
+| → Variables | `DATABASE_URL` — посилання на змінну сервісу БД (`${{<назва сервісу БД>.DATABASE_URL}}`), `SEED_ON_START=1` | БД з приватної мережі; seed лише на staging |
+
+`PORT` задає Railway, `HOST=::` і `NODE_ENV=production` — образ. Перевірка
+після деплою: `curl https://<домен>/version` повертає sha коміту з `main`.
+
 ## Документи
 
 | Що | Де |
@@ -102,7 +127,7 @@ CI ([.github/workflows/check.yml](.github/workflows/check.yml)) запускає
 | Контракт, схема БД, запити, помилки | [data.md](docs/specs/lab2-db-scenarios/data.md) |
 | Стандарти | [standards/](standards/) |
 | Рішення (ADR) | [docs/adr/](docs/adr/) |
-| Аудит | [лаба 1](docs/audit/lab1.md), [лаба 2](docs/audit/lab2.md), [лаба 3](docs/audit/lab3.md) |
+| Аудит | [лаба 1](docs/audit/lab1.md), [лаба 2](docs/audit/lab2.md), [лаба 3](docs/audit/lab3.md), [лаба 4](docs/audit/lab4.md) |
 | Промпти роботи з ШІ | [ai/lab1/](ai/lab1/), [ai/lab2/](ai/lab2/), [ai/lab3/](ai/lab3/) |
 | Звіти | [reports/lab1/](reports/lab1/), [reports/lab2/](reports/lab2/), [reports/lab3/](reports/lab3/) |
 
