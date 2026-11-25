@@ -20,7 +20,7 @@
 
 ## 4. Перевірка
 
-Прогін `make verify` для `8bc740c` записаний у [verify.txt](reports/lab4/verify.txt). Окремо збережені [результати шести PR](reports/lab4/ci-violations.txt) і [правила мерджу](reports/lab4/branch-protection.txt).
+Прогін `make verify` для `b4ab463` записаний у [verify.txt](reports/lab4/verify.txt). Окремо збережені [результати шести PR](reports/lab4/ci-violations.txt) і [правила мерджу](reports/lab4/branch-protection.txt).
 
 На staging `/version` повернув `69b1c72`, а `/sessions` для користувача із seed відповів 200. [Звіт staging](reports/lab4/staging.txt). Після міграції 002 я повернув стару версію `9d50a4a` і через API створив та прочитав заняття на новій схемі. [Аудит](docs/audit/lab4.md).
 
